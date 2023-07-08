@@ -44,10 +44,10 @@ public class TAlib {
         return flag;
     }
 
-    public List<List<Float>> macd(List<Float> input, int days ) {
+    public List<List<Float>> macd(List<Float> close, int days ) {
 
         List<List<Float>> result = new ArrayList<List<Float>>();
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] outMACD = new double[TOTAL_PERIODS];
@@ -65,7 +65,7 @@ public class TAlib {
         int optInSignalPeriod = 9;
 
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) input.get(i);
+            closePrice[i] = (double) close.get(i);
         }
 
 
@@ -111,11 +111,11 @@ public class TAlib {
         return result;
     }
 
-    public List<List<Float>> rsi(List<Float> input, int days) {
+    public List<List<Float>> rsi(List<Float> close, int days) {
         List<List<Float>> resultlist = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         // The number of periods to average together.
         final int optInTimePeriod = 5;
@@ -126,7 +126,7 @@ public class TAlib {
         MInteger length = new MInteger();
 
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) input.get(i);
+            closePrice[i] = (double) close.get(i);
         }
 
         Core c = new Core();
@@ -164,7 +164,7 @@ public class TAlib {
         List<List<Float>> threechart = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         // The number of periods to average together.
         final int PERIODS_AVERAGE = 5;
@@ -246,12 +246,11 @@ public class TAlib {
     }
 
 
-    public List<Float> adx(List<Float> input, List<Float> highdata, List<Float> lowdata, int days) {
+    public List<Float> adx(List<Float> close, List<Float> highdata, List<Float> lowdata, int days) {
 
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
-
+        final int TOTAL_PERIODS = close.size();
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] highPrice = new double[TOTAL_PERIODS];
@@ -266,7 +265,7 @@ public class TAlib {
         List<Float> value = new ArrayList<Float>();
 
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) input.get(i);
+            closePrice[i] = (double) close.get(i);
         }
 
         for (int i =  0; i < highPrice.length; i++) {
@@ -341,7 +340,7 @@ public class TAlib {
     public List<List<Float>> stoch(List<Float> close, List<Float> highdata, List<Float> lowdata, int days ) {
 
         // The total number of periods to generate data for.
-        int TOTAL_PERIODS = days;
+        int TOTAL_PERIODS = close.size();
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] highPrice = new double[TOTAL_PERIODS];
@@ -414,7 +413,7 @@ public class TAlib {
         List<List<Float>> resultlist = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         // The number of periods to average together.
         final int optInTimePeriod = 10;

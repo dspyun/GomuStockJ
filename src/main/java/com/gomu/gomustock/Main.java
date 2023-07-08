@@ -47,7 +47,7 @@ public class Main {
         MyWeb myweb = new MyWeb();
 
 // save to file
-        new YFDownload("055550");
+        new YFDownload("316140");
         new YFDownload("105560");
         new YFDownload("005930");
         new YFDownload("^KS11");
@@ -55,13 +55,13 @@ public class Main {
         new YFDownload("^IXIC");
         new YFDownload("^DJI");
 
-        StockBox kbbank = new StockBox("105560");
+        StockBox kbbank = new StockBox("316140");
         List<Float> kbband_close = kbbank.getClose();
         // bband 차트를 그릴 데이터를 생성한다.
         TAlib talib = new TAlib();
         List<List<Float>> result = talib.bbands(kbband_close,240);
-        BBandTest bbtest = new BBandTest("105560",kbband_close);
-        List<Float> loopbacktest = bbtest.loopbacktest_forchart(240);
+        BBandTest bbtest = new BBandTest("316140",kbband_close);
+        List<Float> loopbacktest = bbtest.loopbacktest_forchart();
         //List<Float> normalresult = bbtest.normaltest_forchart(240);
 
         int size = kbband_close.size();
@@ -79,12 +79,11 @@ public class Main {
         chart.getStyler().setMarkerSize(0);
         chart.getStyler().setSeriesColors(colors);
 
-
         StockBox yfkospi = new StockBox("^KS11");
         List<Float> yfkospi_close = yfkospi.getClose();
         List<List<Float>> result1 = talib.bbands(yfkospi_close,240);
         BBandTest bbtest1 = new BBandTest("^KS11",yfkospi_close);
-        List<Float> loopbacktest1 = bbtest1.loopbacktest_forchart(240);
+        List<Float> loopbacktest1 = bbtest1.loopbacktest_forchart();
 
         XYChart chart2  = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", x, yfkospi_close);
         chart2.addSeries("upper",result1.get(0));
@@ -98,9 +97,14 @@ public class Main {
         List<Float> sp500_close = sp500.getClose();
         List<List<Float>> result2 = talib.bbands(sp500_close,240);
         BBandTest bbtest2 = new BBandTest("^GSPC",sp500_close);
-        List<Float> loopbacktest2 = bbtest2.loopbacktest_forchart(240);
+        List<Float> loopbacktest2 = bbtest2.loopbacktest_forchart();
 
-        XYChart chart3  = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", x, sp500_close);
+        List<Float> x1 = new ArrayList<>();
+        size = sp500_close.size();
+        for(int i =0;i<size;i++) {
+            x1.add((float)i);
+        }
+        XYChart chart3  = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", x1, sp500_close);
         chart3.addSeries("upper",result2.get(0));
         chart3.addSeries("middle",result2.get(1));
         chart3.addSeries("low",result2.get(2));
@@ -113,9 +117,9 @@ public class Main {
         List<Float> nasdaq_close = nasdaq.getClose();
         List<List<Float>> result3 = talib.bbands(nasdaq_close,240);
         BBandTest bbtest3 = new BBandTest("^IXIC",nasdaq_close);
-        List<Float> loopbacktest3 = bbtest3.loopbacktest_forchart(240);
+        List<Float> loopbacktest3 = bbtest3.loopbacktest_forchart();
 
-        XYChart chart4  = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", x, nasdaq_close);
+        XYChart chart4  = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", x1, nasdaq_close);
         chart4.addSeries("upper",result3.get(0));
         chart4.addSeries("middle",result3.get(1));
         chart4.addSeries("low",result3.get(2));

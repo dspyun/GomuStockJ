@@ -10,22 +10,21 @@ import java.util.List;
 
 public class RSITest {
     TAlib mytalib = new TAlib();
-    String srcfile;
-
-    String stock_code;
+    int ONEYEAR = -1;
+    String STOCK_CODE;
     List<Float>  CLOSEDATA = new ArrayList<>();
 
     public RSITest(List<Float> input) {
         CLOSEDATA = input;
     }
 
-    public List<Float> buysell_line(int days) {
-
+    public List<Float> buysell_line() {
+        int days = CLOSEDATA.size();
         List<List<Float>> signal = mytalib.rsi(CLOSEDATA, days);
         return signal.get(0);
     }
 
-    public List<Float> rsi_30day_loop(int days) {
+    public List<Float> rsi_30day_loop() {
         List<Float> todaylist = new ArrayList<>();
 
         // The total number of periods to generate data for.
@@ -39,6 +38,7 @@ public class RSITest {
         MInteger begin = new MInteger();
         MInteger length = new MInteger();
 
+        int days = CLOSEDATA.size();
         int loop_days = days - TOTAL_PERIODS;
         Core c = new Core();
 
@@ -73,11 +73,11 @@ public class RSITest {
     }
 
     // 리턴값이 1~100 사이임
-    public Float TodayScore(int days) {
+    public Float TodayScore() {
         List<Float> todaylist = new ArrayList<>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = CLOSEDATA.size();;
 
         // The number of periods to average together.
         final int optInTimePeriod = 5;
@@ -88,7 +88,7 @@ public class RSITest {
         MInteger length = new MInteger();
 
         float today_perb=0;
-
+        int days = CLOSEDATA.size();
         // CLOSEDATA는 과거>현재순으로 정렬된 상태
         for (int i = 0; i < days; i++) {
             closePrice[i] = (double) CLOSEDATA.get(i);

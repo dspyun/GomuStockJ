@@ -10,7 +10,7 @@ import java.util.List;
 public class StockBox {
 
     String STOCK_CODE;
-    int ONEYEAR = 240;
+    int ONEYEAR = -1;
     List<Float> CLOSEPRICE = new ArrayList<>();
     List<String> DATE = new ArrayList<>();
 

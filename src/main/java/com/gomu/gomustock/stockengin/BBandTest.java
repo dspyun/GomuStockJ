@@ -20,7 +20,7 @@ public class BBandTest {
     String STOCK_CODE;
     List<Float>  CLOSEDATA = new ArrayList<>();
     RSITest rsitest;
-    int ONEYEAR = 240;
+    int ONEYEAR = -1;
 
     public BBandTest (String stock_code, List<Float> input) {
         rsitest = new RSITest(input);
@@ -31,7 +31,7 @@ public class BBandTest {
     public List<Float> normaltest_forchart(int days) {
         List<Integer> testresult = new ArrayList<>();
         List<Float> chartvalue = new ArrayList<>();
-        testresult = normaltest(days);
+        testresult = normaltest();
         int size = testresult.size();
         float pricemax = Collections.max(CLOSEDATA);
         for(int i =0;i<size;i++) {
@@ -41,16 +41,17 @@ public class BBandTest {
         return chartvalue;
     }
 
-    public List<Integer> normaltest( int days) {
+    public List<Integer> normaltest() {
 
         List<Float> bband_buyscore = new ArrayList<>();
         List<Float> rsi_buyscore = new ArrayList<>();
         List<Integer> buy_score = new ArrayList<>();
         List<Integer> sell_score = new ArrayList<>();
 
+        int days = CLOSEDATA.size();
         // bband score는 bband와 rsi의 buysell signal을 결합해서 계산한다
-        bband_buyscore = buysell_line(days);
-        rsi_buyscore = rsitest.buysell_line(days);
+        bband_buyscore = buysell_line();
+        rsi_buyscore = rsitest.buysell_line();
 
         int size = bband_buyscore.size();
         for(int i = 0; i< size; i++) {
@@ -83,10 +84,11 @@ public class BBandTest {
         return buy_score;
     }
 
-    public List<Float> loopbacktest_forchart(int days) {
+    public List<Float> loopbacktest_forchart() {
         List<Integer> testresult = new ArrayList<>();
         List<Float> chartvalue = new ArrayList<>();
-        testresult = loopbacktest(days);
+        int days = CLOSEDATA.size();
+        testresult = loopbacktest();
         int size = testresult.size();
         float pricemax = Collections.max(CLOSEDATA);
         for(int i =0;i<size;i++) {
@@ -96,15 +98,15 @@ public class BBandTest {
         return chartvalue;
     }
 
-    public List<Integer> loopbacktest(int days) {
+    public List<Integer> loopbacktest() {
 
         List<Float> bband_buyscore = new ArrayList<>();
         List<Float> rsi_buyscore = new ArrayList<>();
         List<Integer> buy_score = new ArrayList<>();
         List<Integer> sell_score = new ArrayList<>();
-
-        bband_buyscore = bband_30day_loop(days);
-        rsi_buyscore = rsitest.rsi_30day_loop(days);
+        int days = CLOSEDATA.size();
+        bband_buyscore = bband_30day_loop();
+        rsi_buyscore = rsitest.rsi_30day_loop();
         int size = bband_buyscore.size();
         for(int i = 0; i< size; i++) {
             buy_score.add(0);
@@ -134,7 +136,7 @@ public class BBandTest {
         return buy_score;
     }
 
-    public List<Float> bband_30day_loop(int days) {
+    public List<Float> bband_30day_loop() {
         List<Float> todaylist = new ArrayList<>();
 
         // The total number of periods to generate data for.
@@ -153,6 +155,7 @@ public class BBandTest {
         double optInNbDevDn = 2; // 하한선 = 표준편차*2
         MAType optInMAType = Sma; // 단순이동평균
 
+        int days = CLOSEDATA.size();
         int loop_days = days - TOTAL_PERIODS;
         Core c = new Core();
         for(int l = 0;l<loop_days;l++) {
@@ -181,11 +184,11 @@ public class BBandTest {
     }
 
     // 리턴값이 1~100 사이이지만 마이너스 또는 100을 초과할 때도 있음
-    public Float TodayScore(int days) {
+    public Float TodayScore() {
         List<Float> todaylist = new ArrayList<>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = CLOSEDATA.size();
 
         // The number of periods to average together.
         final int PERIODS_AVERAGE = 5;
@@ -201,7 +204,7 @@ public class BBandTest {
         MAType optInMAType = Sma; // 단순이동평균
 
         Core c = new Core();
-
+        int days = CLOSEDATA.size();
         // CLOSEDATA는 과거>현재순으로 정렬된 상태
         for (int i = 0; i < days; i++) {
             closePrice[i] = (double) CLOSEDATA.get(i);
@@ -221,11 +224,12 @@ public class BBandTest {
     }
 
 
-    public List<Float> buysell_line(int days) {
+    public List<Float> buysell_line() {
         // bband test에서 buysell signal은 percent_b를 사용한다
         // percentb를 1~100 사이로 스케일링해서 돌려준다.
         List<Float> bband_score = new ArrayList<>();
         List<Float> bband_signal = new ArrayList<>();
+        int days = CLOSEDATA.size();
         List<List<Float>> bband_result = mytalib.bbands(CLOSEDATA,days);
         bband_signal = bband_result.get(3);
 
@@ -236,8 +240,8 @@ public class BBandTest {
     }
 
     public void makeBackTestData(int days) {
-        normaltest(240);
-        loopbacktest(240);
+        normaltest();
+        loopbacktest();
     }
 
     public List<Double> getTestData() {

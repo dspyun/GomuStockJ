@@ -152,8 +152,8 @@ public class MyScore {
         // 스코어링할 종목가격을 불러온다
         BBandTest bbandtest = new BBandTest("055550",kbband_close);
         RSITest rsitest = new RSITest(kbband_close);
-        float bband_score = bbandtest.TodayScore(60);
-        float rsi_score = rsitest.TodayScore(60);
+        float bband_score = bbandtest.TodayScore();
+        float rsi_score = rsitest.TodayScore();
 
         if(bband_score<=30 && bband_score > 20
                 && rsi_score<=50 && rsi_score > 40) {
