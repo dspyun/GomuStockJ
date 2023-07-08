@@ -1,0 +1,2 @@
+1. File > project structure > Modules > Dependencies > + Button
+  > Library > From Maven > xchart 검색 후 download
