@@ -34,6 +34,7 @@ public class Main extends JFrame{
     private static final Random random = new Random();
 
     public static void main(String[] args) throws IOException {
+
         new JListCustomRenderer();
     }
 }

@@ -8,6 +8,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
+import main.java.com.gomu.gomustock.format.FormatMyStock;
 import main.java.com.gomu.gomustock.format.FormatOHLCV;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.format.FormatTestData;
@@ -36,46 +37,14 @@ public class MyExcel extends MyStat {
 
     public MyExcel(String filename) {
         ExcelFile=filename;
-        init_maxline();
-        column00 = readColumn(filename,0);
-        column01 = readColumn(filename,1);
-        column02 = readColumn(filename,2);
-
     }
 
     public MyExcel() {
         //initInfo = readInitFile();
-
     }
 
 
 
-    /* sheet의 최대 라인수를 읽어서 전역변수에 저장한다. */
-
-    public void init_maxline () {
-        InputStream is1 = null;
-        Workbook wb1 = null;
-        int first_col=0;
-        String PathFile = ExcelFile;
-
-        try {
-            is1 = new FileInputStream(PathFile);
-            wb1 = Workbook.getWorkbook(is1);
-            Sheet sheet = wb1.getSheet(0);   // 시트 불러오기
-
-            colTotal = sheet.getColumns();    // 전체 컬럼
-            rowTotal = sheet.getColumn(first_col).length; // 라인은 첫째 컬럼 최대치를 기준으론 한다.
-            wb1.close();
-            is1.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb1.close();
-            //is1.close();
-        }
-    }
 
     public List<String> readColumn(String excelfile, int col) {
 
@@ -113,21 +82,17 @@ public class MyExcel extends MyStat {
         return mArrayBuffer;
     }
 
-    public int getMaxRow() {
-        return rowTotal;
-    }
-    public int getMaxColumn() {
-        return colTotal;
-    }
 
-    public String readCell( int col1, int line1) {
+    public List<FormatTestData> readall_testdata(String code, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = ExcelFile;
+        String filename = code+"_testset";
+        String PathFile = STOCKDIR+filename+".xls";;
+        List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
+        FormatTestData testdata = new FormatTestData();
 
-        line = line1; col=col1;
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
@@ -135,10 +100,19 @@ public class MyExcel extends MyStat {
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
-                    contents1 = sheet.getCell(col, line).getContents();
-                    //colTotal = sheet.getColumns();    // 전체 컬럼
-                    //rowTotal = sheet.getColumn(0).length; // 라인은 첫째 컬럼 최대치를 기준으론 한다.
-                    //return contents1;
+                    int start = 0;
+                    if(header != TRUE) start = 1;
+                    int size = sheet.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
+                        // formatOA class의 구조로 저장된다
+                        // 종가는 6번째 컬럼의 값
+                        testdata = new FormatTestData();
+                        testdata.date = sheet.getCell(0, i).getContents();
+                        testdata.price = sheet.getCell(1, i).getContents();
+                        testdata.buy_quantity = sheet.getCell(2, i).getContents();
+                        testdata.sell_quantity = sheet.getCell(3, i).getContents();
+                        testdatalist.add(testdata);
+                    }
                 }
             }
             wb.close();
@@ -151,9 +125,9 @@ public class MyExcel extends MyStat {
             //wb.close();
             //is.close();
         }
-        return contents1;
-    }
 
+        return testdatalist;
+    }
 
 
     public void writeprice( String filename, List<FormatOHLCV> history) {
@@ -242,19 +216,68 @@ public class MyExcel extends MyStat {
     }
 
     public int getTagColumn(String tag) {
-        // default 값은  종가는읽게 5로 리턴
+        // default 값은  종가는읽게 6으로 리턴
         int column=0;
         if(tag.equals("DATE")) column = 0;
         else if(tag.equals("OPEN")) column = 1;
         else if(tag.equals("HIGH")) column = 2;
         else if(tag.equals("LOW")) column = 3;
         else if(tag.equals("CLOSE")) column = 4;
-        else if(tag.equals("ADJCLOSE")) column = 5;
-        else if(tag.equals("VOLUME")) column = 6;
-        else column = 5;
+        else if(tag.equals("VOLUME")) column = 5;
+        else column = 4;
 
         return column;
     }
+
+    public void write_ohlcv( String filename, List<FormatOHLCV> src_csvlist) {
+
+        List<FormatOHLCV> csvlist = new ArrayList<>();
+        csvlist = src_csvlist;
+
+        WritableSheet writablesheet;
+        String PathFile = STOCKDIR+filename+".xls";;
+        java.io.File file1 = new java.io.File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet1", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+
+                if(writablesheet != null) {
+                    int size = csvlist.size();
+                    for(int row =0;row<size;row++) {
+                        writablesheet.addCell(new Label(0, row, csvlist.get(row).date));
+                        writablesheet.addCell(new Label(1, row, csvlist.get(row).open));
+                        writablesheet.addCell(new Label(2, row, csvlist.get(row).high));
+                        writablesheet.addCell(new Label(3, row, csvlist.get(row).low));
+                        writablesheet.addCell(new Label(4, row, csvlist.get(row).close));
+                        writablesheet.addCell(new Label(5, row, csvlist.get(row).adjclose));
+                        writablesheet.addCell(new Label(6, row, csvlist.get(row).volume));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+
 
     public List<String> oa_readItem(String filename, String tag, boolean header) {
 
@@ -275,7 +298,7 @@ public class MyExcel extends MyStat {
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
                     int start = 0;
-                    if(header != true) start = 1;
+                    if(header != TRUE) start = 1;
                     int size = sheet.getColumn(column).length;
                     for(int i=start;i<size;i++) {
                         // formatOA class의 구조로 저장된다
@@ -299,7 +322,7 @@ public class MyExcel extends MyStat {
     }
 
 
-    public List<String> readhistory(String stock_code, String tag, int days, boolean header) {
+    public List<String> read_ohlcv(String stock_code, String tag, int days, boolean header) {
 
         // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
         int column = getTagColumn(tag);
@@ -317,15 +340,20 @@ public class MyExcel extends MyStat {
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
-                    int start = 0;
+                    int start = 0, end;
                     if(header != true) start = 1;
-                    // -1 : data를 max로 읽으려면 헤더때문에 -1을 해줘야 한다
-                    maxcol = sheet.getColumn(column).length-1;
+                    maxcol = sheet.getColumn(column).length;
                     // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
-                    if(days >= maxcol || days <= -1) days = maxcol;
-                    for(int i=start;i<days+start;i++) {
+                    if(days >= maxcol || days <= -1) {
+                        start = 1;
+                        end = maxcol-1;
+                    }
+                    else {
+                        start = maxcol-days;
+                        end = maxcol;
+                    }
+                    for(int i=start;i<end;i++) {
                         // formatOA class의 구조로 저장된다
-                        // 종가는 6번째 컬럼의 값
                         pricebuffer.add(sheet.getCell(column, i).getContents());
                     }
                 }
@@ -343,11 +371,52 @@ public class MyExcel extends MyStat {
 
         return pricebuffer;
     }
+    public List<FormatOHLCV> readall_ohlcv(String stock_code) {
+
+        // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
+
+        String PathFile = STOCKDIR+stock_code+".xls";;
+        List<FormatOHLCV> ohlcvlist = new ArrayList<FormatOHLCV>();
+
+
+        try {
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatOHLCV oneohlcv = new FormatOHLCV();
+                        // formatOA class의 구조로 저장된다
+                        oneohlcv.date = sheet.getCell(0, i).getContents();
+                        oneohlcv.open = sheet.getCell(1, i).getContents();
+                        oneohlcv.high = sheet.getCell(2, i).getContents();
+                        oneohlcv.low = sheet.getCell(3, i).getContents();
+                        oneohlcv.close = sheet.getCell(4, i).getContents();
+                        oneohlcv.adjclose = sheet.getCell(5, i).getContents();
+                        oneohlcv.volume = sheet.getCell(6, i).getContents();
+                        ohlcvlist.add(oneohlcv);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+
+        return ohlcvlist;
+    }
 
 
     public List<List<String>> readStockDic() {
         List<String> STOCK_NO = new ArrayList<String>();
         List<String> STOCK_NAME = new ArrayList<String>();
+        List<String> MARKET = new ArrayList<String>();
         List<List<String>> diclist = new ArrayList<List<String>>();
         InputStream is=null;
         Workbook wb=null;
@@ -365,6 +434,7 @@ public class MyExcel extends MyStat {
                     for (int i = 1; i <= size-1; i++) {
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
+                        MARKET.add(sheet.getCell(6, i).getContents());
                     }
                 }
                 Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
@@ -374,6 +444,17 @@ public class MyExcel extends MyStat {
                     for (int i = 1; i <= size1-1; i++) {
                         STOCK_NO.add(sheet1.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet1.getCell(3, i).getContents());
+                        MARKET.add(sheet1.getCell(6, i).getContents());
+                    }
+                }
+                Sheet sheet2 = wb.getSheet(2);   // 시트 불러오기
+                if(sheet2 != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size1 = sheet2.getColumn(0).length;
+                    for (int i = 1; i <= size1-1; i++) {
+                        STOCK_NO.add(sheet2.getCell(1, i).getContents());
+                        STOCK_NAME.add(sheet2.getCell(3, i).getContents());
+                        MARKET.add(sheet2.getCell(6, i).getContents());
                     }
                 }
             }
@@ -386,6 +467,7 @@ public class MyExcel extends MyStat {
         }
         diclist.add(STOCK_NO);
         diclist.add(STOCK_NAME);
+        diclist.add(MARKET);
         return diclist;
     }
 
@@ -412,12 +494,12 @@ public class MyExcel extends MyStat {
     }
 
 
-    public List<FormatTestData> readtestset(String stock_code, boolean header) {
+    public List<FormatTestData> readtestset(String filename, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+stock_code+".xls";;
+        String PathFile = STOCKDIR+filename;;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
@@ -456,13 +538,12 @@ public class MyExcel extends MyStat {
 
         return testdatalist;
     }
-    public List<FormatTestData> read_testdata(String code, boolean header) {
+    public List<FormatTestData> readtestbuy(String filename, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String filename = code+"_testset";
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = STOCKDIR+filename;;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
@@ -474,7 +555,7 @@ public class MyExcel extends MyStat {
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
                     int start = 0;
-                    if(header != TRUE) start = 1;
+                    if(header != TRUE) start = 0;
                     int size = sheet.getColumn(0).length;
                     for(int i=start;i<size;i++) {
                         // formatOA class의 구조로 저장된다
@@ -483,7 +564,6 @@ public class MyExcel extends MyStat {
                         testdata.date = sheet.getCell(0, i).getContents();
                         testdata.price = sheet.getCell(1, i).getContents();
                         testdata.buy_quantity = sheet.getCell(2, i).getContents();
-                        testdata.sell_quantity = sheet.getCell(3, i).getContents();
                         testdatalist.add(testdata);
                     }
                 }
@@ -503,13 +583,12 @@ public class MyExcel extends MyStat {
     }
 
 
-    public List<FormatTestData> readtestsell(String code, boolean header) {
+    public List<FormatTestData> readtestsell(String filename, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String filename = code+"_testset";
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = STOCKDIR+filename;;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
@@ -522,7 +601,7 @@ public class MyExcel extends MyStat {
                     // line1, col1에서 contents를 읽는다.
                     int size = sheet.getColumn(0).length;
                     int start = 0;
-                    if(header != TRUE) start = 1;
+                    if(header != TRUE) start = 0;
                     for(int i=start;i<size;i++) {
                         // sell quantity를 읽는ㄴ다
                         testdata = new FormatTestData();
@@ -593,20 +672,14 @@ public class MyExcel extends MyStat {
     }
 
 
-    public List<FormatTestData> removeHeader(List<FormatTestData> input) {
-        List<FormatTestData> temp = new ArrayList<FormatTestData>();
-        int size = input.size();
-        for(int i = 0;i< size-1; i++ ) {
-            temp.add(input.get(i+1));
-        }
-        return temp;
-    }
-
-    public void writestockinfo(List<FormatStockInfo> information) {
+    public void writestockinfo(int index, List<FormatStockInfo> information) {
 
         WritableSheet writablesheet;
         WritableWorkbook workbook;
-        String PathFile = STOCKDIR+"stockinfo"+".xls";;
+        String PathFile="";
+        if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
+        if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
+        if(index==2) PathFile = STOCKDIR+"monitor"+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
 
         // 헤더를 붙여준다
@@ -629,17 +702,19 @@ public class MyExcel extends MyStat {
                     for(int row =0;row<size;row++) {
                         writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
                         writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
-                        writablesheet.addCell(new Label(2, row, information.get(row).per));
-                        writablesheet.addCell(new Label(3, row, information.get(row).per12));
-                        writablesheet.addCell(new Label(4, row, information.get(row).area_per));
-                        writablesheet.addCell(new Label(5, row, information.get(row).pbr));
-                        writablesheet.addCell(new Label(6, row, information.get(row).div_rate));
-                        writablesheet.addCell(new Label(7, row, information.get(row).fogn_rate));
-                        writablesheet.addCell(new Label(8, row, information.get(row).beta));
-                        writablesheet.addCell(new Label(9, row, information.get(row).op_profit));
+                        writablesheet.addCell(new Label(2, row, information.get(row).ranking));
+                        writablesheet.addCell(new Label(3, row, information.get(row).per));
+                        writablesheet.addCell(new Label(4, row, information.get(row).expect_per));
+                        writablesheet.addCell(new Label(5, row, information.get(row).area_per));
+                        writablesheet.addCell(new Label(6, row, information.get(row).pbr));
+                        writablesheet.addCell(new Label(7, row, information.get(row).div_rate));
+                        writablesheet.addCell(new Label(8, row, information.get(row).fogn_rate));
+                        writablesheet.addCell(new Label(9, row, information.get(row).recommend));
                         writablesheet.addCell(new Label(10, row, information.get(row).cur_price));
                         writablesheet.addCell(new Label(11, row, information.get(row).score));
                         writablesheet.addCell(new Label(12, row, information.get(row).desc));
+                        writablesheet.addCell(new Label(13, row, information.get(row).news));
+
                     }
                 }
             }
@@ -659,12 +734,15 @@ public class MyExcel extends MyStat {
         }
     }
 
-    public List<FormatStockInfo> readStockinfo(boolean header) {
+    public List<FormatStockInfo> readStockinfo(int index, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+"stockinfo"+".xls";;
+        String PathFile="";
+        if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
+        if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
+        if(index==2) PathFile = STOCKDIR+"monitor"+".xls";;
         List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
 
         try {
@@ -681,20 +759,72 @@ public class MyExcel extends MyStat {
                         FormatStockInfo temp = new FormatStockInfo();
                         temp.stock_code = sheet.getCell(0, i).getContents();
                         temp.stock_name = sheet.getCell(1, i).getContents();
-                        temp.per = sheet.getCell(2, i).getContents();
-                        temp.per12 = sheet.getCell(3, i).getContents();
-                        temp.area_per = sheet.getCell(4, i).getContents();
-                        temp.pbr = sheet.getCell(5, i).getContents();
-                        temp.div_rate = sheet.getCell(6, i).getContents();
-                        temp.fogn_rate = sheet.getCell(7, i).getContents();
-                        temp.beta = sheet.getCell(8, i).getContents();
-                        temp.op_profit = sheet.getCell(9, i).getContents();
+                        temp.ranking = sheet.getCell(2, i).getContents();
+                        temp.per = sheet.getCell(3, i).getContents();
+                        temp.expect_per = sheet.getCell(4, i).getContents();
+                        temp.area_per = sheet.getCell(5, i).getContents();
+                        temp.pbr = sheet.getCell(6, i).getContents();
+                        temp.div_rate = sheet.getCell(7, i).getContents();
+                        temp.fogn_rate = sheet.getCell(8, i).getContents();
+                        temp.recommend = sheet.getCell(9, i).getContents();
                         temp.cur_price = sheet.getCell(10, i).getContents();
                         temp.score = sheet.getCell(11, i).getContents();
                         temp.desc = sheet.getCell(12, i).getContents();
+                        temp.news = sheet.getCell(13, i).getContents();
                         mArrayBuffer.add(temp);
                     }
                 }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return mArrayBuffer;
+    }
+
+
+    public List<FormatMyStock> readSectorinfo(boolean header) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile = STOCKDIR+"index_sector"+".xls";;
+        List<FormatMyStock> mArrayBuffer = new ArrayList<FormatMyStock>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                int size=0, start = 0;
+                if(header != TRUE) start = 1;
+
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    size = sheet.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
+                        FormatMyStock temp = new FormatMyStock();
+                        temp.stock_code = sheet.getCell(0, i).getContents();
+                        temp.stock_name = sheet.getCell(1, i).getContents();
+                        mArrayBuffer.add(temp);
+                    }
+                }
+
+                Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    size = sheet1.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
+                        FormatMyStock temp = new FormatMyStock();
+                        temp.stock_code = sheet1.getCell(0, i).getContents();
+                        temp.stock_name = sheet1.getCell(1, i).getContents();
+                        mArrayBuffer.add(temp);
+                    }
+                }
+
             }
             wb.close();
             is.close();
@@ -752,6 +882,40 @@ public class MyExcel extends MyStat {
         }
         return Buffer_rev;
     }
+    public List<String> readTodayFogninfo(String stock_code,boolean header) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile = STOCKDIR+stock_code+"fogn.xls";;
+
+        List<String> Buffer = new ArrayList<>();
+        List<String> Buffer_rev = new ArrayList<>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int start = 0;
+                    if(header != TRUE) start = 1;
+                    // 최신 외국인 매수량
+                    Buffer.add(sheet.getCell(1, 1).getContents());
+                    // 최신 기관 매수량
+                    Buffer.add(sheet.getCell(2, 1).getContents());
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return Buffer;
+    }
 
     public String readTreemap() {
 
@@ -792,8 +956,8 @@ public class MyExcel extends MyStat {
 
     public void writehtml(String html_string) {
 
-
         String PathFile = "file:///android_asset/" + "treemap" + ".html";
+        ;
         try {
             File file = new File(PathFile); // File객체 생성
             FileWriter fw = new FileWriter(file, false);
@@ -801,114 +965,6 @@ public class MyExcel extends MyStat {
             fw.close();
         } catch (IOException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
-
-        }
-    }
-    public void writetext(String csv_string) throws IOException {
-
-        String PathFile = STOCKDIR+"mycsv.txt";
-
-        try {
-            File file = new File(PathFile); // File객체 생성
-            FileWriter fw = new FileWriter(file, false);
-            csv_string = csv_string.replaceAll(" ", "\n");
-            fw.write(csv_string);
-            fw.close();
-        } catch (IOException e) {
-            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
-
-        }
-
-    }
-    public List<FormatOHLCV> ReadFile() throws IOException {
-
-        List<FormatOHLCV> csvlist = new ArrayList<>();
-        try{
-            String PathFile = STOCKDIR+"mycsv.txt";
-            //파일 객체 생성
-            File file = new File(PathFile);
-            //입력 스트림 생성
-            FileReader filereader = new FileReader(file);
-            //입력 버퍼 생성
-            BufferedReader bufReader = new BufferedReader(filereader);
-            String line = "";
-            bufReader.readLine();
-            bufReader.readLine();
-            while((line = bufReader.readLine()) != null){
-                //System.out.println(line);
-                FormatOHLCV oneline = new FormatOHLCV();
-                String[] splitstring = line.split(",");
-                oneline.date = splitstring[0];
-                oneline.open = splitstring[1];
-                oneline.high = splitstring[2];
-                oneline.low = splitstring[3];
-                oneline.close = splitstring[4];
-                oneline.adjclose = splitstring[5];
-                oneline.volume = splitstring[6];
-                csvlist.add(oneline);
-            }
-            //.readLine()은 끝에 개행문자를 읽지 않는다.
-            bufReader.close();
-        }catch (FileNotFoundException e) {
-            // TODO: handle exception
-        }catch(IOException e){
-            System.out.println(e);
-        }
-        return csvlist;
-    }
-
-    public List<String> read_ohlcv(String stock_code, String tag, int days, boolean header) {
-        List<String> result = readhistory( stock_code,  tag,  days,  header);
-        return result;
-    }
-
-
-    public void write_ohlcv( String filename, List<FormatOHLCV> src_csvlist) {
-
-        List<FormatOHLCV> csvlist = new ArrayList<>();
-        csvlist = src_csvlist;
-
-        WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";;
-        java.io.File file1 = new java.io.File(PathFile);
-        try {
-            // 오픈한 파일은 엑셀파일로 바꾸고
-            WritableWorkbook workbook = Workbook.createWorkbook(file1);
-            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
-
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
-
-                if(writablesheet != null) {
-                    int size = csvlist.size();
-                    for(int row =0;row<size;row++) {
-                        writablesheet.addCell(new Label(0, row, csvlist.get(row).date));
-                        writablesheet.addCell(new Label(1, row, csvlist.get(row).open));
-                        writablesheet.addCell(new Label(2, row, csvlist.get(row).high));
-                        writablesheet.addCell(new Label(3, row, csvlist.get(row).low));
-                        writablesheet.addCell(new Label(4, row, csvlist.get(row).close));
-                        writablesheet.addCell(new Label(5, row, csvlist.get(row).adjclose));
-                        writablesheet.addCell(new Label(6, row, csvlist.get(row).volume));
-                    }
-                }
-            }
-            workbook.write();
-            workbook.close();
-            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         } finally {
 
@@ -984,6 +1040,44 @@ public class MyExcel extends MyStat {
             e.printStackTrace();
         }
         return stocklist;
+    }
+
+    public List<FormatMyStock> readMyStockList() {
+
+        String temp=null;
+
+        String PathFile = STOCKDIR+"mystock"+".xls";;
+        List<FormatMyStock> mystocklist = new ArrayList<FormatMyStock>();
+
+
+        try {
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatMyStock mystock = new FormatMyStock();
+                        mystock.stock_code = sheet.getCell(0, i).getContents();
+                        mystock.stock_name = sheet.getCell(1, i).getContents();
+                        temp = sheet.getCell(2, i).getContents();
+                        mystock.quantity = Integer.parseInt(temp);
+                        temp = sheet.getCell(3, i).getContents();
+                        mystock.buy_price = Integer.parseInt(temp);
+                        mystocklist.add(mystock);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return mystocklist;
     }
 
 }

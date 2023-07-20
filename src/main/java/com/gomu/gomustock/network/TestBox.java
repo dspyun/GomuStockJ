@@ -20,7 +20,7 @@ public class TestBox {
     public TestBox(String stock_code) {
         STOCK_CODE = stock_code;
         MyExcel myexcel = new MyExcel();
-        TESTDATA = myexcel.read_testdata(STOCK_CODE,false);
+        TESTDATA = myexcel.readtestset(STOCK_CODE,false);
         loadDate();
         loadClose();
         loadBuy();

@@ -15,22 +15,45 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Example {
 
-
-    public void getStockInfo() {
-        // 네이버에서 종목 정보를 읽어서 프린트한다.
-        MyWeb myweb = new MyWeb();
+    public String getDSC(String stock_code) {
+        MyExcel myexcel = new MyExcel();
         FormatStockInfo stockinfo = new FormatStockInfo();
-        stockinfo = myweb.getNaverStockinfo("005930");
-        System.out.println(stockinfo.toString());
+        List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+        web_stockinfo = myexcel.readStockinfo(0,false);
+        return web_stockinfo.get(0).getDSC();
+    }
+
+    public String getStockInfo(String stock_code) throws UnsupportedEncodingException {
+
+        MyWeb myweb = new MyWeb();
+        MyExcel myexcel = new MyExcel();
+        FormatStockInfo stockinfo = new FormatStockInfo();
+        List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+
+        stockinfo = myweb.getNaverStockinfo(stock_code);
+        stockinfo.stock_code = stock_code;
+        web_stockinfo.add(stockinfo);
+        myexcel.writestockinfo(0,web_stockinfo);
+
+        web_stockinfo = myexcel.readStockinfo(0,false);
+        //String result = URLDecoder.decode(web_stockinfo.toString(),"CP949");
+        //String result = URLDecoder.decode(web_stockinfo.toString(),"UTF-8");
+        //String result = URLDecoder.decode(web_stockinfo.toString(),"EUC-KR");
+        String tmp = web_stockinfo.get(0).toString().replace("%", "%25");
+        String result = URLDecoder.decode(tmp,"UTF-8");
+        System.out.println(result.toString());
+        //System.out.println(web_stockinfo.toString());
+        return web_stockinfo.get(0).toString();
     }
 
     public static void BetaNKospi200() throws UnsupportedEncodingException {
-        // 선별된 베타 리스트에서 코스피200 종목이 있으면 프린트 한다.
+
         MyExcel myexcel = new MyExcel();
         List<String> beta = new ArrayList<>();
         List<String> kospi200 = new ArrayList<>();
@@ -55,7 +78,7 @@ public class Example {
 
         PriceBox kbbank = new PriceBox("316140");
         List<Float> kbband_close = kbbank.getClose();
-        BBandTest bbtest = new BBandTest("316140",kbband_close);
+        BBandTest bbtest = new BBandTest("316140",kbband_close,60);
 
         // Create Chart & add first data
         int size = kbband_close.size();
@@ -65,7 +88,7 @@ public class Example {
         chart.addSeries("upper_line",bbtest.getUpperLine());
         chart.addSeries("middle_line",bbtest.getMiddleLine());
         chart.addSeries("low_line",bbtest.getLowLine());
-        List<Float> buyscore = bbtest.chartdata_buyscore();
+        List<Float> buyscore = bbtest.scaled_percentb();
         chart.addSeries("buysignal",buyscore);
         chart.getStyler().setMarkerSize(0);
         chart.getStyler().setSeriesColors(colors);
@@ -99,7 +122,7 @@ public class Example {
 
         PriceBox kbbank = new PriceBox("316140");
         List<Float> kbband_close = kbbank.getClose();
-        BBandTest bbtest = new BBandTest("316140",kbband_close);
+        BBandTest bbtest = new BBandTest("316140",kbband_close,60);
 
         // Create Chart & add first data
         int size = kbband_close.size();
@@ -109,14 +132,14 @@ public class Example {
         chart.addSeries("upper_line",bbtest.getUpperLine());
         chart.addSeries("middle_line",bbtest.getMiddleLine());
         chart.addSeries("low_line",bbtest.getLowLine());
-        List<Float> buyscore = bbtest.chartdata_buyscore();
+        List<Float> buyscore = bbtest.scaled_percentb();
         chart.addSeries("buysignal",buyscore);
         chart.getStyler().setMarkerSize(0);
         chart.getStyler().setSeriesColors(colors);
 
         PriceBox yfkospi = new PriceBox("^KS11");
         List<Float> yfkospi_close = yfkospi.getClose();
-        BBandTest bbtest1 = new BBandTest("^KS11",yfkospi_close);
+        BBandTest bbtest1 = new BBandTest("^KS11",yfkospi_close,60);
 
         size = yfkospi_close.size();
         x = new ArrayList<>();
@@ -125,14 +148,14 @@ public class Example {
         chart2.addSeries("upper_line1",bbtest1.getUpperLine());
         chart2.addSeries("middle_line1",bbtest1.getMiddleLine());
         chart2.addSeries("low_line1",bbtest1.getLowLine());
-        List<Float> buyscore1 = bbtest1.chartdata_buyscore();
+        List<Float> buyscore1 = bbtest1.scaled_percentb();
         chart2.addSeries("buysignal1",buyscore1);
         chart2.getStyler().setMarkerSize(0);
         chart2.getStyler().setSeriesColors(colors);
 
         PriceBox sp500 = new PriceBox("^GSPC");
         List<Float> sp500_close = sp500.getClose();
-        BBandTest bbtest2 = new BBandTest("^GSPC",sp500_close);
+        BBandTest bbtest2 = new BBandTest("^GSPC",sp500_close,60);
 
         size = sp500_close.size();
         x = new ArrayList<>();
@@ -141,20 +164,20 @@ public class Example {
         chart3.addSeries("upper_line2",bbtest2.getUpperLine());
         chart3.addSeries("middle_line2",bbtest2.getMiddleLine());
         chart3.addSeries("low_line2",bbtest2.getLowLine());
-        List<Float> buyscore2 = bbtest2.chartdata_buyscore();
+        List<Float> buyscore2 = bbtest2.scaled_percentb();
         chart3.addSeries("buysignal2",buyscore2);
         chart3.getStyler().setMarkerSize(0);
         chart3.getStyler().setSeriesColors(colors);
 
         PriceBox nasdaq = new PriceBox("^IXIC");
         List<Float> nasdaq_close = nasdaq.getClose();
-        BBandTest bbtest3 = new BBandTest("^IXIC",nasdaq_close);
+        BBandTest bbtest3 = new BBandTest("^IXIC",nasdaq_close,60);
 
         XYChart chart4  = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", x, nasdaq_close);
         chart4.addSeries("upper_line3",bbtest3.getUpperLine());
         chart4.addSeries("middle_line3",bbtest3.getMiddleLine());
         chart4.addSeries("low_line3",bbtest3.getLowLine());
-        List<Float> buyscore3 = bbtest3.chartdata_buyscore();
+        List<Float> buyscore3 = bbtest3.scaled_percentb();
         chart4.addSeries("buysignal3",buyscore3);
         chart4.getStyler().setMarkerSize(0);
         chart4.getStyler().setSeriesColors(colors);
@@ -176,7 +199,7 @@ public class Example {
 
         PriceBox kbbank = new PriceBox("316140");
         List<Float> kbband_close = kbbank.getClose();
-        BBandTest bbtest = new BBandTest("316140",kbband_close);
+        BBandTest bbtest = new BBandTest("316140",kbband_close,60);
 
         // Create Chart & add first data
         int size = kbband_close.size();
@@ -186,7 +209,7 @@ public class Example {
         chart.addSeries("upper_line",bbtest.getUpperLine());
         chart.addSeries("middle_line",bbtest.getMiddleLine());
         chart.addSeries("low_line",bbtest.getLowLine());
-        List<Float> buyscore = bbtest.chartdata_buyscore();
+        List<Float> buyscore = bbtest.scaled_percentb();
         chart.addSeries("buysignal",buyscore);
         chart.getStyler().setMarkerSize(0);
         chart.getStyler().setSeriesColors(colors);

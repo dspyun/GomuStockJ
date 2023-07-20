@@ -9,20 +9,27 @@ public class Book {
 	private String author;
 	private String iconName;
 	private XYChart chart;
+	private String news;
 
-	public Book(String name, String author, String iconName) {
+	public Book(String name, String author,  String iconName) {
 		super();
 		this.name = name;
 		this.author = author;
 		this.iconName = iconName;
+
 	}
 
-	public Book(String name, String author, String iconName, XYChart chart) {
+	public Book(String name, String author, String news,String iconName, XYChart chart) {
 		super();
 		this.name = name;
 		this.author = author;
 		this.iconName = iconName;
 		this.chart = chart;
+		this.news = news;
+	}
+
+	public String getNews() {
+		return news;
 	}
 
 	public XYChart getChart() { return chart;}

@@ -18,30 +18,14 @@ public class TAlib {
 
     public List<Float> bband_signal = new ArrayList<Float>();
     Double[] CLOSEPRICE = new Double[240];
-    List<String> CLOSE_STR = new ArrayList<>();
+    List<Float> CLOSELIST = new ArrayList<>();
+    List<Float> HIGHLIST = new ArrayList<>();
+    List<Float> LOWLIST = new ArrayList<>();
+    List<String> PRICE_STR = new ArrayList<>();
+
+    List<Float> BBAND_PERB = new ArrayList<>();
     public TAlib() {
 
-    }
-    public TAlib(String stock_code, int days) {
-        CLOSEPRICE = readClosePrice(stock_code, days);
-    }
-
-    public Double[] readClosePrice(String stock_code, int days) {
-        Double[] price = new Double[240];
-        MyExcel myexcel = new MyExcel();
-        CLOSE_STR = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
-        CLOSE_STR = myexcel.arrangeRev_string(CLOSE_STR);
-        List<Double> closedata = myexcel.string2double(CLOSE_STR,1);
-        for (int i =  0; i < price.length; i++) {
-            price[i] = (double) closedata.get(i);
-        }
-        return price;
-    }
-    public boolean checkPriceBufferEmpty(int days) {
-        boolean flag;
-        if(days>CLOSE_STR.size()) flag = true;
-        else flag = false;
-        return flag;
     }
 
     public List<List<Float>> macd(List<Float> close, int days ) {
@@ -64,13 +48,23 @@ public class TAlib {
         int optInSlowPeriod = 26;
         int optInSignalPeriod = 9;
 
-        for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) close.get(i);
+
+        int DAYS;
+        if(days != -1) {
+            int start = closePrice.length - days;
+            for (int i = 0; i < days; i++) {
+                closePrice[i] = (double) close.get(start + i);
+            }
+            DAYS =days;
+        } else {
+            for (int i = 0; i < closePrice.length; i++) {
+                closePrice[i] = (double) close.get(i);
+            }
+            DAYS = closePrice.length;
         }
 
-
         Core c = new Core();
-        RetCode retCode = c.macd(0, closePrice.length - 1,closePrice,
+        RetCode retCode = c.macd(0, DAYS - 1,closePrice,
                 optInFastPeriod, optInSlowPeriod, optInSignalPeriod,
                 begin, length, outMACD, outMACDSignal,outMACDHist);
 
@@ -125,12 +119,22 @@ public class TAlib {
         MInteger begin = new MInteger();
         MInteger length = new MInteger();
 
-        for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) close.get(i);
+        int DAYS;
+        if(days != -1) {
+            int start = closePrice.length - days;
+            for (int i = 0; i < days; i++) {
+                closePrice[i] = (double) close.get(start + i);
+            }
+            DAYS =days;
+        } else {
+            for (int i = 0; i < closePrice.length; i++) {
+                closePrice[i] = (double) close.get(i);
+            }
+            DAYS = closePrice.length;
         }
 
         Core c = new Core();
-        RetCode retCode = c.rsi(0, closePrice.length - 1, closePrice, optInTimePeriod, begin, length, outReal);
+        RetCode retCode = c.rsi(0, DAYS - 1, closePrice, optInTimePeriod, begin, length, outReal);
 
         List<Float> result = new ArrayList<Float>();
         if (retCode == RetCode.Success) {
@@ -159,9 +163,10 @@ public class TAlib {
 
 
 
-    public List<List<Float>> bbands(List<Float> close) {
+    public List<List<Float>> bbands(List<Float> close, int days) {
 
         List<List<Float>> threechart = new ArrayList<List<Float>>();
+        CLOSELIST = close;
 
         // The total number of periods to generate data for.
         final int TOTAL_PERIODS = close.size();
@@ -179,13 +184,24 @@ public class TAlib {
         double optInNbDevDn = 2; // 하한선 = 표준편차*2
         MAType optInMAType = Sma; // 단순이동평균
 
-        for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) close.get(i);
+
+        int DAYS;
+        if(days != -1) {
+            int start = closePrice.length - days;
+            for (int i = 0; i < days; i++) {
+                closePrice[i] = (double) close.get(start + i);
+            }
+            DAYS =days;
+        } else {
+            for (int i = 0; i < closePrice.length; i++) {
+                closePrice[i] = (double) close.get(i);
+            }
+            DAYS = closePrice.length;
         }
 
         Core c = new Core();
         //RetCode retCode = c.sma(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE, begin, length, out);
-        RetCode retCode = c.bbands(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE,
+        RetCode retCode = c.bbands(0, DAYS - 1, closePrice, PERIODS_AVERAGE,
                 optInNbDevUp, optInNbDevDn, optInMAType,
                 begin, length, outRealUpperBand, outRealMiddleBand, outRealLowerBand);
 
@@ -224,6 +240,7 @@ public class TAlib {
             }
             threechart.add(value2);
 
+
             List<Float> value3 = new ArrayList<Float>();
 
             for(int i = 0; i <end-start;i++ ) {
@@ -235,7 +252,7 @@ public class TAlib {
             for(int i = 0;i<start;i++) {
                 value3.add(0,(float)first_perb);
             }
-
+            BBAND_PERB = value3;
             threechart.add(value3);
         }
         else {
@@ -245,6 +262,16 @@ public class TAlib {
         return threechart;
     }
 
+    public List<Float> scaled_percentb() {
+        List<Float> bband_score = new ArrayList<>();
+        bband_signal = BBAND_PERB;
+        double pricemax = Collections.max(CLOSELIST);
+        for(float ftemp: bband_signal) {
+            if(ftemp <= 0.3) bband_score.add((float)(pricemax - pricemax*0.5*ftemp));// 보통 0~100이지만 마이너스와 100을 넘어갈때도 있다
+            else bband_score.add((float)(pricemax));
+        }
+        return bband_score;
+    }
 
     public List<Float> adx(List<Float> close, List<Float> highdata, List<Float> lowdata, int days) {
 
@@ -261,24 +288,29 @@ public class TAlib {
         MInteger begin = new MInteger();;
         MInteger length = new MInteger();
         int optInTimePeriod = 14;
-
         List<Float> value = new ArrayList<Float>();
 
-        for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) close.get(i);
-        }
-
-        for (int i =  0; i < highPrice.length; i++) {
-            highPrice[i] = (double) highdata.get(i);
-        }
-
-        for (int i =  0; i < lowPrice.length; i++) {
-            lowPrice[i] = (double) lowdata.get(i);
+        int DAYS;
+        if(days != -1) {
+            int start = closePrice.length - days;
+            for (int i = 0; i < days; i++) {
+                closePrice[i] = (double) close.get(start + i);
+                highPrice[i] = (double) highdata.get(start + i);
+                lowPrice[i] = (double) lowdata.get(start + i);
+            }
+            DAYS =days;
+        } else {
+            for (int i = 0; i < closePrice.length; i++) {
+                closePrice[i] = (double) close.get(i);
+                highPrice[i] = (double) highdata.get(i);
+                lowPrice[i] = (double) lowdata.get(i);
+            }
+            DAYS = closePrice.length;
         }
 
         Core c = new Core();
         //RetCode retCode = c.sma(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE, begin, length, out);
-        RetCode retCode = c.adx( 0, closePrice.length -1,  highPrice, lowPrice, closePrice,
+        RetCode retCode = c.adx( 0, DAYS -1,  highPrice, lowPrice, closePrice,
                 optInTimePeriod, begin, length,  outReal);
 
         if (retCode == RetCode.Success) {
@@ -359,22 +391,29 @@ public class TAlib {
         MAType optInSlowK_MAType = Sma;
         MAType optInSlowD_MAType = Sma;
 
-        for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) close.get(i);
+        int DAYS;
+        if(days != -1) {
+            int start = closePrice.length - days;
+            for (int i = 0; i < days; i++) {
+                closePrice[i] = (double) close.get(start + i);
+                highPrice[i] = (double) highdata.get(start + i);
+                lowPrice[i] = (double) lowdata.get(start + i);
+            }
+            DAYS =days;
+        } else {
+            for (int i = 0; i < closePrice.length; i++) {
+                closePrice[i] = (double) close.get(i);
+                highPrice[i] = (double) highdata.get(i);
+                lowPrice[i] = (double) lowdata.get(i);
+            }
+            DAYS = closePrice.length;
         }
 
-        for (int i =  0; i < highPrice.length; i++) {
-            highPrice[i] = (double) highdata.get(i);
-        }
-
-        for (int i =  0; i < lowPrice.length; i++) {
-            lowPrice[i] = (double) lowdata.get(i);
-        }
 
         // outNBElement : 생성된 자료의 배술 수. = output 길이
         // 결과가 배열로 반환되기 때문에 길이정보도 같이 반환되어야 함
         Core c = new Core();
-        RetCode retCode  = c.stoch( 0, closePrice.length -1, highPrice, lowPrice, closePrice,
+        RetCode retCode  = c.stoch( 0, DAYS-1, highPrice, lowPrice, closePrice,
                 optInFastK_Period, optInSlowK_Period, optInSlowK_MAType, optInSlowD_Period, optInSlowD_MAType,
                 outBegIdx, outNBElement, outSlowK, outSlowD );
 
@@ -423,12 +462,22 @@ public class TAlib {
         MInteger outBegIdx = new MInteger();
         MInteger outNBElement = new MInteger();
 
-        for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) close.get(i);
+        int DAYS;
+        if(days != -1) {
+            int start = closePrice.length - days;
+            for (int i = 0; i < days; i++) {
+                closePrice[i] = (double) close.get(start + i);
+            }
+            DAYS =days;
+        } else {
+            for (int i = 0; i < closePrice.length; i++) {
+                closePrice[i] = (double) close.get(i);
+            }
+            DAYS = closePrice.length;
         }
 
         Core c = new Core();
-        RetCode retCode  = c.mom( 0, closePrice.length -1, closePrice,optInTimePeriod,
+        RetCode retCode  = c.mom( 0, DAYS -1, closePrice,optInTimePeriod,
                 outBegIdx, outNBElement, outReal);
 
         List<List<Float>> threechart = new ArrayList<List<Float>>();

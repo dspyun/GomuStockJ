@@ -1,7 +1,6 @@
 package main.java.com.gomu.gomustock.format;
 
 public class FormatOHLCV {
-    // open api 주식정보 포맹
     // 아래 정보를 엑셀에 저장한다
     public String date; // basDt 날짜
     public String open; // mkp 시가

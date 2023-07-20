@@ -3,6 +3,7 @@ package main.java.com.gomu.gomustock.network;
 import main.java.com.gomu.gomustock.MyDate;
 import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.format.FormatOHLCV;
+import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
@@ -17,9 +18,12 @@ public class YFDownload {
     String STOCK_CODE_ENC;
     int ONEYEAR = 240;
 
+    StockDic stockdic = new StockDic();
     public YFDownload (String stock_code)  {
+
         STOCK_CODE = stock_code;
-        STOCK_CODE_ENC = encodingURL(stock_code);
+        String market = stockdic.getMarket(stock_code);
+        STOCK_CODE_ENC = encodingURL(stock_code, market);
         download();
     }
 
@@ -35,20 +39,21 @@ public class YFDownload {
             String today = Long.toString(mytoday);
             String oneyearbefore = Long.toString(oneyearago);
 
-            String path = "https://query1.finance.yahoo.com/v7/finance/download/"+STOCK_CODE_ENC+
-                    "?period1="+oneyearbefore+"&period2="+today+"&interval=1d&events=history&includeAdjustedClose=true";
 
+            String path = "https://query1.finance.yahoo.com/v7/finance/download/" + STOCK_CODE_ENC +
+                    "?period1=" + oneyearbefore + "&period2=" + today + "&interval=1d&events=history&includeAdjustedClose=true";
 
-           // https://query1.finance.yahoo.com/v7/finance/download/^KS11.KS?period1=1657256254&period2=1688792254&interval=1d&events=history&includeAdjustedClose=true
-            //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657256346&period2=1688792346&interval=1d&events=history&includeAdjustedClose=true
-            //https://query1.finance.yahoo.com/v7/finance/download/055550.KS?period1=1657257539&period2=1688793539&interval=1d&events=history&includeAdjustedClose=true
-            //https://query1.finance.yahoo.com/v7/finance/download/055550.KS?period1=1657258574&period2=1688794574&interval=1d&events=history&includeAdjustedClose=true
+            if(stock_code.equals("247540")) {
+                int i = 0;
+                int j = 0;
+                //https://query1.finance.yahoo.com/v7/finance/download/247540.KQ?period1=1657586267&period2=1689122267&interval=1d&events=history&includeAdjustedClose=true
+                //https://query1.finance.yahoo.com/v7/finance/download/000660.KS?period1=1657589689&period2=1689125689&interval=1d&events=history&includeAdjustedClose=true
+            }
+            //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657529392&period2=1689065392&interval=1d&events=history&includeAdjustedClose=true
+            //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657529546&period2=1689065546&interval=1d&events=history&includeAdjustedClose=true
 
-            //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11.KS?period1=1657256867&period2=1688792867&interval=1d&events=history&includeAdjustedClose=true
-            //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657257207&period2=1688793207&interval=1d&events=history&includeAdjustedClose=true
-            //String path2 =  "https://query1.finance.yahoo.com/v7/finance/download/%5EIXIC?period1=1657209181&period2=1688745181&interval=1d&events=history&includeAdjustedClose=true";
             Connection connection = Jsoup.connect(path);
-            //connection.timeout(5000);
+            connection.timeout(1500);
             Connection.Response resultImageResponse = connection.ignoreContentType(true).execute();
             csvdata = resultImageResponse.parse().body().text();
         } catch (IOException e) {
@@ -88,10 +93,33 @@ public class YFDownload {
         return ohlcvlist;
     }
 
-    public String encodingURL(String stock_code) {
-        String[] index_table = {"^KS11", "^GSPC", "^IXIC","^DJI" };
+    public String encodingURL(String stock_code, String market) {
+        String[] index_table = {"^KS11", "^GSPC", "^IXIC", "^DJI", "^SOX", "^KS200"};
+        String[] korea_index_table = {"069500", "429000", "102110", "305540", "210780", "133690"};
         boolean isExist = Arrays.stream(index_table).anyMatch(stock_code::equals);
-        if(isExist) return URLEncoder.encode(stock_code);
-        else return stock_code+".KS";
+        boolean ksisExist = Arrays.stream(korea_index_table).anyMatch(stock_code::equals);
+        if (checkKRStock(stock_code)) {
+            // 지수테이블에 포함되어 있는 경우
+            // 코스피이면 KS를 붙이고, 코스닥이면 KQ를 붙인다
+            if (market.equals("KOSPI")) return stock_code + ".KS";
+            else if (market.equals("KONEX") || market.equals("KOSDAQ GLOBAL") || market.equals("KOSDAQ")) {
+                return stock_code + ".KQ"; // KONEX, KOSDAQ, KOSDAQ GLOBAL은 모두 KQ를 달아준다
+            } else {
+                // 여기에 걸리는 것들은 ETF 상품들이다
+                // ETF상품은 table에서 KOSPI, KOSDAQ등으로 검샘되지 않는다
+                // 야후에서는 .KS를 붙이면 데이터 다운로드 가능하다
+                return stock_code + ".KS";
+            }
+        } else {
+            // 지수테이블에 포함되어 있는 경우
+            return URLEncoder.encode(stock_code);
+        }
+    }
+
+    public boolean checkKRStock(String stock_code) {
+        // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
+        // 즉 한국주식이면 true, 외국주식이면 false 반환
+        boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
+        return isNumeric;
     }
 }

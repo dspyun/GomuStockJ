@@ -19,6 +19,7 @@ public class FormatStockInfo {
     public String cur_price;
     public String score;     // 이것은 파일로 저장하지 안는다. 웹에서 긁어오는 것이 이님.
     public String desc;
+    public String news;
     public FormatStockInfo() {
         init();
     }
@@ -41,13 +42,44 @@ public class FormatStockInfo {
         desc="";
     }
 
+    public void fill_empty() {
+
+        market_sum="시가총액";
+        ranking="총액순위";
+        recommend="투자의견";
+        per="PER";
+        expect_per="예상PER";
+        per12="PER12";
+        area_per="업종PER";
+        pbr="PBR";
+        div_rate="배당률";
+        fogn_rate = "외국인지분";
+        cur_price="현재가";
+        score="시그널";
+        desc="정보";
+    }
+    public String getDSC() {
+        return desc;
+    }
+
     public String toString() {
         String stock_info="";
-        stock_info += "코스피랭킹" + ranking + "\n";
-        stock_info += "PER/PBR = " + per +"/"+pbr + "\n";
-        stock_info += "예상PER/업종PER = "+ expect_per +"/"+area_per + "\n";
-        stock_info += "배당률/투자의견 = "+div_rate +"/"+recommend + "\n";
-        stock_info += "외국인비중 = " + fogn_rate+"\n";
+        stock_info += stock_name + " " + stock_code + "\n";
+        stock_info += ranking + ", 배당률 = " +div_rate + "\n";
+        stock_info += "투자의견 = "+ recommend + "\n";
+        stock_info += "PER = " + per + "\n";
+        stock_info += "예상PER = " + expect_per + "\n";
+        stock_info += "업종PER = " + area_per + "\n";
+        return stock_info;
+    }
+
+    public String toJString() {
+        String stock_info="";
+        stock_info += "<html>" + ranking + ", 배당률 = " +div_rate + "<br></html>"+"\n";
+        stock_info += "투자의견 = "+ recommend + "\n";
+        stock_info += "PER = " + per + "\n";
+        stock_info += "예상PER = " + expect_per + "\n";
+        stock_info += "업종PER = " + area_per + "\n";
         return stock_info;
     }
 
