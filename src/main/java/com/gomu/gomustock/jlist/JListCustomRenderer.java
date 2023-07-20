@@ -66,10 +66,9 @@ public class JListCustomRenderer extends JFrame {
 		// add item to model
 		int size = web_stockinfo.size();
 		for(int i=0;i<size;i++) {
-			//XYChart mychart = new XYChartBuilder().build();
 			String stock_code = web_stockinfo.get(i).stock_code;
 			XYChart mychart = GetChart(stock_code);
-			model.addElement(new Book(web_stockinfo.get(i).toString(), web_stockinfo.get(i).getDSC(), web_stockinfo.get(i).news,"cpp", mychart));
+			model.addElement(new Book(web_stockinfo.get(i), mychart));
 		}
 
 		// create JList with model

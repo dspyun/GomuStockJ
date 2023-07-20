@@ -17,13 +17,15 @@ import javax.swing.border.EmptyBorder;
 
 public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 
-	private JLabel lbIcon = new JLabel();
-	private JTextArea  lbName = new JTextArea();
-	private JTextArea lbAuthor = new JTextArea();
+	private JLabel lbFognIcon = new JLabel();
+	private JLabel lbAgencyIcon = new JLabel();
+	private JTextArea  lbIndication = new JTextArea();
+	private JTextArea lbCompanyinfo = new JTextArea();
 	private JTextArea lbNews = new JTextArea();
 	private JPanel lbChart = new JPanel();
 	private JPanel panelText;
-	private JPanel panelIcon;
+	private JPanel panelFAIcon;
+	private JPanel panelAgencyIcon;
 	private JPanel panelChart;
 	private JPanel panelNews;
 
@@ -34,50 +36,57 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 		// panelText는 xml 역할을 하고
 		// Renderercomponent는 ID역할을 한다
 		panelText = new JPanel(new GridLayout(1, 3));
-		panelText.add(lbName);
-		panelText.add(lbAuthor);
+		panelText.add(lbIndication);
+		panelText.add(lbCompanyinfo);
 		panelText.add(lbNews);
 
-		panelIcon = new JPanel();
-		panelIcon.setBorder(new EmptyBorder(5, 5, 5, 5));
-		panelIcon.add(lbIcon);
+		panelFAIcon = new JPanel(new GridLayout(1, 2));
+		panelFAIcon.add(lbFognIcon);
+		panelFAIcon.add(lbAgencyIcon);
 
 		panelChart = new JPanel();
 		panelChart.setBorder(new EmptyBorder(5, 5, 5, 5));
 		panelChart.add(lbChart);
 
-		add(panelChart, BorderLayout.CENTER);
-		add(panelIcon, BorderLayout.EAST);
 		add(panelText, BorderLayout.WEST);
+		add(panelChart, BorderLayout.CENTER);
+		add(panelFAIcon, BorderLayout.EAST);
 	}
 
 	@Override
 	public Component getListCellRendererComponent(JList<? extends Book> list,
 			Book book, int index, boolean isSelected, boolean cellHasFocus) {
 
-		String icon_path = STOCKDIR+book.getIconName() + ".jpg";
+		//String icon_path = STOCKDIR+book.getIconName() + ".jpg";
+		BufferedImage img = null;
 		try {
-			URL url = new URL("https://ssl.pstatic.net/imgfinance/chart/trader/month1/F_000660.png");
-			BufferedImage img = ImageIO.read(url);
-			lbIcon.setIcon( new ImageIcon(img));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			img = getFognimage(book.getStockcode());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		lbFognIcon.setIcon( new ImageIcon(img));
 
-		lbName.setText(book.getName());
-		lbName.setPreferredSize(new Dimension(100,200));
-		lbName.setAutoscrolls(true);
+		BufferedImage img2 = null;
+		try {
+			img2 = getAgencyimage(book.getStockcode());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		lbAgencyIcon.setIcon( new ImageIcon(img2));
+
+
+		lbIndication.setText(book.getIndication());
+		lbIndication.setPreferredSize(new Dimension(100,200));
+		lbIndication.setAutoscrolls(true);
 
 		lbNews.setText(book.getNews());
 		lbNews.setPreferredSize(new Dimension(300,200));
 		lbNews.setAutoscrolls(true);
 
-		lbAuthor.setText(book.getAuthor());
-		lbAuthor.setForeground(Color.blue);
-		lbAuthor.setPreferredSize(new Dimension(300,200));
-		lbAuthor.setLineWrap(true);
+		lbCompanyinfo.setText(book.getCompanyInfo());
+		lbCompanyinfo.setForeground(Color.blue);
+		lbCompanyinfo.setPreferredSize(new Dimension(300,200));
+		lbCompanyinfo.setLineWrap(true);
 
 		// set이 아니고 add를 쓰기 때문에 이전 데이터를 지워줘야 한다
 		lbChart.removeAll();
@@ -86,30 +95,49 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 		System.out.println("book index " + index);
 
 		// set Opaque to change background color of JLabel
-		lbName.setOpaque(true);
-		lbAuthor.setOpaque(true);
-		lbIcon.setOpaque(true);
+		lbIndication.setOpaque(true);
+		lbCompanyinfo.setOpaque(true);
+		lbFognIcon.setOpaque(true);
+		lbAgencyIcon.setOpaque(true);
 		lbChart.setOpaque(true);
 
 		// when select item
 		if (isSelected) {
-			lbName.setBackground(list.getSelectionBackground());
-			lbAuthor.setBackground(list.getSelectionBackground());
-			lbIcon.setBackground(list.getSelectionBackground());
+			lbIndication.setBackground(list.getSelectionBackground());
+			lbCompanyinfo.setBackground(list.getSelectionBackground());
+			lbFognIcon.setBackground(list.getSelectionBackground());
+			lbAgencyIcon.setBackground(list.getSelectionBackground());
 			lbNews.setBackground(list.getSelectionBackground());
 			setBackground(list.getSelectionBackground());
-			panelIcon.setBackground(list.getSelectionBackground());
+			panelFAIcon.setBackground(list.getSelectionBackground());
 			//lbChart.setBackground(list.getSelectionBackground());
 ;
 		} else { // when don't select
-			lbName.setBackground(list.getBackground());
-			lbAuthor.setBackground(list.getBackground());
+			lbIndication.setBackground(list.getBackground());
+			lbCompanyinfo.setBackground(list.getBackground());
 			lbNews.setBackground(list.getBackground());
-			lbIcon.setBackground(list.getBackground());
+			lbFognIcon.setBackground(list.getBackground());
+			lbAgencyIcon.setBackground(list.getBackground());
 			setBackground(list.getBackground());
-			panelIcon.setBackground(list.getBackground());
+			panelFAIcon.setBackground(list.getBackground());
 			//lbChart.setBackground(list.getBackground());
 		}
 		return this;
 	}
+
+	BufferedImage getFognimage(String stock_code) throws IOException {
+
+		String path = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/F_"+stock_code+".png";
+		URL url = new URL(path);
+		BufferedImage img = ImageIO.read(url);
+		return img;
+	}
+	BufferedImage getAgencyimage(String stock_code) throws IOException {
+
+		String path = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/I_"+stock_code+".png";
+		URL url = new URL(path);
+		BufferedImage img = ImageIO.read(url);
+		return img;
+	}
+
 }

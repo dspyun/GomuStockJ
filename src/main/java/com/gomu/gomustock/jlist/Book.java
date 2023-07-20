@@ -1,31 +1,27 @@
 package main.java.com.gomu.gomustock.jlist;
 
+import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import org.knowm.xchart.XYChart;
 
 import javax.swing.*;
 
 public class Book {
-	private String name;
-	private String author;
-	private String iconName;
+	private String company_info;
+	private String stock_indication;
+	private String stock_code;
 	private XYChart chart;
 	private String news;
+	private FormatStockInfo stock_info;
 
-	public Book(String name, String author,  String iconName) {
+
+	public Book(FormatStockInfo stockinfo, XYChart chart) {
 		super();
-		this.name = name;
-		this.author = author;
-		this.iconName = iconName;
-
-	}
-
-	public Book(String name, String author, String news,String iconName, XYChart chart) {
-		super();
-		this.name = name;
-		this.author = author;
-		this.iconName = iconName;
+		this.stock_info = stockinfo;
 		this.chart = chart;
-		this.news = news;
+		this.stock_code = stock_info.stock_code;
+		this.news = stock_info.news;
+		this.company_info = stock_info.desc;
+		this.stock_indication = stock_info.toString();
 	}
 
 	public String getNews() {
@@ -34,32 +30,16 @@ public class Book {
 
 	public XYChart getChart() { return chart;}
 
-	public String getName() {
-		return name;
+	public String getIndication() {
+		return stock_indication;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getCompanyInfo() {
+		return company_info;
 	}
 
-	public String getAuthor() {
-		return author;
+	public String getStockcode() {
+		return stock_code;
 	}
 
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	public String getIconName() {
-		return iconName;
-	}
-
-	public void setIconName(String iconName) {
-		this.iconName = iconName;
-	}
-
-	@Override
-	public String toString() {
-		return name + " - " + author;
-	}
 }
