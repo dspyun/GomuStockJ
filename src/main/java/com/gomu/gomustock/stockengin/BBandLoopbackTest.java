@@ -1,20 +1,18 @@
 package main.java.com.gomu.gomustock.stockengin;
 
-import static com.tictactec.ta.lib.MAType.Sma;
-
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;
 import com.tictactec.ta.lib.RetCode;
 import main.java.com.gomu.gomustock.MyExcel;
-import main.java.com.gomu.gomustock.format.FormatTestData;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class BBandTest {
+import static com.tictactec.ta.lib.MAType.Sma;
 
+public class BBandLoopbackTest {
     TAlib mytalib = new TAlib();
     MyExcel myexcel = new MyExcel();
     String STOCK_CODE;
@@ -25,41 +23,12 @@ public class BBandTest {
     List<Float> MIDDLELINE = new ArrayList<>();
     List<Float> LOWLINE = new ArrayList<>();
     List<Float> PERCENTB = new ArrayList<>();
-    List<Integer> SELLSCORE = new ArrayList<>();
-    List<Integer> BUYSCORE = new ArrayList<>();
 
-    public List<Float> getUpperLine() {
-        return    UPPERLINE;
-    }
-    public List<Float> getMiddleLine() {
-        return    MIDDLELINE;
-    }
-    public List<Float> getLowLine() {
-        return    LOWLINE;
-    }
-
-    public BBandTest (String stock_code, List<Float> close) {
-        CLOSEDATA = close;
-        STOCK_CODE = stock_code;
-        loadTestData();
-        rsitest = new RSITest(close);
-        testNsave(true);
-    }
-
-    void loadTestData() {
-        List<List<Float>> bband_result = mytalib.bbands(CLOSEDATA);
-        UPPERLINE = bband_result.get(0);
-        MIDDLELINE = bband_result.get(1);
-        LOWLINE = bband_result.get(2);
-        PERCENTB = bband_result.get(3);
-    }
-
-    // 백분율 스케일링된 percentb로 스코어링을 한 결과를
-    // 차트에 보여주기 위해서 다시 maxprice 스케일링을 한다
-    public List<Float> chartdata_buyscore() {
+    public List<Float> chartdata() {
         List<Integer> testresult = new ArrayList<>();
         List<Float> chartvalue = new ArrayList<>();
-        testresult = BUYSCORE;
+        int days = CLOSEDATA.size();
+        testresult = testNsave(false);
         int size = testresult.size();
         float pricemax = Collections.max(CLOSEDATA);
         for(int i =0;i<size;i++) {
@@ -69,32 +38,15 @@ public class BBandTest {
         return chartvalue;
     }
 
-    // bband test에서 buysell signal은 percent_b를 사용한다
-    // percentb를 1~100 사이로 백분율 스케일링해서 돌려준다
-    public List<Float> scaled_percentb() {
-        List<Float> bband_score = new ArrayList<>();
-        List<Float> bband_signal = new ArrayList<>();
-        bband_signal = PERCENTB;
-
-        for(float ftemp: bband_signal) {
-            bband_score.add(ftemp*100); // 보통 0~100이지만 마이너스와 100을 넘어갈때도 있다
-        }
-        return bband_score;
-    }
-
-    // 백분율 스케일링된 percentb로 스코어링을 하고 그 결과를 저장한다
     public List<Integer> testNsave(boolean save_flag) {
 
         List<Float> bband_buyscore = new ArrayList<>();
         List<Float> rsi_buyscore = new ArrayList<>();
         List<Integer> buy_score = new ArrayList<>();
         List<Integer> sell_score = new ArrayList<>();
-
         int days = CLOSEDATA.size();
-        // bband score는 bband와 rsi의 test line을 결합해서 계산한다
-        bband_buyscore = scaled_percentb();
-        rsi_buyscore = rsitest.test_line();
-
+        bband_buyscore = bband_30day_loop();
+        rsi_buyscore = rsitest.rsi_30day_loop();
         int size = bband_buyscore.size();
         for(int i = 0; i< size; i++) {
             buy_score.add(0);
@@ -116,10 +68,8 @@ public class BBandTest {
             }
             sell_score.set(i,0);
         }
-        BUYSCORE = buy_score;
-        SELLSCORE = sell_score;
 
-        if(save_flag==true) {
+        if(save_flag == true) {
             List<String> close = myexcel.read_ohlcv(STOCK_CODE, "CLOSE", ONEYEAR, false);
             List<String> date = myexcel.read_ohlcv(STOCK_CODE, "DATE", ONEYEAR, false);
             myexcel.write_testdata(STOCK_CODE, date, close, buy_score, sell_score);
@@ -127,17 +77,50 @@ public class BBandTest {
         return buy_score;
     }
 
+    List<Float> bband_30day_loop() {
+        List<Float> todaylist = new ArrayList<>();
 
-    // 리턴값이 1~100 사이이지만 마이너스 또는 100을 초과할 때도 있음
-    public Float TodayScore() {
-        int size = PERCENTB.size();
-        return PERCENTB.get(size-1)*100;
+        // The total number of periods to generate data for.
+        final int TOTAL_PERIODS = 30;
+
+        // The number of periods to average together.
+        final int PERIODS_AVERAGE = 5;
+
+        double[] closePrice = new double[TOTAL_PERIODS];
+        double[] outRealUpperBand = new double[TOTAL_PERIODS];
+        double[] outRealMiddleBand = new double[TOTAL_PERIODS];
+        double[] outRealLowerBand = new double[TOTAL_PERIODS];
+        MInteger begin = new MInteger();
+        MInteger length = new MInteger();
+        double optInNbDevUp = 2; // 상한선 = 표준편차*2
+        double optInNbDevDn = 2; // 하한선 = 표준편차*2
+        MAType optInMAType = Sma; // 단순이동평균
+
+        int days = CLOSEDATA.size();
+        int loop_days = days - TOTAL_PERIODS;
+        Core c = new Core();
+        for(int l = 0;l<loop_days;l++) {
+            // CLOSEDATA는 과거>현재순으로 정렬된 상태
+            int k =0;
+            for (int i = l; i < TOTAL_PERIODS+l; i++) {
+                closePrice[k] = (double) CLOSEDATA.get(i);
+                k++;
+            }
+
+            RetCode retCode = c.bbands_oneday(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE,
+                    optInNbDevUp, optInNbDevDn, optInMAType,
+                    begin, length, outRealUpperBand, outRealMiddleBand, outRealLowerBand);
+
+            int start = begin.value;
+            int end = (begin.value + length.value);
+            int today = end - start - 1; // 가장 마지막 데이터를 오늘 데이터로 누적시킨다
+            float today_perb = (float) ((closePrice[start + today] - outRealLowerBand[today]) / (outRealUpperBand[today] - outRealLowerBand[today]));
+            todaylist.add(today_perb*100);
+        }
+        float first_perb = todaylist.get(0);
+        for(int i =0;i<TOTAL_PERIODS;i++) {
+            todaylist.add(0,first_perb);
+        }
+        return todaylist;
     }
-
-
-    public void makeBackTestData(int days) {
-        testNsave(true);
-    }
-
-
 }

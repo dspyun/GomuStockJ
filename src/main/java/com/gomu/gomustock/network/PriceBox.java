@@ -1,20 +1,19 @@
 package main.java.com.gomu.gomustock.network;
 
-
 import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.MyStat;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StockBox {
+public class PriceBox {
 
     String STOCK_CODE;
     int ONEYEAR = -1;
     List<Float> CLOSEPRICE = new ArrayList<>();
     List<String> DATE = new ArrayList<>();
 
-    public StockBox(String stock_code) {
+    public PriceBox(String stock_code) {
         STOCK_CODE = stock_code;
         loadAdjclose();
         loadDate();
@@ -38,5 +37,4 @@ public class StockBox {
         MyExcel myexcel = new MyExcel();
         DATE = myexcel.read_ohlcv(STOCK_CODE,"DATE",ONEYEAR,false);
     }
-
 }

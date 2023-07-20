@@ -471,4 +471,58 @@ public class MyWeb {
         }
         return pricelist;
     }
+    public boolean checkKRStock(String stock_code) {
+        // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
+        // 즉 한국주식이면 true, 외국주식이면 false 반환
+        boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
+        return isNumeric;
+    }
+
+
+    public FormatStockInfo getNaverStockinfo(String stock_code) {
+        FormatStockInfo result = new FormatStockInfo();
+
+        System.out.println("stock_code = " + stock_code+"\n");
+        if(!checkKRStock(stock_code)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            result.init();
+            return result;
+        }
+        try {
+
+            String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
+            Element giname = classinfo0.select("h2").get(0);
+            result.stock_name = giname.text();
+
+            Elements plist = classinfo0.select(".summary_info");
+            int size = plist.size();
+            for(int i =0;i<size;i++) {
+                result.desc = plist.get(i).text() + "\n";
+            }
+
+            Elements classinfo1 = doc.select("#tab_con1"); // id 가져오기
+            Elements trlist = classinfo1.select("tr");
+
+            result.market_sum = trlist.get(0).select("td").get(0).text();
+            result.ranking = trlist.get(1).select("td").get(0).text();
+            result.fogn_rate = trlist.get(6).select("td").get(0).text();
+            result.recommend = trlist.get(6).select("td").get(0).text();
+
+            result.per = trlist.get(9).select("td").get(0).text();
+            result.expect_per = trlist.get(10).select("td").get(0).text();
+            result.pbr = trlist.get(11).select("td").get(0).text();
+            result.div_rate = trlist.get(12).select("td").get(0).text();
+            result.area_per = trlist.get(13).select("td").get(0).text();
+            //result.op_profit = td1_list.get(3).text();
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

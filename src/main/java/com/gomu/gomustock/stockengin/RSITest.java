@@ -18,7 +18,7 @@ public class RSITest {
         CLOSEDATA = input;
     }
 
-    public List<Float> buysell_line() {
+    public List<Float> test_line() {
         int days = CLOSEDATA.size();
         List<List<Float>> signal = mytalib.rsi(CLOSEDATA, days);
         return signal.get(0);
@@ -77,7 +77,7 @@ public class RSITest {
         List<Float> todaylist = new ArrayList<>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = CLOSEDATA.size();;
+        final int TOTAL_PERIODS = CLOSEDATA.size();
 
         // The number of periods to average together.
         final int optInTimePeriod = 5;

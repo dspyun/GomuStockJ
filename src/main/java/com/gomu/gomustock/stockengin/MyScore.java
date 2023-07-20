@@ -4,7 +4,7 @@ import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.MyStat;
 import main.java.com.gomu.gomustock.network.MyWeb;
 import main.java.com.gomu.gomustock.format.FormatScore;
-import main.java.com.gomu.gomustock.network.StockBox;
+import main.java.com.gomu.gomustock.network.PriceBox;
 
 
 import java.util.ArrayList;
@@ -147,7 +147,7 @@ public class MyScore {
         List<String> itemdata = new ArrayList<>();
         int score = 0;
 
-        StockBox kbbank = new StockBox("055550");
+        PriceBox kbbank = new PriceBox("055550");
         List<Float> kbband_close = kbbank.getClose();
         // 스코어링할 종목가격을 불러온다
         BBandTest bbandtest = new BBandTest("055550",kbband_close);

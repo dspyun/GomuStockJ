@@ -159,7 +159,7 @@ public class TAlib {
 
 
 
-    public List<List<Float>> bbands(List<Float> close, int days) {
+    public List<List<Float>> bbands(List<Float> close) {
 
         List<List<Float>> threechart = new ArrayList<List<Float>>();
 

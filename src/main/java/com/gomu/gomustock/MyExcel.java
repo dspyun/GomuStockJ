@@ -82,7 +82,7 @@ public class MyExcel extends MyStat {
         InputStream is=null;
         Workbook wb=null;
         String contents=null;
-        String PathFile = excelfile;
+        String PathFile = STOCKDIR+excelfile;
         List<String> mArrayBuffer = new ArrayList<String>();
 
         try {
@@ -456,7 +456,7 @@ public class MyExcel extends MyStat {
 
         return testdatalist;
     }
-    public List<FormatTestData> readtestbuy(String code, boolean header) {
+    public List<FormatTestData> read_testdata(String code, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
@@ -483,6 +483,7 @@ public class MyExcel extends MyStat {
                         testdata.date = sheet.getCell(0, i).getContents();
                         testdata.price = sheet.getCell(1, i).getContents();
                         testdata.buy_quantity = sheet.getCell(2, i).getContents();
+                        testdata.sell_quantity = sheet.getCell(3, i).getContents();
                         testdatalist.add(testdata);
                     }
                 }
@@ -567,11 +568,11 @@ public class MyExcel extends MyStat {
                 if(writablesheet != null) {
                     // header 때문에 1부터 시작해야 한다
                     int size = buy.size();
-                    for(int row =0;row < size ;row++) {
-                        writablesheet.addCell(new Label(0, row, date.get(row)));
-                        writablesheet.addCell(new Label(1, row, price.get(row)));
-                        writablesheet.addCell(new Label(2, row, String.valueOf(buy.get(row))));
-                        writablesheet.addCell(new Label(3, row, String.valueOf(sell.get(row))));
+                    for(int row =1;row < size+1 ;row++) {
+                        writablesheet.addCell(new Label(0, row, date.get(row-1)));
+                        writablesheet.addCell(new Label(1, row, price.get(row-1)));
+                        writablesheet.addCell(new Label(2, row, String.valueOf(buy.get(row-1))));
+                        writablesheet.addCell(new Label(3, row, String.valueOf(sell.get(row-1))));
                     }
                 }
             }
