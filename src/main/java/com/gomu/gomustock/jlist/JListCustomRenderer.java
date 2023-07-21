@@ -6,6 +6,7 @@ import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.network.MyWeb;
 import main.java.com.gomu.gomustock.network.PriceBox;
 import main.java.com.gomu.gomustock.network.YFDownload;
+import main.java.com.gomu.gomustock.network.fnGuide;
 import main.java.com.gomu.gomustock.stockengin.BBandTest;
 import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.knowm.xchart.QuickChart;
@@ -68,7 +69,9 @@ public class JListCustomRenderer extends JFrame {
 		for(int i=0;i<size;i++) {
 			String stock_code = web_stockinfo.get(i).stock_code;
 			XYChart mychart = GetChart(stock_code);
-			model.addElement(new Book(web_stockinfo.get(i), mychart));
+			XYChart todaychart = GetTodayChart(stock_code);
+			model.addElement(new Book(web_stockinfo.get(i), mychart, todaychart));
+			System.out.println(stock_code);
 		}
 
 		// create JList with model
@@ -104,6 +107,33 @@ public class JListCustomRenderer extends JFrame {
 		return chart;
 	}
 
+	private XYChart GetTodayChart(String stock_code) {
+
+		Color[] colors = {Color.RED, Color.BLUE,Color.LIGHT_GRAY, Color.GRAY, Color.LIGHT_GRAY,Color.BLUE};
+
+		MyExcel myexcel = new MyExcel();
+		List<String> todayprice = myexcel.readtodayprice(stock_code+"today","DEAL",60*3,false);
+		List<Float> kbband_close = myexcel.string2float_fillpre(todayprice,1);
+		//BBandTest bbtest = new BBandTest(stock_code,kbband_close,60*3); // 1시간이 60개
+
+		// Create Chart & add first data
+		int size = kbband_close.size();
+		List<Float> x = new ArrayList<>();
+		for(int i =0;i<size;i++) { x.add((float)i); }
+		XYChart chart  = new XYChartBuilder().width(300).height(200).build();
+		chart.addSeries("price",kbband_close);
+		//chart.addSeries("upper_line",bbtest.getUpperLine());
+		//chart.addSeries("middle_line",bbtest.getMiddleLine());
+		//chart.addSeries("low_line",bbtest.getLowLine());
+		//List<Float> buyscore = bbtest.scaled_percentb();
+		//chart.addSeries("buysignal",buyscore);
+		chart.getStyler().setMarkerSize(0);
+		chart.getStyler().setSeriesColors(colors);
+		chart.getStyler().setLegendVisible(false);
+		//chart.getStyler().setYAxisTicksVisible(true);
+		return chart;
+	}
+
 	public List<String> getStockList() {
 		List<String> stock_list = new ArrayList<>();
 
@@ -127,17 +157,23 @@ public class JListCustomRenderer extends JFrame {
 		for(int i =0;i<size;i++) {
 			String stock_code = stock_list.get(i);
 			FormatStockInfo stockinfo = new FormatStockInfo();
+			fnGuide myfnguide = new fnGuide();
 			String news;
 			if(stockdic.checkKRStock(stock_code) && (stockdic.getMarket(stock_code)!="")) {
-
+				// stock_cdoe정보를 포함하고 있는
+				// 네이버 정보를 가장 먼저 가져오고 그 다음에 다른 정보를 추가해야 한다
 				stockinfo = myweb.getNaverStockinfo(stock_code);
 				stockinfo.stock_code = stock_code;
-
+				// 네이버 뉴스를 가져온다
 				news = myweb.getNaverStockNews(stock_code);
 				stockinfo.news = news;
 
+				// fnguide정보를 가져온다
+				stockinfo.fninfo = myfnguide.getFnguideInfo(stock_code);
+
 				web_stockinfo.add(stockinfo);
 
+				myweb.getNaverpriceByToday(stock_code,6*3); // 1시간을 읽어서 저장한다
 			} else {
 				stockinfo.fill_empty();
 				stockinfo.stock_code = stock_code;
@@ -145,6 +181,7 @@ public class JListCustomRenderer extends JFrame {
 				//stockinfo.stock_name = stockdic.getStockname(stock_code);
 				web_stockinfo.add(stockinfo);
 			}
+
 
 			new YFDownload(stock_list.get(i));
 		}

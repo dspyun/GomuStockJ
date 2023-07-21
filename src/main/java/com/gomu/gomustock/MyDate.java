@@ -69,7 +69,16 @@ public class MyDate {
         Date date = new Date();
         String result;
         SimpleDateFormat mFormat = new SimpleDateFormat("yyyyMMdd");
-        result = sdf.format(date);
+        result = mFormat.format(date);
+        return result;
+    }
+    public String  getTodayFullTime() {
+        Date date = new Date();
+        date.setTime(System.currentTimeMillis());
+
+        String result;
+        SimpleDateFormat mFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        result = mFormat.format(date);
         return result;
     }
 

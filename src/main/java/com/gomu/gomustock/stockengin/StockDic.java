@@ -27,6 +27,11 @@ public class StockDic {
         if(index == -1) return "";
         return STOCK_NAME.get(index);
     }
+    public String getStockcode(String stock_name) {
+        int index = STOCK_NAME.indexOf(stock_name);
+        if(index == -1) return "";
+        return STOCK_NO.get(index);
+    }
     public boolean checkKRStock(String stock_code) {
         // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
         // 즉 한국주식이면 true, 외국주식이면 false 반환

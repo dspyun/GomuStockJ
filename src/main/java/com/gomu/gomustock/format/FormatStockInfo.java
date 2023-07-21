@@ -20,6 +20,7 @@ public class FormatStockInfo {
     public String score;     // 이것은 파일로 저장하지 안는다. 웹에서 긁어오는 것이 이님.
     public String desc;
     public String news;
+    public String fninfo;
     public FormatStockInfo() {
         init();
     }
@@ -40,6 +41,7 @@ public class FormatStockInfo {
         cur_price="";
         score="";
         desc="";
+        fninfo="";
     }
 
     public void fill_empty() {
@@ -57,6 +59,7 @@ public class FormatStockInfo {
         cur_price="현재가";
         score="시그널";
         desc="정보";
+        fninfo="수익테이블";
     }
     public String getDSC() {
         return desc;
@@ -99,6 +102,7 @@ public class FormatStockInfo {
         cur_price="현재가";
         score="시그널";
         desc="정보";
+        fninfo="수익테이블";
     }
 
     public void addStockcode(String stockcode) {

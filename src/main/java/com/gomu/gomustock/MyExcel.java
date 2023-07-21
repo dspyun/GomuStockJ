@@ -174,6 +174,9 @@ public class MyExcel extends MyStat {
         }
     }
 
+
+
+
     public void writefogninfo(String filename, List<String> fogn, List<String> agency) {
 
         WritableSheet writablesheet;
@@ -219,10 +222,10 @@ public class MyExcel extends MyStat {
         // default 값은  종가는읽게 6으로 리턴
         int column=0;
         if(tag.equals("DATE")) column = 0;
-        else if(tag.equals("OPEN")) column = 1;
-        else if(tag.equals("HIGH")) column = 2;
+        else if(tag.equals("OPEN")) column = 1; // 매도 1
+        else if(tag.equals("HIGH")) column = 2; // 매수 2
         else if(tag.equals("LOW")) column = 3;
-        else if(tag.equals("CLOSE")) column = 4;
+        else if(tag.equals("CLOSE")) column = 4; // 체결가 4
         else if(tag.equals("VOLUME")) column = 5;
         else column = 4;
 
@@ -278,7 +281,6 @@ public class MyExcel extends MyStat {
     }
 
 
-
     public List<String> oa_readItem(String filename, String tag, boolean header) {
 
         int column = getTagColumn(tag);
@@ -321,6 +323,69 @@ public class MyExcel extends MyStat {
         return pricebuffer;
     }
 
+    public int getTodayTagColumn(String tag) {
+        // default 값은  종가는읽게 6으로 리턴
+        int column=0;
+        if(tag.equals("DATE")) column = 0;
+        else if(tag.equals("DEAL")) column = 4;
+        else if(tag.equals("SELL")) column = 1;
+        else if(tag.equals("BUY")) column = 2;
+        else if(tag.equals("VOLUME")) column = 6;
+        else column = 4;
+
+        return column;
+    }
+    public void writetodayprice( String filename, List<FormatOHLCV> history) {
+        write_ohlcv( filename, history);
+    }
+    public List<String> readtodayprice( String stock_code, String tag, int days, boolean header) {
+        // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
+        int column = getTodayTagColumn(tag);
+        InputStream is=null;
+        Workbook wb=null;
+        int maxcol;
+
+        String PathFile = STOCKDIR+stock_code+".xls";;
+        List<String> pricebuffer = new ArrayList<String>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int start = 0, end;
+                    if(header != true) start = 1;
+                    maxcol = sheet.getColumn(column).length;
+                    // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
+                    if(days >= maxcol || days <= -1) {
+                        start = 1;
+                        end = maxcol-1;
+                    }
+                    else {
+                        start = maxcol-days;
+                        end = maxcol;
+                    }
+                    for(int i=start;i<end;i++) {
+                        // formatOA class의 구조로 저장된다
+                        pricebuffer.add(sheet.getCell(column, i).getContents());
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        } finally {
+            //wb.close();
+            //is.close();
+        }
+
+        return pricebuffer;
+    }
 
     public List<String> read_ohlcv(String stock_code, String tag, int days, boolean header) {
 
@@ -368,8 +433,13 @@ public class MyExcel extends MyStat {
             //wb.close();
             //is.close();
         }
+        List<String> pricebuffer_rev = new ArrayList<>();
+        int size = pricebuffer.size();
+        for(int i =0;i<size;i++) {
+            pricebuffer_rev.add(pricebuffer.get(i));
+        }
 
-        return pricebuffer;
+        return pricebuffer_rev;
     }
     public List<FormatOHLCV> readall_ohlcv(String stock_code) {
 
@@ -714,7 +784,7 @@ public class MyExcel extends MyStat {
                         writablesheet.addCell(new Label(11, row, information.get(row).score));
                         writablesheet.addCell(new Label(12, row, information.get(row).desc));
                         writablesheet.addCell(new Label(13, row, information.get(row).news));
-
+                        writablesheet.addCell(new Label(14, row, information.get(row).fninfo));
                     }
                 }
             }
@@ -771,6 +841,7 @@ public class MyExcel extends MyStat {
                         temp.score = sheet.getCell(11, i).getContents();
                         temp.desc = sheet.getCell(12, i).getContents();
                         temp.news = sheet.getCell(13, i).getContents();
+                        temp.fninfo = sheet.getCell(14, i).getContents();
                         mArrayBuffer.add(temp);
                     }
                 }

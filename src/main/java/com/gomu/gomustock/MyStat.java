@@ -64,6 +64,20 @@ public class MyStat {
         }
         return result;
     }
+
+    public List<Float> string2float_fillpre(List<String> input, int scale) {
+        List<Float> result = new ArrayList<Float>();
+        String temp, pretemp="";
+        int size = input.size();
+        for(int i=0;i< size;i++) {
+            temp = input.get(i).replaceAll(",", "");
+            if(temp.equals("0")) temp = pretemp;
+            result.add(Float.parseFloat(temp)/scale);
+            pretemp = temp;
+        }
+        return result;
+    }
+
     public List<Integer> string2int(List<String> input, int scale) {
         List<Integer> result = new ArrayList<Integer>();
         String temp;
