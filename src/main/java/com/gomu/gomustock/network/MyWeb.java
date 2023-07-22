@@ -5,10 +5,7 @@ import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.MyStat;
 
 
-import main.java.com.gomu.gomustock.format.FormatKOSPI;
-import main.java.com.gomu.gomustock.format.FormatOHLCV;
-import main.java.com.gomu.gomustock.format.FormatSector;
-import main.java.com.gomu.gomustock.format.FormatStockInfo;
+import main.java.com.gomu.gomustock.format.*;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -146,6 +143,51 @@ public class MyWeb {
             result.area_per = trlist.get(13).select("td").get(0).text();
             //result.op_profit = td1_list.get(3).text();
 
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
+    public FormatETFInfo getNaverETFinfo(String stock_code) {
+        FormatETFInfo result = new FormatETFInfo();
+
+        System.out.println("stock_code = " + stock_code+"\n");
+        if(!checkKRStock(stock_code)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            result.init();
+            return result;
+        }
+        try {
+
+            String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
+            Element giname = classinfo0.select("h2").get(0);
+            result.stock_name = giname.text();
+
+            Elements plist = classinfo0.select(".summary_info");
+            int size = plist.size();
+            for(int i =0;i<size;i++) {
+                result.desc = plist.get(i).text() + "\n";
+            }
+
+            Elements classinfo1 = doc.select("#tab_con1"); // id 가져오기
+            Elements trlist = classinfo1.select("tr");
+
+            result.market_sum = trlist.get(0).select("td").get(0).text();
+            result.fund_fee =  trlist.get(6).select("td").get(0).text();
+            result.nav = trlist.get(8).select("td").get(0).text();
+            result.m1_profit_rate = trlist.get(9).select("td").get(0).text();
+            result.m3_profit_rate = trlist.get(10).select("td").get(0).text();
+            result.m6_profit_rate = trlist.get(11).select("td").get(0).text();
+            result.y1_profit_rate = trlist.get(12).select("td").get(0).text();
+            result.stock_code = stock_code;
+            //result.op_profit = td1_list.get(3).text();
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -492,6 +534,7 @@ public class MyWeb {
 
             String time = mydate.getTodayFullTime();
             // /item/sise_time.naver?code=005490&thistime=20230721113906
+            time = "20230721153000";
             String URL = "https://finance.naver.com/item/sise_time.naver?code="+stock_code+"&thistime="+time+pagenumber;
             Document doc;
             doc = Jsoup.connect(URL).get();

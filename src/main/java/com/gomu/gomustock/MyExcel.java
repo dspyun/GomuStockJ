@@ -335,9 +335,11 @@ public class MyExcel extends MyStat {
 
         return column;
     }
+
     public void writetodayprice( String filename, List<FormatOHLCV> history) {
         write_ohlcv( filename, history);
     }
+
     public List<String> readtodayprice( String stock_code, String tag, int days, boolean header) {
         // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
         int column = getTodayTagColumn(tag);
@@ -361,7 +363,7 @@ public class MyExcel extends MyStat {
                     // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
                     if(days >= maxcol || days <= -1) {
                         start = 1;
-                        end = maxcol-1;
+                        end = maxcol;
                     }
                     else {
                         start = maxcol-days;
@@ -384,7 +386,13 @@ public class MyExcel extends MyStat {
             //is.close();
         }
 
-        return pricebuffer;
+        List<String> pricebuffer_rev = new ArrayList<>();
+        int size = pricebuffer.size();
+        for(int i =size-1;i>=0;i--) {
+            pricebuffer_rev.add(pricebuffer.get(i));
+        }
+
+        return pricebuffer_rev;
     }
 
     public List<String> read_ohlcv(String stock_code, String tag, int days, boolean header) {
@@ -411,7 +419,7 @@ public class MyExcel extends MyStat {
                     // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
                     if(days >= maxcol || days <= -1) {
                         start = 1;
-                        end = maxcol-1;
+                        end = maxcol;
                     }
                     else {
                         start = maxcol-days;
@@ -433,13 +441,8 @@ public class MyExcel extends MyStat {
             //wb.close();
             //is.close();
         }
-        List<String> pricebuffer_rev = new ArrayList<>();
-        int size = pricebuffer.size();
-        for(int i =0;i<size;i++) {
-            pricebuffer_rev.add(pricebuffer.get(i));
-        }
 
-        return pricebuffer_rev;
+        return pricebuffer;
     }
     public List<FormatOHLCV> readall_ohlcv(String stock_code) {
 
@@ -772,19 +775,21 @@ public class MyExcel extends MyStat {
                     for(int row =0;row<size;row++) {
                         writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
                         writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
-                        writablesheet.addCell(new Label(2, row, information.get(row).ranking));
-                        writablesheet.addCell(new Label(3, row, information.get(row).per));
-                        writablesheet.addCell(new Label(4, row, information.get(row).expect_per));
-                        writablesheet.addCell(new Label(5, row, information.get(row).area_per));
-                        writablesheet.addCell(new Label(6, row, information.get(row).pbr));
-                        writablesheet.addCell(new Label(7, row, information.get(row).div_rate));
-                        writablesheet.addCell(new Label(8, row, information.get(row).fogn_rate));
-                        writablesheet.addCell(new Label(9, row, information.get(row).recommend));
-                        writablesheet.addCell(new Label(10, row, information.get(row).cur_price));
-                        writablesheet.addCell(new Label(11, row, information.get(row).score));
-                        writablesheet.addCell(new Label(12, row, information.get(row).desc));
-                        writablesheet.addCell(new Label(13, row, information.get(row).news));
-                        writablesheet.addCell(new Label(14, row, information.get(row).fninfo));
+                        writablesheet.addCell(new Label(2, row, information.get(row).stock_type));
+                        writablesheet.addCell(new Label(3, row, information.get(row).ranking));
+                        writablesheet.addCell(new Label(4, row, information.get(row).per));
+                        writablesheet.addCell(new Label(5, row, information.get(row).expect_per));
+                        writablesheet.addCell(new Label(6, row, information.get(row).area_per));
+                        writablesheet.addCell(new Label(7, row, information.get(row).pbr));
+                        writablesheet.addCell(new Label(8, row, information.get(row).div_rate));
+                        writablesheet.addCell(new Label(9, row, information.get(row).fogn_rate));
+                        writablesheet.addCell(new Label(10, row, information.get(row).recommend));
+                        writablesheet.addCell(new Label(11, row, information.get(row).cur_price));
+                        writablesheet.addCell(new Label(12, row, information.get(row).score));
+                        writablesheet.addCell(new Label(13, row, information.get(row).desc));
+                        writablesheet.addCell(new Label(14, row, information.get(row).news));
+                        writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
+                        writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
                     }
                 }
             }
@@ -829,19 +834,21 @@ public class MyExcel extends MyStat {
                         FormatStockInfo temp = new FormatStockInfo();
                         temp.stock_code = sheet.getCell(0, i).getContents();
                         temp.stock_name = sheet.getCell(1, i).getContents();
-                        temp.ranking = sheet.getCell(2, i).getContents();
-                        temp.per = sheet.getCell(3, i).getContents();
-                        temp.expect_per = sheet.getCell(4, i).getContents();
-                        temp.area_per = sheet.getCell(5, i).getContents();
-                        temp.pbr = sheet.getCell(6, i).getContents();
-                        temp.div_rate = sheet.getCell(7, i).getContents();
-                        temp.fogn_rate = sheet.getCell(8, i).getContents();
-                        temp.recommend = sheet.getCell(9, i).getContents();
-                        temp.cur_price = sheet.getCell(10, i).getContents();
-                        temp.score = sheet.getCell(11, i).getContents();
-                        temp.desc = sheet.getCell(12, i).getContents();
-                        temp.news = sheet.getCell(13, i).getContents();
-                        temp.fninfo = sheet.getCell(14, i).getContents();
+                        temp.stock_type = sheet.getCell(2, i).getContents();
+                        temp.ranking = sheet.getCell(3, i).getContents();
+                        temp.per = sheet.getCell(4, i).getContents();
+                        temp.expect_per = sheet.getCell(5, i).getContents();
+                        temp.area_per = sheet.getCell(6, i).getContents();
+                        temp.pbr = sheet.getCell(7, i).getContents();
+                        temp.div_rate = sheet.getCell(8, i).getContents();
+                        temp.fogn_rate = sheet.getCell(9, i).getContents();
+                        temp.recommend = sheet.getCell(10, i).getContents();
+                        temp.cur_price = sheet.getCell(11, i).getContents();
+                        temp.score = sheet.getCell(12, i).getContents();
+                        temp.desc = sheet.getCell(13, i).getContents();
+                        temp.news = sheet.getCell(14, i).getContents();
+                        temp.fninfo = sheet.getCell(15, i).getContents();
+                        temp.etfinfo = sheet.getCell(16, i).getContents();
                         mArrayBuffer.add(temp);
                     }
                 }

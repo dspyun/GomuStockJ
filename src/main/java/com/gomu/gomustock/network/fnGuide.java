@@ -91,4 +91,48 @@ public class fnGuide {
         }
         return result;
     }
+
+    class fnetfinfo {
+        String risk_info; // 평가시작
+        String divide_turn; // 평가시작
+        String divide_rate;
+        List<String> op_profit = new ArrayList<>(); // 영업이익
+        List<String> net_income = new ArrayList<>(); // 당기순이익
+        List<String> op_profit_rate = new ArrayList<>(); // 영업이익률
+    }
+    public String getFnguideETFInfo(String stock_code) {
+        String result="";
+
+        //System.out.println("stock_code = " + stock_code+"\n");
+        if(!checkKRStock(stock_code)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            return result="empty";
+        }
+        try {
+            fnetfinfo myfninfo = new fnetfinfo();
+            String URL = "https://comp.fnguide.com/SVO2/ASP/SVD_main.asp?gicode=A"+stock_code;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements risklist = doc.select(".corp_group3"); // 위험등급정보
+            myfninfo.risk_info = risklist.select("dt").get(0).text();
+            myfninfo.risk_info += " " + risklist.select("dd").text();
+
+            Elements dividelist = doc.select("#etfDivInfo1"); // 분배금현황
+            Elements trlist = dividelist.select("tr");
+            myfninfo.divide_turn = trlist.get(1).select("th").get(0).text();
+            myfninfo.divide_turn += trlist.get(1).select("td").get(0).text();
+
+            myfninfo.divide_rate = trlist.get(1).select("th").get(1).text();
+            myfninfo.divide_rate += trlist.get(1).select("td").get(1).text();
+
+            result = myfninfo.risk_info + "\n";
+            result += myfninfo.divide_turn + "\n";
+            result += myfninfo.divide_rate + "\n";
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

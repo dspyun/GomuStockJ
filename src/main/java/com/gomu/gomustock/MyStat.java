@@ -54,6 +54,18 @@ public class MyStat {
         return standardcloseprice;
     }
 
+    String findNotZero(List<String> input) {
+        String result="";
+        int size = input.size();
+        for(int i =0;i<size;i++) {
+            if(!input.get(i).equals("0") && !input.get(i).equals("")) {
+                result = input.get(i);
+                break;
+            }
+        }
+        return result;
+    }
+
     public List<Float> string2float(List<String> input, int scale) {
         List<Float> result = new ArrayList<Float>();
         String temp;
@@ -68,10 +80,11 @@ public class MyStat {
     public List<Float> string2float_fillpre(List<String> input, int scale) {
         List<Float> result = new ArrayList<Float>();
         String temp, pretemp="";
+        pretemp = findNotZero(input);
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
-            if(temp.equals("0")) temp = pretemp;
+            if(temp.equals("0") || temp.equals("")) temp = pretemp;
             result.add(Float.parseFloat(temp)/scale);
             pretemp = temp;
         }

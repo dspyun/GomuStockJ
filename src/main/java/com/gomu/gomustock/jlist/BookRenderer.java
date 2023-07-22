@@ -67,7 +67,7 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 	public Component getListCellRendererComponent(JList<? extends Book> list,
 			Book book, int index, boolean isSelected, boolean cellHasFocus) {
 
-		System.out.println("index = " + index);
+		//System.out.println("index = " + index);
 		//String icon_path = STOCKDIR+book.getIconName() + ".jpg";
 		BufferedImage img = null;
 		try {
@@ -84,7 +84,7 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 			e.printStackTrace();
 		}
 		lbAgencyIcon.setIcon( new ImageIcon(img2));
-/*
+
 		BufferedImage img3 = null;
 		img3 = getLoanBuyMoneyimage(book.getStockcode());
 		lbLoanBuyIcon.setIcon( new ImageIcon(img3));
@@ -92,8 +92,9 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 		BufferedImage img4 = null;
 		img4 = getLoanSellMoneyimage(book.getStockcode());
 		lbLoanSellIcon.setIcon( new ImageIcon(img4));
-*/
-		lbIndication.setText(book.getIndication());
+
+		if(book.getStocktype().equals("KETF"))lbIndication.setText(book.getETFInfo());
+		else lbIndication.setText(book.getStockInfo());
 		lbIndication.setForeground(Color.blue);
 		lbIndication.setPreferredSize(new Dimension(100,200));
 		lbIndication.setAutoscrolls(true);
