@@ -38,12 +38,12 @@ public class Main extends JFrame{
     public static void main(String[] args) throws IOException {
 
 
-        Example exam = new Example();
-        exam.ichimoku_test2();
+        //Example exam = new Example();
+        //exam.ichimoku_test2();
 
         //trans();
 
-        //new JListCustomRenderer();
+        new JListCustomRenderer();
     }
 
 

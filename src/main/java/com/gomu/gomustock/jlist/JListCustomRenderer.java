@@ -10,6 +10,7 @@ import main.java.com.gomu.gomustock.network.PriceBox;
 import main.java.com.gomu.gomustock.network.YFDownload;
 import main.java.com.gomu.gomustock.network.fnGuide;
 import main.java.com.gomu.gomustock.stockengin.BBandTest;
+import main.java.com.gomu.gomustock.stockengin.IchimokuTest;
 import main.java.com.gomu.gomustock.stockengin.RSITest;
 import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.knowm.xchart.*;
@@ -85,12 +86,13 @@ public class JListCustomRenderer extends JFrame {
 
 	private XYChart GetChart(String stock_code) {
 
-		Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.LIGHT_GRAY,Color.BLUE};
+        int test_period = 120;
+		Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.ORANGE,Color.BLUE};
 		MyStat mystat = new MyStat();
 		PriceBox kbbank = new PriceBox(stock_code);
-		List<Float> kbband_close = kbbank.getClose(120);
-		BBandTest bbtest = new BBandTest(stock_code,kbband_close,120);
-		RSITest rsitest = new RSITest(stock_code,kbband_close,120);
+		List<Float> kbband_close = kbbank.getClose(test_period);
+		BBandTest bbtest = new BBandTest(stock_code,kbband_close,test_period);
+		RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
 		List<Float> rsi_line = rsitest.test_line();
 
 
@@ -110,6 +112,15 @@ public class JListCustomRenderer extends JFrame {
 		List<Float> buyscore = bbtest.scaled_percentb();
 		XYSeries series_b = chart.addSeries("buysignal",buyscore);
 		series_b.setLineWidth(linewidth);
+
+        IchimokuTest ichi = new IchimokuTest("005930", kbband_close, test_period);
+        List<Float> prospan1line = ichi.getProspan1();
+        XYSeries series_p1 = chart.addSeries("prospan1line",mystat.leveling_float(prospan1line));
+        series_p1.setLineWidth(linewidth);
+
+        List<Float> prospan2line = ichi.getProspan2();
+        XYSeries series_p2 = chart.addSeries("prospan2line",mystat.leveling_float(prospan2line));
+        series_p2.setLineWidth(linewidth);
 
 		//rsi_line = mystat.leveling_float(rsi_line,  Collections.min(bbtest.getLowLine()));
 		//XYSeries series_r = chart.addSeries("rsisignal",rsi_line);
