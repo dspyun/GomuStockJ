@@ -40,7 +40,9 @@ public class Main extends JFrame{
 
         Example exam = new Example();
         exam.ichimoku_test2();
+
         //trans();
+
         //new JListCustomRenderer();
     }
 

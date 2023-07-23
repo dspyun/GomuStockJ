@@ -27,8 +27,10 @@ public class IchimokuTest {
     List<Float> MAINLINE = new ArrayList<>();
     List<Float> TRANSLINE = new ArrayList<>();
     List<Float> X = new ArrayList<>();
+    int PERIOD;
 
     public IchimokuTest (String stock_code, List<Float> close, int days) {
+        PERIOD = days;
         int size = close.size();
         if (days == -1) CLOSEDATA = close;
         else {
@@ -40,24 +42,26 @@ public class IchimokuTest {
     }
 
     public List<Float> getX() {
-        int size = PROSPAN1LINE.size();
-        for(float i = 0;i<size;i++) X.add(i);
+        int size = BEHINDESPANLINE.size(); // 300, PERIOD가 200이다
+        for(float i = 0;i<PERIOD;i++) X.add(i);
         return X;
     }
+
     public List<Float> getProspan1() {
-        return PROSPAN1LINE;
+
+        return cutPeriod(PROSPAN1LINE);
     }
     public List<Float> getProspan2() {
-        return PROSPAN2LINE;
+        return cutPeriod(PROSPAN2LINE);
     }
     public List<Float> getMainline() {
-        return MAINLINE;
+        return cutPeriod(MAINLINE);
     }
     public List<Float> getTransline() {
-        return TRANSLINE;
+        return cutPeriod(TRANSLINE);
     }
     public List<Float> getBehindline() {
-        return BEHINDESPANLINE;
+        return cutPeriod(BEHINDESPANLINE);
     }
 
     void ichimoku_test() {
@@ -108,10 +112,12 @@ public class IchimokuTest {
         for(int i=0;i<26;i++) PROSPAN2LINE.add(0,fillvalue); // 길이조정
 
         //5. 후행스팬 : 종가를 26일 뒤로 보낸 라인
-        BEHINDESPANLINE = input;
+        BEHINDESPANLINE = CLOSEDATA;
         fillvalue = BEHINDESPANLINE.get(BEHINDESPANLINE.size()-1);
-        for(int i = 0;i<26;i++) BEHINDESPANLINE.add(fillvalue);
-        for(int i=0;i<52;i++) BEHINDESPANLINE.remove(i);
+        for(int i = 0;i<26;i++) BEHINDESPANLINE.add(fillvalue); // 240개를 26일 뒤로 보낸다
+        //for(int i=0;i<26;i++) BEHINDESPANLINE.remove(i); // 26개 추가된 만큼 잘라준다.
+        //for(int i = 0;i<26;i++) BEHINDESPANLINE.add(fillvalue); // 선행 span에서 26개 추가되었으니  26개 추가해주고
+
 
     }
 
@@ -137,6 +143,18 @@ public class IchimokuTest {
             day52_str.add(input.get(i));
         }
         return day52_str;
+    }
+
+    List<Float> cutPeriod(List<Float> input) {
+
+        List<Float> result = new ArrayList<>();
+        int size = input.size(); // 300
+        int start = size - PERIOD;
+        for(int i =start;i<size;i++) {
+            result.add(input.get(i));
+        }
+        //return input;
+        return result;
     }
 
 }

@@ -238,20 +238,19 @@ public class Example {
         List<Float> prospan1line = new ArrayList<>(); // 선행스팬1
         List<Float> prospan12line = new ArrayList<>(); // 선행스팬2
         List<Float> behindspanline = new ArrayList<>(); // 후행스팬
-        List<Float> X = new ArrayList<>(); // X size
+        List<Float> Xline = new ArrayList<>(); // X size
 
         PriceBox kbbank = new PriceBox("005930");
         List<Float> input_org = kbbank.getClose(240);
 
-        IchimokuTest ichi = new IchimokuTest("005930", input_org, 240);
+        IchimokuTest ichi = new IchimokuTest("005930", input_org, 180);
         prospan1line = ichi.getProspan1();
         prospan12line = ichi.getProspan2();
         behindspanline = ichi.getBehindline();
-        X = ichi.getX();
-
+        Xline = ichi.getX();
 
         Color[] colors = {Color.GRAY, Color.BLUE, Color.RED,Color.LIGHT_GRAY,Color.LIGHT_GRAY};
-        XYChart chart  = QuickChart.getChart("후행선", "X", "Y", "y(x)", X, behindspanline);
+        XYChart chart  = QuickChart.getChart("후행선", "X", "Y", "y(x)", Xline, behindspanline);
         chart.addSeries("선행스팬1",prospan1line);
         chart.addSeries("선행스팬2",prospan12line);
         //chart.addSeries("기준선",mainline);
