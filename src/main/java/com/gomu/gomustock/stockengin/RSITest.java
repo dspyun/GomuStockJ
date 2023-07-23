@@ -34,6 +34,7 @@ public class RSITest {
                 CLOSEDATA.add(close.get(size - days + i));
             }
         }
+
     }
 
     public List<Float> test_line() {

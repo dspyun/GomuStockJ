@@ -84,7 +84,7 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 			e.printStackTrace();
 		}
 		lbAgencyIcon.setIcon( new ImageIcon(img2));
-
+/*
 		BufferedImage img3 = null;
 		img3 = getLoanBuyMoneyimage(book.getStockcode());
 		lbLoanBuyIcon.setIcon( new ImageIcon(img3));
@@ -92,7 +92,7 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 		BufferedImage img4 = null;
 		img4 = getLoanSellMoneyimage(book.getStockcode());
 		lbLoanSellIcon.setIcon( new ImageIcon(img4));
-
+*/
 		if(book.getStocktype().equals("KETF"))lbIndication.setText(book.getETFInfo());
 		else lbIndication.setText(book.getStockInfo());
 		lbIndication.setForeground(Color.blue);

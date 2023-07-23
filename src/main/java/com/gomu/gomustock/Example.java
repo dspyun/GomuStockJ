@@ -6,6 +6,7 @@ import main.java.com.gomu.gomustock.network.PriceBox;
 import main.java.com.gomu.gomustock.network.YFDownload;
 import main.java.com.gomu.gomustock.stockengin.BBandTest;
 import main.java.com.gomu.gomustock.stockengin.Balance;
+import main.java.com.gomu.gomustock.stockengin.IchimokuTest;
 import org.knowm.xchart.QuickChart;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XChartPanel;
@@ -17,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Example {
@@ -105,8 +107,6 @@ public class Example {
         float total_buy_price = kbbank_balance.getTotalBuyCost();
         System.out.println("total buy : " + total_buy_price);
     }
-
-
 
     public void multi_chart() {
 
@@ -230,4 +230,48 @@ public class Example {
         frame.setVisible(true);
 
     }
+
+    public void ichimoku_test2() {
+
+        List<Float> transline = new ArrayList<>(); // 전환선
+        List<Float> mainline = new ArrayList<>(); // 기준선
+        List<Float> prospan1line = new ArrayList<>(); // 선행스팬1
+        List<Float> prospan12line = new ArrayList<>(); // 선행스팬2
+        List<Float> behindspanline = new ArrayList<>(); // 후행스팬
+        List<Float> X = new ArrayList<>(); // X size
+
+        PriceBox kbbank = new PriceBox("005930");
+        List<Float> input_org = kbbank.getClose(240);
+
+        IchimokuTest ichi = new IchimokuTest("005930", input_org, 240);
+        prospan1line = ichi.getProspan1();
+        prospan12line = ichi.getProspan2();
+        behindspanline = ichi.getBehindline();
+        X = ichi.getX();
+
+
+        Color[] colors = {Color.GRAY, Color.BLUE, Color.RED,Color.LIGHT_GRAY,Color.LIGHT_GRAY};
+        XYChart chart  = QuickChart.getChart("후행선", "X", "Y", "y(x)", X, behindspanline);
+        chart.addSeries("선행스팬1",prospan1line);
+        chart.addSeries("선행스팬2",prospan12line);
+        //chart.addSeries("기준선",mainline);
+        //chart.addSeries("전환선",transline);
+        chart.getStyler().setMarkerSize(0);
+        chart.getStyler().setSeriesColors(colors);
+
+        // Create and set up the window.
+        JFrame frame = new JFrame("XChart Swing Demo");
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        // Add content to the window.
+        //JPanel chartPanel = new XChartPanel(new AreaChart01().getChart());
+        JPanel chartPanel = new XChartPanel(chart);
+        frame.add(chartPanel);
+
+        // Display the window.
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+
 }

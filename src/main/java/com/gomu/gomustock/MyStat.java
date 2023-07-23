@@ -260,4 +260,21 @@ public class MyStat {
         }
         return temp;
     }
+
+    public List<Float> leveling_float(List<Float> input, float min) {
+        MyStat mystat = new MyStat();
+        int size = input.size();
+        List<Float> temp = new ArrayList<>();
+        float diff = (float) (min*1.1 - min);// 최저치=min, 최고치는 min*1.3 사이에서 백분율값으로 왔다갔다 하게 한다
+        /*
+        for(int i =0;i<size;i++) {
+            temp.add(input.get(i)/100);
+        }
+        */
+        temp = mystat.standardization_lib(input);
+        for(int i =0;i<size;i++) {
+            temp.set(i,min+diff*temp.get(i));
+        }
+        return temp;
+    }
 }

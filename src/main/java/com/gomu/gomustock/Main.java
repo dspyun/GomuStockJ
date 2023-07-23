@@ -36,22 +36,29 @@ public class Main extends JFrame{
     private static final Random random = new Random();
 
     public static void main(String[] args) throws IOException {
-        //fnGuide myfnguide = new fnGuide();
-        //String result = myfnguide.getFnguideInfo("005930");
-        //System.out.println(result);
+
+
+        Example exam = new Example();
+        exam.ichimoku_test2();
         //trans();
-        new JListCustomRenderer();
+        //new JListCustomRenderer();
     }
 
 
     public static void trans() {
         MyExcel myexcel = new MyExcel();
-        List<String> name = myexcel.readColumn("pension.xls",2);
+        List<String> name = myexcel.readColumn("trans.xls",1);
         StockDic mydict = new StockDic();
+        List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+
         int size = name.size();
         for(int i =0;i<size;i++) {
+            FormatStockInfo oneinfo = new FormatStockInfo();
             String stock_code = mydict.getStockcode(name.get(i));
             System.out.println(stock_code);
+            oneinfo.stock_code = stock_code;
+            web_stockinfo.add(oneinfo);
         }
+        myexcel.writestockinfo(0,web_stockinfo);
     }
 }

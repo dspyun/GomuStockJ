@@ -2,6 +2,7 @@ package main.java.com.gomu.gomustock.jlist;
 
 import main.java.com.gomu.gomustock.Example;
 import main.java.com.gomu.gomustock.MyExcel;
+import main.java.com.gomu.gomustock.MyStat;
 import main.java.com.gomu.gomustock.format.FormatETFInfo;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.network.MyWeb;
@@ -9,6 +10,7 @@ import main.java.com.gomu.gomustock.network.PriceBox;
 import main.java.com.gomu.gomustock.network.YFDownload;
 import main.java.com.gomu.gomustock.network.fnGuide;
 import main.java.com.gomu.gomustock.stockengin.BBandTest;
+import main.java.com.gomu.gomustock.stockengin.RSITest;
 import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
@@ -16,6 +18,7 @@ import org.knowm.xchart.style.Styler;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -82,11 +85,14 @@ public class JListCustomRenderer extends JFrame {
 
 	private XYChart GetChart(String stock_code) {
 
-		Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.LIGHT_GRAY,Color.BLUE};
-
+		Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.LIGHT_GRAY,Color.BLUE};
+		MyStat mystat = new MyStat();
 		PriceBox kbbank = new PriceBox(stock_code);
 		List<Float> kbband_close = kbbank.getClose(120);
 		BBandTest bbtest = new BBandTest(stock_code,kbband_close,120);
+		RSITest rsitest = new RSITest(stock_code,kbband_close,120);
+		List<Float> rsi_line = rsitest.test_line();
+
 
 		// Create Chart & add first data
 		float linewidth=1.5f;
@@ -104,6 +110,10 @@ public class JListCustomRenderer extends JFrame {
 		List<Float> buyscore = bbtest.scaled_percentb();
 		XYSeries series_b = chart.addSeries("buysignal",buyscore);
 		series_b.setLineWidth(linewidth);
+
+		//rsi_line = mystat.leveling_float(rsi_line,  Collections.min(bbtest.getLowLine()));
+		//XYSeries series_r = chart.addSeries("rsisignal",rsi_line);
+		//series_r.setLineWidth(linewidth);
 
 		chart.getStyler().setMarkerSize(0);
 		chart.getStyler().setSeriesColors(colors);
