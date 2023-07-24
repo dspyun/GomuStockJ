@@ -95,22 +95,24 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 */
 		if(book.getStocktype().equals("KETF"))lbIndication.setText(book.getETFInfo());
 		else lbIndication.setText(book.getStockInfo());
-		lbIndication.setForeground(Color.blue);
+		//lbIndication.setForeground(Color.blue);
 		lbIndication.setPreferredSize(new Dimension(100,200));
 		lbIndication.setAutoscrolls(true);
+		lbIndication.setFont(new Font("TextArea.font", Font.BOLD, 12));
 
 		lbNews.setText(book.getNews());
-		lbNews.setForeground(Color.blue);
+		//lbNews.setForeground(Color.blue);
 		lbNews.setPreferredSize(new Dimension(300,200));
 		lbNews.setAutoscrolls(true);
 
 		lbfninfo.setText(book.getfninfo());
-		lbfninfo.setForeground(Color.blue);
+		//lbfninfo.setForeground(Color.blue);
 		lbfninfo.setPreferredSize(new Dimension(300,200));
 		lbfninfo.setLineWrap(true);
+		lbfninfo.setFont(new Font("TextArea.font", Font.BOLD, 12));
 
 		lbCompanyinfo.setText(book.getCompanyInfo());
-		lbCompanyinfo.setForeground(Color.blue);
+		//lbCompanyinfo.setForeground(Color.blue);
 		lbCompanyinfo.setPreferredSize(new Dimension(300,200));
 		lbCompanyinfo.setLineWrap(true);
 
@@ -118,14 +120,14 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 		lbChart.removeAll();
 		lbChart.add(new XChartPanel(book.getChart()));
 		lbChart.setPreferredSize(new Dimension(300,200));
-		lbChart.setForeground(Color.blue);
+		//lbChart.setForeground(Color.blue);
 		//System.out.println("book index " + index);
 
 		// set이 아니고 add를 쓰기 때문에 이전 데이터를 지워줘야 한다
 		lbTodayChart.removeAll();
 		lbTodayChart.add(new XChartPanel(book.getTodayChart()));
 		lbTodayChart.setPreferredSize(new Dimension(300,200));
-		lbTodayChart.setForeground(Color.blue);
+		//lbTodayChart.setForeground(Color.blue);
 
 		// set Opaque to change background color of JLabel
 		lbIndication.setOpaque(true);
@@ -137,6 +139,7 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 
 		// when select item
 		if (isSelected) {
+			/*
 			lbIndication.setBackground(list.getSelectionBackground());
 			lbCompanyinfo.setBackground(list.getSelectionBackground());
 			lbfninfo.setBackground(list.getSelectionBackground());
@@ -147,9 +150,21 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 			lbAgencyIcon.setBackground(list.getSelectionBackground());
 			lbLoanBuyIcon.setBackground(list.getSelectionBackground());
 			lbLoanSellIcon.setBackground(list.getSelectionBackground());
+			*/
+			lbIndication.setBackground(Color.lightGray);
+			lbCompanyinfo.setBackground(Color.lightGray);
+			lbfninfo.setBackground(Color.lightGray);
+			lbNews.setBackground(Color.lightGray);
+			lbChart.setBackground(Color.lightGray);
+			lbTodayChart.setBackground(Color.lightGray);
+			lbFognIcon.setBackground(Color.lightGray);
+			lbAgencyIcon.setBackground(Color.lightGray);
+			lbLoanBuyIcon.setBackground(Color.lightGray);
+			lbLoanSellIcon.setBackground(Color.lightGray);
 
 		} else { // when don't select
 			if(index%2==1) {
+				/*
 				lbIndication.setBackground(Color.lightGray);
 				lbCompanyinfo.setBackground(Color.lightGray);
 				lbfninfo.setBackground(Color.lightGray);
@@ -160,6 +175,8 @@ public class BookRenderer extends JPanel implements ListCellRenderer<Book> {
 				lbAgencyIcon.setBackground(Color.lightGray);
 				lbLoanBuyIcon.setBackground(Color.lightGray);
 				lbLoanSellIcon.setBackground(Color.lightGray);
+
+				 */
 			} else {
 				lbIndication.setBackground(list.getBackground());
 				lbCompanyinfo.setBackground(list.getBackground());

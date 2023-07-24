@@ -83,10 +83,11 @@ public class MyStat {
         List<Float> result = new ArrayList<Float>();
         String temp, pretemp="";
         pretemp = findNotZero(input);
+        if(pretemp.isEmpty()) pretemp = "1";
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
-            if(temp.equals("0") || temp.equals("")) temp = pretemp;
+            if(temp.equals("0") || temp.equals("") || temp.isEmpty()) temp = pretemp;
             result.add(Float.parseFloat(temp)/scale);
             pretemp = temp;
         }

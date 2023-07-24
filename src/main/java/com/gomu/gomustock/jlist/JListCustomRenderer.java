@@ -22,11 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class JListCustomRenderer extends JFrame {
@@ -37,17 +33,19 @@ public class JListCustomRenderer extends JFrame {
 
 	public JListCustomRenderer() throws UnsupportedEncodingException {
 
-		add(createMainPanel());
+		//add(createMainPanel());
 
 		// set display
-		setTitle("JLIstCustomRenderer");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(width, height);
-		setLocationRelativeTo(null);
-		setVisible(true);
+		//setTitle("JLIstCustomRenderer");
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//setSize(width, height);
+		//setLocationRelativeTo(null);
+		//setVisible(true);
 	}
 
-	private JPanel createMainPanel() throws UnsupportedEncodingException {
+	public JPanel createMainPanel() throws UnsupportedEncodingException {
+
+
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		// create list book and set to scrollpane and add to panel
@@ -63,6 +61,8 @@ public class JListCustomRenderer extends JFrame {
 		List<String> stock_list = new ArrayList<>();
 		stock_list = getStockList();
 		//downloadStockInfo(stock_list);
+		//downloadYFrice(stock_list);
+		downloadNowPrice(stock_list);
 		List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
 		web_stockinfo = getStockInfo();
 
@@ -70,11 +70,12 @@ public class JListCustomRenderer extends JFrame {
 		int size = web_stockinfo.size();
 		for(int i=0;i<size;i++) {
 			String stock_code = web_stockinfo.get(i).stock_code;
-			System.out.println(stock_code);
+			String target = web_stockinfo.get(i).score;
+			//String target = "1";
+			//System.out.println(stock_code);
 			XYChart mychart = GetChart(stock_code);
-			XYChart todaychart = GetTodayChart(stock_code);
+			XYChart todaychart = GetTodayChart(stock_code,Float.valueOf(target));
 			model.addElement(new Book(web_stockinfo.get(i), mychart, todaychart));
-
 		}
 
 		// create JList with model
@@ -133,9 +134,9 @@ public class JListCustomRenderer extends JFrame {
 		return chart;
 	}
 
-	private XYChart GetTodayChart(String stock_code) {
+	private XYChart GetTodayChart(String stock_code, float target) {
 
-		Color[] colors = {Color.RED, Color.BLUE,Color.CYAN, Color.GRAY, Color.LIGHT_GRAY,Color.BLUE};
+		Color[] colors = {Color.RED, Color.BLUE,Color.BLACK, Color.GRAY, Color.LIGHT_GRAY,Color.BLUE};
 
         int hour = 60*4;
 		MyExcel myexcel = new MyExcel();
@@ -145,6 +146,11 @@ public class JListCustomRenderer extends JFrame {
 		List<Float> kbband_deal = myexcel.string2float_fillpre(dealprice,1);
         List<Float> kbband_sell = myexcel.string2float_fillpre(sellprice,1);
         List<Float> kbband_buy = myexcel.string2float_fillpre(buyprice,1);
+		List<Float> targetlist = new ArrayList<>();
+		int size = kbband_buy.size();
+		for(int i =0;i<size;i++) {
+			targetlist.add(target);
+		}
 
 		// Create Chart & add first data
 		float linewidth=1.5f;
@@ -153,6 +159,9 @@ public class JListCustomRenderer extends JFrame {
         series_s.setLineWidth(linewidth);
         XYSeries series_b = chart.addSeries("buy",kbband_buy);
         series_b.setLineWidth(linewidth);
+
+		XYSeries series_t = chart.addSeries("target",targetlist);
+		series_t.setLineWidth(linewidth);
 		chart.getStyler().setMarkerSize(0);
 		chart.getStyler().setSeriesColors(colors);
 		chart.getStyler().setLegendVisible(false);
@@ -179,7 +188,7 @@ public class JListCustomRenderer extends JFrame {
 		StockDic stockdic = new StockDic();
 		List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
 
-		int hour = 4;
+		int hour = 3;
 		int size = stock_list.size();
 		for(int i =0;i<size;i++) {
 			String stock_code = stock_list.get(i);
@@ -191,6 +200,7 @@ public class JListCustomRenderer extends JFrame {
 			if(stockdic.checkKRStock(stock_code) && (stockdic.getMarket(stock_code)!="")) {
 				// stock_cdoe정보를 포함하고 있는
 				// 네이버 정보를 가장 먼저 가져오고 그 다음에 다른 정보를 추가해야 한다
+
 				stockinfo = myweb.getNaverStockinfo(stock_code);
 				stockinfo.stock_code = stock_code;
 				stockinfo.stock_type="KSTOCK";
@@ -202,8 +212,6 @@ public class JListCustomRenderer extends JFrame {
 				stockinfo.fninfo = myfnguide.getFnguideInfo(stock_code);
 
 				web_stockinfo.add(stockinfo);
-
-				myweb.getNaverpriceByToday(stock_code,6*hour); // 1시간을 읽어서 저장한다
 			} else {
 
 				etfinfo = myweb.getNaverETFinfo(stock_code);
@@ -218,12 +226,27 @@ public class JListCustomRenderer extends JFrame {
 				// fnguide정보를 가져온다
 				stockinfo.fninfo = myfnguide.getFnguideETFInfo(stock_code);
 				web_stockinfo.add(stockinfo);
-				myweb.getNaverpriceByToday(stock_code,6*hour); // 1시간을 읽어서 저장한다
 			}
-
-			new YFDownload(stock_list.get(i));
 		}
 		myexcel.writestockinfo(0,web_stockinfo);
+	}
+
+	public void downloadNowPrice(List<String> stock_list) {
+		MyExcel myexcel = new MyExcel();
+		MyWeb myweb = new MyWeb();
+		int hour = 3;
+		int size = stock_list.size();
+		for(int i =0;i<size;i++) {
+			String stock_code = stock_list.get(i);
+			myweb.getNaverpriceByToday(stock_code, 6 * hour); // 1시간을 읽어서 저장한다
+		}
+	}
+
+	public void downloadYFrice(List<String> stock_list) {
+		int size = stock_list.size();
+		for(int i =0;i<size;i++) {
+			new YFDownload(stock_list.get(i));
+		}
 	}
 
 	public List<FormatStockInfo> getStockInfo() {

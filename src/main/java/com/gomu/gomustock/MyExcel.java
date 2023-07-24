@@ -44,8 +44,6 @@ public class MyExcel extends MyStat {
     }
 
 
-
-
     public List<String> readColumn(String excelfile, int col) {
 
         InputStream is=null;
