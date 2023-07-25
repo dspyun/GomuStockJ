@@ -8,10 +8,10 @@ import java.util.List;
 
 public class InfoRead {
 
+    MyExcel myexcel = new MyExcel();
     public List<String> getStockListCustom(String filename) {
         List<String> stock_list = new ArrayList<>();
 
-        MyExcel myexcel = new MyExcel();
         List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
         web_stockinfo = myexcel.readStockinfoCustom(filename, false);
         int size = web_stockinfo.size();
@@ -22,9 +22,7 @@ public class InfoRead {
     }
 
     public List<FormatStockInfo> getStockInfoCustom(String filename) {
-        List<String> stock_list = new ArrayList<>();
 
-        MyExcel myexcel = new MyExcel();
         List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
         web_stockinfo = myexcel.readStockinfoCustom(filename, false);
         return web_stockinfo;

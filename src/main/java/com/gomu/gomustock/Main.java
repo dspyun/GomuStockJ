@@ -13,16 +13,13 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.TextEvent;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.List;
 
 public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
-
 
         StockChart schart = new StockChart();
         InfoDownload idown = new InfoDownload();
@@ -42,9 +39,6 @@ public class Main extends JFrame{
 
         // header panel에는 버튼과 텍스트필드를 넣는다
         JPanel HeaderPanel = new JPanel();
-        //HeaderPanel.setLocation(20,20);
-        //HeaderPanel.setPreferredSize(new Dimension(1800,50));
-
         HeaderPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         HeaderPanel.setBounds(20,20,1600,50);
         frame.add(HeaderPanel,BorderLayout.NORTH);
@@ -53,17 +47,21 @@ public class Main extends JFrame{
         TitleLabel.setPreferredSize( new Dimension( 200, 24 ) );
         HeaderPanel.add(TitleLabel);
 
-        JButton button3 = new JButton("주가갱신");
+        JButton button1 = new JButton("주가갱신");
+        HeaderPanel.add(button1);
+        JButton button2 = new JButton("보유주식");
+        HeaderPanel.add(button2);
+        JButton button3 = new JButton("파일읽기");
         HeaderPanel.add(button3);
-        JButton button6 = new JButton("보유주식");
-        HeaderPanel.add(button6);
-        JButton button7 = new JButton("파일읽기");
-        HeaderPanel.add(button7);
+
 
         JTextField textfield = new JTextField();
         HeaderPanel.add(textfield);
         textfield.setText("group_candi");
         textfield.setPreferredSize( new Dimension( 200, 24 ) );
+
+        JButton button4 = new JButton("코드읽기");
+        HeaderPanel.add(button4);
 
         JButton DebugButton = new JButton();
         DebugButton.setText("모니터버튼");
@@ -90,7 +88,17 @@ public class Main extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae) {
 
-                if(button3.equals(ae.getSource())){
+                if(button4.equals(ae.getSource())){
+
+                    String filename = textfield.getText();
+                    trans(filename);
+                    //textfield.setText(htmltext("Finish"));
+
+                    textfield.setText(filename);
+                }
+
+
+                if(button1.equals(ae.getSource())){
 
                     String filename = textfield.getText();
 
@@ -136,7 +144,7 @@ public class Main extends JFrame{
                     frame.setVisible(true);
                 }
 
-                if(button6.equals(ae.getSource())){
+                if(button2.equals(ae.getSource())){
 
                     String filename = "group_hold";
 
@@ -151,8 +159,11 @@ public class Main extends JFrame{
                         return;
                     }
                     // 로딩하는데 시간이 많이 걸린다
+                    textfield.setText(htmltext("Downloadd" + "\n" + "Information"));
                     idown.downloadStockInfoCustom(filename);
+                    textfield.setText(htmltext("Downloadd" + "\n" + "Price"));
                     idown.downloadYFPrice(stock_list);
+                    textfield.setText(htmltext("Downloadd" + "\n" + "Todayprice"));
                     idown.downloadNowPrice(stock_list);
 
                     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
@@ -182,7 +193,7 @@ public class Main extends JFrame{
                     frame.setVisible(true);
                 }
 
-                if(button7.equals(ae.getSource())){
+                if(button3.equals(ae.getSource())){
 
                     String filename = textfield.getText();
                     DefaultListModel<StockBook> model = new DefaultListModel<>();
@@ -195,8 +206,11 @@ public class Main extends JFrame{
                         return;
                     }
                     // 로딩하는데 시간이 많이 걸린다
+                    textfield.setText(htmltext("Downloadd" + "\n" + "Information"));
                     idown.downloadStockInfoCustom(filename);
+                    textfield.setText(htmltext("Downloadd" + "\n" + "Price"));
                     idown.downloadYFPrice(stock_list);
+                    textfield.setText(htmltext("Downloadd" + "\n" + "Todayprice"));
                     idown.downloadNowPrice(stock_list);
                     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
                     web_stockinfo = iread.getStockInfoCustom(filename);
@@ -227,29 +241,30 @@ public class Main extends JFrame{
                 }
             }
         };
+        button1.addActionListener(listener);
+        button2.addActionListener(listener);
         button3.addActionListener(listener);
-        button6.addActionListener(listener);
-        button7.addActionListener(listener);
+        button4.addActionListener(listener);
 
         frame.pack();
         frame.setVisible(true);
     }
 
-    public static void trans() {
+    public static void trans(String filename) {
         MyExcel myexcel = new MyExcel();
-        List<String> name = myexcel.readColumn("trans.xls",1);
+        List<String> name = myexcel.readColumn(filename+".xls",1);
         StockDic mydict = new StockDic();
         List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
 
         int size = name.size();
-        for(int i =0;i<size;i++) {
+        for(int i =1;i<size;i++) {
             FormatStockInfo oneinfo = new FormatStockInfo();
             String stock_code = mydict.getStockcode(name.get(i));
             System.out.println(stock_code);
             oneinfo.stock_code = stock_code;
             web_stockinfo.add(oneinfo);
         }
-        myexcel.writestockinfo(0,web_stockinfo);
+        myexcel.writestockinfoCustom(filename,web_stockinfo);
     }
 
     public static String htmltext(String input_str) {
