@@ -10,14 +10,20 @@ import main.java.com.gomu.gomustock.stockengin.StockDic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class InfoDownload {
 
+    MyExcel myexcel = new MyExcel();
+    MyWeb myweb = new MyWeb();
+    StockDic stockdic = new StockDic();
+    private String msg;
+    void InfoDownload() {
+
+    }
 
     public void downloadStockInfoCustom(String filename) {
-        MyExcel myexcel = new MyExcel();
-        MyWeb myweb = new MyWeb();
-        StockDic stockdic = new StockDic();
+
         List<String> stock_list = new ArrayList<>();
         List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
         web_stockinfo = myexcel.readStockinfoCustom(filename,false);
@@ -68,9 +74,47 @@ public class InfoDownload {
         myexcel.writestockinfoCustom(filename,web_stockinfo);
     }
 
+    public FormatStockInfo downloadStockInfoOne(String stock_code) {
+
+            FormatStockInfo stockinfo = new FormatStockInfo();
+            FormatETFInfo etfinfo = new FormatETFInfo();
+            fnGuide myfnguide = new fnGuide();
+            String news;
+
+            if(stockdic.checkKRStock(stock_code) && (stockdic.getMarket(stock_code)!="")) {
+                // stock_cdoe정보를 포함하고 있는
+                // 네이버 정보를 가장 먼저 가져오고 그 다음에 다른 정보를 추가해야 한다
+
+                stockinfo = myweb.getNaverStockinfo(stock_code);
+                stockinfo.stock_code = stock_code;
+                stockinfo.stock_type="KSTOCK";
+                // 네이버 뉴스를 가져온다
+                news = myweb.getNaverStockNews(stock_code);
+                stockinfo.news = news;
+
+                // fnguide정보를 가져온다
+                stockinfo.fninfo = myfnguide.getFnguideInfo(stock_code);
+
+            } else {
+
+                etfinfo = myweb.getNaverETFinfo(stock_code);
+                stockinfo.stock_type = "KETF";
+                stockinfo.etfinfo = etfinfo.toString();
+                stockinfo.stock_code = etfinfo.stock_code;
+                stockinfo.stock_name = etfinfo.stock_name;
+                stockinfo.desc = etfinfo.desc;
+
+                news = myweb.getNaverStockNews(stock_code);
+                stockinfo.news = news;
+                // fnguide정보를 가져온다
+                stockinfo.fninfo = myfnguide.getFnguideETFInfo(stock_code);
+
+            }
+        return stockinfo;
+
+    }
+
     public void downloadNowPrice(List<String> stock_list) {
-        MyExcel myexcel = new MyExcel();
-        MyWeb myweb = new MyWeb();
         int hour = 3;
         int size = stock_list.size();
         for(int i =0;i<size;i++) {
@@ -85,6 +129,4 @@ public class InfoDownload {
             new YFDownload(stock_list.get(i));
         }
     }
-
-
 }

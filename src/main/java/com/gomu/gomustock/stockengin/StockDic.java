@@ -38,4 +38,5 @@ public class StockDic {
         boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
         return isNumeric;
     }
+
 }
