@@ -90,7 +90,7 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
 */
         if(book.getStocktype().equals("KETF"))lbIndication.setText(book.getETFInfo());
         else lbIndication.setText(book.getStockInfo());
-        //lbIndication.setForeground(Color.blue);
+        lbIndication.setForeground(Color.blue);
         lbIndication.setPreferredSize(new Dimension(100,200));
         lbIndication.setAutoscrolls(true);
         lbIndication.setFont(new Font("TextArea.font", Font.BOLD, 12));

@@ -8,10 +8,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
-import main.java.com.gomu.gomustock.format.FormatMyStock;
-import main.java.com.gomu.gomustock.format.FormatOHLCV;
-import main.java.com.gomu.gomustock.format.FormatStockInfo;
-import main.java.com.gomu.gomustock.format.FormatTestData;
+import main.java.com.gomu.gomustock.format.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -1241,6 +1238,49 @@ public class MyExcel extends MyStat {
         return stocklist;
     }
 
+
+    public void writeColumn(String filename, List<String> data, int col) {
+
+        WritableSheet writablesheet;
+        String PathFile = STOCKDIR+filename+".xls";;
+        java.io.File file1 = new java.io.File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet1", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+
+                if(writablesheet != null) {
+                    int size = data.size();
+                    for(int row =1;row < size ;row++) {
+                        writablesheet.addCell(new Label(col, row, data.get(row)));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+
+
+
     public List<FormatMyStock> readMyStockList() {
 
         String temp=null;
@@ -1279,4 +1319,304 @@ public class MyExcel extends MyStat {
         return mystocklist;
     }
 
+
+    public void writenaverupjong2(String filename,List<List<String>> upjonglist) {
+
+
+        WritableSheet writablesheet;
+        String PathFile = STOCKDIR+filename+".xls";
+
+        java.io.File file1 = new java.io.File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet1", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+
+                if(writablesheet != null) {
+                    int size = upjonglist.size();
+                    for(int row =0;row < size ;row++) {
+                        List<String> onelist = new ArrayList<>();
+                        onelist = upjonglist.get(row);
+                        int size2 = onelist.size();
+                        for(int j =0;j<size2;j++) {
+                            writablesheet.addCell(new Label(j, row, onelist.get(j)));
+                        }
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+    public void writenaverupjong(String filename,List<FormatUpjongInfo> upjonglist) {
+
+
+        WritableSheet writablesheet;
+        String PathFile = STOCKDIR+filename+".xls";
+
+        FormatUpjongInfo head = new FormatUpjongInfo();
+        upjonglist.add(0,head.gethead());
+
+        java.io.File file1 = new java.io.File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet1", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+
+                if(writablesheet != null) {
+                    int size = upjonglist.size();
+                    for(int row =0;row < size ;row++) {
+                        writablesheet.addCell(new Label(0, row, upjonglist.get(row).stock_code));
+                        writablesheet.addCell(new Label(1, row, upjonglist.get(row).stock_name));
+                        writablesheet.addCell(new Label(2, row, upjonglist.get(row).market_type));
+                        writablesheet.addCell(new Label(3, row, upjonglist.get(row).cur_price));
+                        writablesheet.addCell(new Label(4, row, upjonglist.get(row).compare_yester));
+                        writablesheet.addCell(new Label(5, row, upjonglist.get(row).updown_ratio));
+                        writablesheet.addCell(new Label(6, row, upjonglist.get(row).tran_quantity));
+                        writablesheet.addCell(new Label(7, row, upjonglist.get(row).callbuy));
+                        writablesheet.addCell(new Label(8, row, upjonglist.get(row).tran_money));
+                        writablesheet.addCell(new Label(9, row, upjonglist.get(row).market_volume));
+                        writablesheet.addCell(new Label(10, row, upjonglist.get(row).profit));
+                        writablesheet.addCell(new Label(11, row, upjonglist.get(row).per));
+                        writablesheet.addCell(new Label(12, row, upjonglist.get(row).begin_price));
+                        writablesheet.addCell(new Label(13, row, upjonglist.get(row).callsell));
+                        writablesheet.addCell(new Label(14, row, upjonglist.get(row).preday_tran_quantity));
+                        writablesheet.addCell(new Label(15, row, upjonglist.get(row).assets_total));
+                        writablesheet.addCell(new Label(16, row, upjonglist.get(row).profit_ratio));
+                        writablesheet.addCell(new Label(17, row, upjonglist.get(row).roe));
+                        writablesheet.addCell(new Label(18, row, upjonglist.get(row).high_price));
+                        writablesheet.addCell(new Label(19, row, upjonglist.get(row).remain_buy_quantity));
+                        writablesheet.addCell(new Label(20, row, upjonglist.get(row).fogn_ratio));
+                        writablesheet.addCell(new Label(21, row, upjonglist.get(row).debt_total));
+                        writablesheet.addCell(new Label(22, row, upjonglist.get(row).quarter_pureprofit));
+                        writablesheet.addCell(new Label(23, row, upjonglist.get(row).roa));
+                        writablesheet.addCell(new Label(24, row, upjonglist.get(row).low_price));
+                        writablesheet.addCell(new Label(25, row, upjonglist.get(row).remain_sell_quantity));
+                        writablesheet.addCell(new Label(26, row, upjonglist.get(row).stock_total));
+                        writablesheet.addCell(new Label(27, row, upjonglist.get(row).revenue));
+                        writablesheet.addCell(new Label(28, row, upjonglist.get(row).pureprofit_per));
+                        writablesheet.addCell(new Label(29, row, upjonglist.get(row).pbr));
+                        writablesheet.addCell(new Label(30, row, upjonglist.get(row).revenue_ratio));
+                        writablesheet.addCell(new Label(31, row, upjonglist.get(row).div_money));
+                        writablesheet.addCell(new Label(32, row, upjonglist.get(row).reserved_ratio));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+    public List<FormatUpjongInfo>  readnaverupjong(String filename) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile = STOCKDIR+filename+".xls";;
+
+        List<FormatUpjongInfo> upjonglist = new ArrayList<>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatUpjongInfo one = new FormatUpjongInfo();
+                        one.stock_code = sheet.getCell(0, i).getContents();
+                        one.stock_name= sheet.getCell(1, i).getContents();
+                        one.market_type= sheet.getCell(2, i).getContents();
+                        one.cur_price= sheet.getCell(3, i).getContents();
+                        one.compare_yester= sheet.getCell(4, i).getContents();
+                        one.updown_ratio= sheet.getCell(5, i).getContents();
+                        one.tran_quantity= sheet.getCell(6, i).getContents();
+                        one.callbuy= sheet.getCell(7, i).getContents();
+                        one.tran_money= sheet.getCell(8, i).getContents();
+                        one.market_volume= sheet.getCell(9, i).getContents();
+                        one.profit= sheet.getCell(10, i).getContents();
+                        one.per= sheet.getCell(11, i).getContents();
+                        one.begin_price= sheet.getCell(12, i).getContents();
+                        one.callsell= sheet.getCell(13, i).getContents();
+                        one.preday_tran_quantity= sheet.getCell(14, i).getContents();
+                        one.assets_total= sheet.getCell(15, i).getContents();
+                        one.profit_ratio= sheet.getCell(16, i).getContents();
+                        one.roe= sheet.getCell(17, i).getContents();
+                        one.high_price= sheet.getCell(18, i).getContents();
+                        one.remain_buy_quantity= sheet.getCell(19, i).getContents();
+                        one.fogn_ratio= sheet.getCell(20, i).getContents();
+                        one.debt_total= sheet.getCell(21, i).getContents();
+                        one.quarter_pureprofit= sheet.getCell(22, i).getContents();
+                        one.roa= sheet.getCell(23, i).getContents();
+                        one.low_price= sheet.getCell(24, i).getContents();
+                        one.remain_sell_quantity= sheet.getCell(25, i).getContents();
+                        one.stock_total= sheet.getCell(26, i).getContents();
+                        one.revenue= sheet.getCell(27, i).getContents();
+                        one.pureprofit_per= sheet.getCell(28, i).getContents();
+                        one.pbr= sheet.getCell(29, i).getContents();
+                        one.revenue_ratio= sheet.getCell(30, i).getContents();;
+                        one.div_money= sheet.getCell(31, i).getContents();
+                        one.reserved_ratio= sheet.getCell(32, i).getContents();
+                        upjonglist.add(one);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return upjonglist;
+    }
+
+
+    public List<List<String>>  readraw(String filename) {
+        InputStream is=null;
+        Workbook wb=null;
+        String PathFile = STOCKDIR+filename+".xls";;
+        List<List<String>> multilist = new ArrayList<List<String>>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        List<String> onelist = new ArrayList<>();
+                        int rowlength = sheet.getRow(0).length;
+                        for(int j =0;j<rowlength;j++) {
+                            onelist.add(sheet.getCell(j, i).getContents());
+                        }
+                        multilist.add(onelist);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return multilist;
+    }
+
+    public void writeraw(String filename,List<List<String>> multilist) {
+
+
+        WritableSheet writablesheet;
+        String PathFile = STOCKDIR+filename+".xls";
+
+        java.io.File file1 = new java.io.File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet1", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+
+                if(writablesheet != null) {
+
+                    int size = multilist.size();
+                    for(int i=1;i<size;i++) {
+                        List<String> onelist = multilist.get(i);
+                        int rowlength = onelist.size();
+                        for(int j =0;j<rowlength;j++) {
+                            writablesheet.addCell(new Label(i, j, onelist.get(i)));
+                        }
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+    public void mergenaverupjong(String basefile,String insertfile) {
+
+        List<List<String>> basedata = readraw(basefile);
+        List<List<String>> insertdata = readraw(insertfile);
+        int size = insertdata.size();
+        for(int i =0;i<size;i++) {
+            List<String> onelist = insertdata.get(i);
+            String stock_name = onelist.get(1);
+            int size2 = onelist.size();
+            int index = findsamestock(basedata, stock_name);
+            for(int j=0;j<size2;j++) {
+                String data = onelist.get(j);
+                if(!data.equals("")) basedata.get(index).set(j,data);
+            }
+        }
+
+        writeraw(basefile,basedata);
+    }
+
+    public int findsamestock(List<List<String>> baselist, String stock_name) {
+        int size = baselist.size();
+        int index = 0;
+        for(int i =0;i<size;i++) {
+            List<String> onelist = baselist.get(i);
+            if(onelist.get(1).equals(stock_name)) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
 }

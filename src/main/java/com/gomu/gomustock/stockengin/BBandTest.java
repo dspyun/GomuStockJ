@@ -113,7 +113,7 @@ public class BBandTest {
         List<Float> bband_signal = new ArrayList<>();
         bband_signal = PERCENTB;
         double pricemax = Collections.max(CLOSEDATA);
-        pricemax = pricemax+pricemax*0.02;
+        pricemax = pricemax+pricemax*0.03;
         for(float ftemp: bband_signal) {
             if(ftemp <= 0.3) bband_score.add((float)(pricemax - pricemax*0.1*ftemp));// 보통 0~100이지만 마이너스와 100을 넘어갈때도 있다
             else bband_score.add((float)(pricemax));

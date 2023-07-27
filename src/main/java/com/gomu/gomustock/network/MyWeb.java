@@ -6,17 +6,21 @@ import main.java.com.gomu.gomustock.MyStat;
 
 
 import main.java.com.gomu.gomustock.format.*;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.*;
 
 
 public class MyWeb {
@@ -704,5 +708,243 @@ public class MyWeb {
             e.printStackTrace();
         }
         return ranking + company_string;
+    }
+
+    public void checkbox_test1() throws IOException {
+
+        final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no=278";
+        final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0";
+
+
+        Document doc = Jsoup.connect(urlPost).get();
+
+        Elements selectlist = doc.getElementsByClass("item_list");
+        Elements allInputFields = selectlist.get(0).getElementsByTag("input");
+        Elements allSelections = selectlist.get(0).getElementsByTag("input");
+        Map<String, String> postData = new HashMap<String, String>();
+        /*
+        for(Element selectField:allSelectionFields){
+            postData.put(selectField.attr("name"), selectField.attr("value"));
+        }
+         */
+        for(Element selectField:allSelections){
+            String nameField = selectField.attr("name");
+            String valueField = "";
+            Elements allOptions = selectField.getElementsByTag("option");
+            for(Element opt:allOptions){
+                if(opt.attr("selected").equalsIgnoreCase("selected")){
+                    valueField = opt.attr("value");
+                    break;
+                }
+            }
+            postData.put(nameField, valueField);
+        }
+
+        for(Element inputField:allInputFields) {
+            postData.put(inputField.attr("value"), "0");
+        }
+
+        for(Element inputField:allInputFields) {
+            if (inputField.attr("type").equalsIgnoreCase("checkbox")) {
+                if(inputField.attr("id").equalsIgnoreCase("option5")) {
+                    postData.put(inputField.attr("value"), inputField.attr("checked").equalsIgnoreCase("checked") ? "0" : "1");
+                } else {
+                    //postData.put(inputField.attr("value"), inputField.attr("value"));
+                    postData.put(inputField.attr("value"), "0");
+                }
+            }
+        }
+
+        Document doc2 = Jsoup.connect(urlPost).ignoreContentType(true).userAgent(USER_AGENT).data(postData).post();
+
+        Elements selectlist1 = doc.getElementsByClass("item_list");
+        Elements allInputFields1 = selectlist1.get(0).getElementsByTag("label");
+        Elements allSelections1 = selectlist1.get(0).getElementsByTag("input");
+
+        int i = 0;
+
+    }
+
+    public void checkbox_test(String upjong_code,String upjong_name) throws IOException {
+
+        final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no="+upjong_code;
+        //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
+        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+        options.addArguments("headless"); // 크롬을 열지 않고 실행
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.get(urlPost);
+
+        for(int i=1;i<=27;i++) {
+            WebElement option = driver.findElement(By.id("option"+Integer.toString(i)));
+            if(option.isSelected()) option.click();
+        }
+        int index;
+        index = cboxname("시가총액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("영업이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("영업이익증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("당기순이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("매출액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("매출액증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        driver.findElement(By.xpath("//a[@href='javascript:fieldSubmit()']")).click();
+
+        List<WebElement> mytbody = driver.findElements(By.tagName("tbody"));
+        List<WebElement> trlist = mytbody.get(2).findElements(By.tagName("tr"));
+        List<FormatUpjongInfo> upjonglist = new ArrayList<>();
+        int size = trlist.size();
+        for(int i=0;i<trlist.size()-10;i++) {
+            FormatUpjongInfo one = new FormatUpjongInfo();
+            List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
+            one.stock_name = tdlist.get(0).getText().replace(" *","");
+            one.cur_price = tdlist.get(1).getText();
+            one.compare_yester = tdlist.get(2).getText();
+            one.updown_ratio = tdlist.get(3).getText();
+
+            one.market_volume = tdlist.get(4).getText();
+            one.profit = tdlist.get(5).getText();
+            one.profit_ratio = tdlist.get(6).getText();
+            one.quarter_pureprofit = tdlist.get(7).getText();
+            one.revenue = tdlist.get(8).getText();
+            one.revenue_ratio = tdlist.get(9).getText();
+            upjonglist.add(one);
+            System.out.println(i + " " + one.stock_name);
+        }
+        MyExcel myexcel = new MyExcel();
+        myexcel.writenaverupjong("info_"+upjong_name,upjonglist );
+    }
+
+    public void checkbox_test2(String upjong_code,String upjong_name) throws IOException {
+
+        final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no="+upjong_code;
+        //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
+        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+        options.addArguments("headless"); // 크롬을 열지 않고 실행
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.get(urlPost);
+
+        for(int i=1;i<=27;i++) {
+            WebElement option = driver.findElement(By.id("option"+Integer.toString(i)));
+            if(option.isSelected()) option.click();
+        }
+        int index;
+        index = cboxname("시가총액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("영업이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("영업이익증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("당기순이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("매출액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("매출액증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        driver.findElement(By.xpath("//a[@href='javascript:fieldSubmit()']")).click();
+
+        List<WebElement> mythead = driver.findElements(By.tagName("thead"));
+        List<WebElement> thlist = mythead.get(0).findElements(By.tagName("th"));
+        List<String> header = new ArrayList<>();
+        int size = thlist.size();
+        for(int i =0;i<size;i++) {
+            header.add(thlist.get(i).getText());
+        }
+
+        List<WebElement> mytbody = driver.findElements(By.tagName("tbody"));
+        List<WebElement> trlist = mytbody.get(2).findElements(By.tagName("tr"));
+        List<List<String>> upjonglist = new ArrayList<List<String>>();
+        size = trlist.size();
+        for(int i=0;i<trlist.size()-10;i++) {
+            List<String> one = new ArrayList<>();
+            List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
+            one.add(tdlist.get(0).getText().replace(" *",""));
+            int size2 = tdlist.size();
+            for(int j = 1;j<size2;j++) {
+                one.add(tdlist.get(j).getText());
+            }
+            System.out.println(i + " " + one.get(0));
+            upjonglist.add(one);
+        }
+        MyExcel myexcel = new MyExcel();
+        upjonglist.add(0,header);
+        myexcel.writenaverupjong2("info_"+upjong_name,upjonglist );
+    }
+    public int cboxname(String name) {
+
+        String checkname[] = {"거래량","매수호가","거래대금","시가총액","영업이익","PER",
+                                "시가","매도호가","전일거래량","자산총액","영업이익증가율","ROE",
+                                "고가","매수총잔량","외국인비율","부채총계","당기순이익","ROA",
+                                "저가", "매도총잔량","상장주식수","매출액","주당순이익","PBR",
+                                "매출액증가율","보통주배당금","유보율"};
+        int result=0;
+        for(int i =0;i<27;i++) {
+            if(name.equals(checkname[i])) { result = i; break;}
+        }
+        return result+1;
+    }
+
+
+    public List<List<String>> getNaverGoodEarningStock(String count, boolean header_flag) {
+
+        final String urlPost = "https://finance.naver.com/sise/sise_market_sum.naver?&page="+count;
+        //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
+        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+
+        List<List<String>> upjonglist = new ArrayList<List<String>>();
+        List<String> header = new ArrayList<>();
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+        options.addArguments("headless"); // 크롬을 열지 않고 실행
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.get(urlPost);
+
+        for (int i = 1; i <= 27; i++) {
+            WebElement option = driver.findElement(By.id("option" + Integer.toString(i)));
+            if (option.isSelected()) option.click();
+        }
+        int index;
+        index = cboxname("시가총액");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("영업이익");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("영업이익증가율");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("당기순이익");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("매출액");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("매출액증가율");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        driver.findElement(By.xpath("//a[@href='javascript:fieldSubmit()']")).click();
+
+
+        if (header_flag != false) {
+            List<WebElement> mythead = driver.findElements(By.tagName("thead"));
+            List<WebElement> thlist = mythead.get(0).findElements(By.tagName("th"));
+            int size = thlist.size();
+            for (int i = 0; i < size; i++) {
+                header.add(thlist.get(i).getText());
+            }
+        }
+        List<WebElement> mytbody = driver.findElements(By.tagName("tbody"));
+        List<WebElement> trlist = mytbody.get(1).findElements(By.tagName("tr"));
+
+        int size = trlist.size();
+        for (int i = 0; i < trlist.size(); i++) {
+            List<String> one = new ArrayList<>();
+            List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
+            one.add(tdlist.get(0).getText().replace(" *", ""));
+            int size2 = tdlist.size();
+            for (int j = 1; j < size2; j++) {
+                one.add(tdlist.get(j).getText());
+            }
+            System.out.println(i + " " + one.get(0));
+            if (one.size() > 2) upjonglist.add(one);
+        }
+
+        if(header_flag != false) upjonglist.add(0,header);
+        return upjonglist;
     }
 }

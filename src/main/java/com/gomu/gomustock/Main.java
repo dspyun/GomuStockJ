@@ -22,7 +22,24 @@ import java.util.List;
 public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
+        MyWeb myweb = new MyWeb();
+        MyExcel myexcel = new MyExcel();
+        /*
+        List<String> codelist = myexcel.readColumn("upjong_table.xls",0);
+        List<String> namelist = myexcel.readColumn("upjong_table.xls",1);
+        int size = codelist.size();
 
+        for(int i=1;i<size;i++) {
+            String code = codelist.get(i);
+            String name = namelist.get(i);
+            myweb.checkbox_test2(code, name);
+        }
+        */
+
+        mytest();
+    }
+
+    public static void mytest() throws IOException{
         MyWeb myweb = new MyWeb();
         MyExcel myexcel = new MyExcel();
         StockChart schart = new StockChart();
@@ -68,6 +85,8 @@ public class Main extends JFrame{
         HeaderPanel.add(button1);
         JButton button9 = new JButton("코드읽기");
         HeaderPanel.add(button9);
+        JButton button5 = new JButton("종목뽑기");
+        HeaderPanel.add(button5);
 
         JButton DebugButton = new JButton();
         DebugButton.setText("모니터버튼");
@@ -167,12 +186,13 @@ public class Main extends JFrame{
                     // 정보 다운로드
                     textfield.setText(htmltext("Downloadd" + "\n" + "Information"));
                     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+
                     for(int i =0;i<size;i++) {
+                        FormatStockInfo stockinfo = new FormatStockInfo();
                         String stock_code = stock_list.get(i);
-                        textfield.setText(htmltext("Information" + "\n" + "Download" + "\n" +
-                                Integer.toString(i) +"/" + Integer.toString(size) +
-                                "\n" + stock_code));
-                        idown.downloadStockInfoOne(stock_code); // 1시간을 읽어서 저장한다
+                        textfield.setText(htmltext("Information" + "\n" + "Download" + "\n" + stock_code));
+                        stockinfo = idown.downloadStockInfoOne(stock_code); // 1시간을 읽어서 저장한다
+                        web_stockinfo.add(stockinfo);
                     }
                     myexcel.writestockinfoCustom(filename,web_stockinfo);
 
@@ -223,6 +243,8 @@ public class Main extends JFrame{
                     frame.pack();
                     frame.setVisible(true);
                 }
+
+
                 // 입력된 파일을 Full로 다운로드하고 읽고 보여주기
                 if(button3.equals(ae.getSource())){
 
@@ -241,9 +263,11 @@ public class Main extends JFrame{
                     textfield.setText(htmltext("Downloadd" + "\n" + "Information"));
                     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
                     for(int i =0;i<size;i++) {
+                        FormatStockInfo stockinfo = new FormatStockInfo();
                         String stock_code = stock_list.get(i);
                         textfield.setText(htmltext("Information" + "\n" + "Download" + "\n" + stock_code));
-                        idown.downloadStockInfoOne(stock_code); // 1시간을 읽어서 저장한다
+                        stockinfo = idown.downloadStockInfoOne(stock_code); // 1시간을 읽어서 저장한다
+                        web_stockinfo.add(stockinfo);
                     }
                     myexcel.writestockinfoCustom(filename,web_stockinfo);
 
@@ -339,12 +363,40 @@ public class Main extends JFrame{
                     textfield.setText(filename);
                 }
 
+                if(button5.equals(ae.getSource())){
+
+                    String filename = textfield.getText();
+                    filename = "info_kospi";
+
+                    textfield.setText("종목뽑기");
+
+                    int size = 10; // 1페이지 50개, 10페이지면 500개
+                    List<List<String>> upjonglist = new ArrayList<List<String>>();
+                    upjonglist = myweb.getNaverGoodEarningStock("1", true);
+                    for(int i=2;i<size;i++) {
+                        List<List<String>> temp = new ArrayList<List<String>>();
+                        temp = myweb.getNaverGoodEarningStock(Integer.toString(i), false);
+                        int size2 = temp.size();
+                        for(int j =0;j<size2;j++) {
+                            upjonglist.add(temp.get(j));
+                        }
+                        textfield.setText(htmltext("info_kospi" +"\n"+ Integer.toString(i*50)));
+                    }
+
+                    myexcel.writenaverupjong2(filename,upjonglist );
+                    List<String> last_pickup = pickup40over(filename);
+                    myexcel.writeColumn(filename, last_pickup,1);
+                    trans(filename);
+                    textfield.setText("info_kospi");
+                    System.out.println("finish");
+                }
             }
         };
         button1.addActionListener(listener);
         button2.addActionListener(listener);
         button3.addActionListener(listener);
         button4.addActionListener(listener);
+        button5.addActionListener(listener);
         button9.addActionListener(listener);
 
         frame.pack();
@@ -361,12 +413,32 @@ public class Main extends JFrame{
         for(int i =1;i<size;i++) {
             FormatStockInfo oneinfo = new FormatStockInfo();
             String stock_code = mydict.getStockcode(name.get(i));
-            System.out.println(stock_code);
-            if(stock_code.equals("") || mydict.getMarket(stock_code).equals("")) continue;
+            System.out.println("trans " + name.get(i) + " " + stock_code);
+            if(stock_code.equals("") || mydict.getMarket(stock_code).equals("") ||
+                    !mydict.getStocktype(stock_code).equals("주권") ||
+                    mydict.getStockbelong(stock_code).contains("SPAC")) continue;
             oneinfo.stock_code = stock_code;
             web_stockinfo.add(oneinfo);
         }
         myexcel.writestockinfoCustom(filename,web_stockinfo);
+    }
+
+    public static void checkspac(String filename) {
+        MyExcel myexcel = new MyExcel();
+        List<String> stocklist = myexcel.readColumn(filename+".xls",0);
+        StockDic mydict = new StockDic();
+        int size = stocklist.size();
+        for(int i =1;i<size;i++) {
+            String stock_code = stocklist.get(i);
+            System.out.println("trans " + stock_code + " " + mydict.getStockbelong(stock_code) + " " + mydict.getStocktype(stock_code));
+            if(stock_code.equals("") || mydict.getMarket(stock_code).equals("") ||
+                    !mydict.getStocktype(stock_code).equals("주권") ||
+                    mydict.getStockbelong(stock_code).contains("SPAC")) {
+                System.out.println("skip " + stock_code);
+                continue;
+            }
+        }
+        System.out.println("check finish ");
     }
 
     public static String htmltext(String input_str) {
@@ -375,5 +447,61 @@ public class Main extends JFrame{
         result+=input_str.replaceAll("\n","<br>");
         result+="</HTML>";
         return result;
+    }
+
+    public static List<String> pickup40over(String filename) {
+
+        int profit_level = 40;
+
+        MyExcel myexcel = new MyExcel();
+        List<String> name = myexcel.readColumn(filename+".xls",1);
+        List<String> profit_ratio = myexcel.readColumn(filename +".xls",11);
+        List<String> revenue_ratio = myexcel.readColumn(filename+".xls",10);
+        List<Float> profitratio_f = new ArrayList<>();
+        List<Float> revenueratio_f = new ArrayList<>();
+
+        List<String> temp = new ArrayList<>();
+        int size = profit_ratio.size();
+        for(int i=1;i<size;i++) {
+            String one = profit_ratio.get(i).replace(",", "");
+            if(one.equals("") || one.equals("N/A")) one = "0";
+            //System.out.println(i + " " + one);
+            profitratio_f.add(Float.valueOf(one));
+        }
+        List<String> profit_sort = new ArrayList<>();
+        size = profitratio_f.size();
+        for(int i =0;i<size;i++) {
+            if(profitratio_f.get(i) >= profit_level)  {
+                profit_sort.add(name.get(i+1));
+            }
+        }
+
+
+        size = revenue_ratio.size();
+        for(int i=1;i<size;i++) {
+            String one = revenue_ratio.get(i).replace(",", "");
+            if(one.equals("") || one.equals("N/A")) one = "0";
+            revenueratio_f.add(Float.valueOf(one));
+        }
+        List<String> revenue_sort = new ArrayList<>();
+        size = revenueratio_f.size();
+        for(int i =0;i<size;i++) {
+            if(revenueratio_f.get(i) >= profit_level)  {
+                revenue_sort.add(name.get(i+1));
+            }
+        }
+
+        List<String> last_pickup = new ArrayList<>();
+        size = profit_sort.size();
+        for(int i =0;i<size;i++) {
+            int size1 = revenue_sort.size();
+            for(int j =0;j<size1;j++) {
+                if(profit_sort.get(i).equals(revenue_sort.get(j))) {
+                    last_pickup.add(revenue_sort.get(j));
+                    System.out.println(revenue_sort.get(j));
+                }
+            }
+        }
+        return last_pickup;
     }
 }
