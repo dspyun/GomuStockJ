@@ -25,8 +25,8 @@ public class MyExcel extends MyStat {
     String oldfilename=null, oldline=null, oldcol=null;
     private String latest_filename, latest_line;
     private List<String> column00, column01, column02, column03;
-    private String STOCKDIR = "D:\\gomustockj\\";;
-    private String DOWNLOAD = "D:\\gomustockj\\";
+    private String DATADIR = "D:\\gomustockj\\history";;
+    private String INFODIR = "D:\\gomustockj\\";
     private ArrayList<String> initInfo;
 
     List<String> ETF_NO = new ArrayList<String>();
@@ -46,7 +46,7 @@ public class MyExcel extends MyStat {
         InputStream is=null;
         Workbook wb=null;
         String contents=null;
-        String PathFile = STOCKDIR+excelfile;
+        String PathFile = INFODIR+excelfile;
         List<String> mArrayBuffer = new ArrayList<String>();
 
         try {
@@ -84,7 +84,7 @@ public class MyExcel extends MyStat {
         String contents1=null;
         int line, col;
         String filename = code+"_testset";
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = DATADIR+filename+".xls";;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
@@ -128,7 +128,7 @@ public class MyExcel extends MyStat {
     public void writeprice( String filename, List<FormatOHLCV> history) {
 
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = DATADIR+filename+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
@@ -175,7 +175,7 @@ public class MyExcel extends MyStat {
     public void writefogninfo(String filename, List<String> fogn, List<String> agency) {
 
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+"fogn.xls";;
+        String PathFile = DATADIR+filename+"fogn.xls";;
         java.io.File file1 = new java.io.File(PathFile);
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
@@ -233,7 +233,7 @@ public class MyExcel extends MyStat {
         csvlist = src_csvlist;
 
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = DATADIR+filename+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
@@ -283,7 +283,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+filename;;
+        String PathFile = DATADIR+filename;;
         List<String> pricebuffer = new ArrayList<String>();
 
 
@@ -342,7 +342,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         int maxcol;
 
-        String PathFile = STOCKDIR+stock_code+".xls";;
+        String PathFile = DATADIR+stock_code+".xls";;
         List<String> pricebuffer = new ArrayList<String>();
 
         try {
@@ -398,7 +398,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         int maxcol;
 
-        String PathFile = STOCKDIR+stock_code+".xls";;
+        String PathFile = DATADIR+stock_code+".xls";;
         List<String> pricebuffer = new ArrayList<String>();
 
         try {
@@ -443,7 +443,7 @@ public class MyExcel extends MyStat {
 
         // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
 
-        String PathFile = STOCKDIR+stock_code+".xls";;
+        String PathFile = DATADIR+stock_code+".xls";;
         List<FormatOHLCV> ohlcvlist = new ArrayList<FormatOHLCV>();
 
 
@@ -489,7 +489,7 @@ public class MyExcel extends MyStat {
         InputStream is=null;
         Workbook wb=null;
 
-        String PathFile = STOCKDIR+"stocktable.xls";;
+        String PathFile = INFODIR+"stocktable.xls";;
 
         try {
             is =  new FileInputStream(PathFile);
@@ -542,7 +542,7 @@ public class MyExcel extends MyStat {
 
     public Boolean file_check(String filename) {
 
-        String PathFile = STOCKDIR + filename;
+        String PathFile = DATADIR + filename;
         Boolean return_flag=false;
 
         try {
@@ -563,7 +563,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+filename;;
+        String PathFile = DATADIR+filename;;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
@@ -607,7 +607,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+filename;;
+        String PathFile = DATADIR+filename;;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
@@ -652,7 +652,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+filename;;
+        String PathFile = DATADIR+filename;;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
@@ -693,7 +693,7 @@ public class MyExcel extends MyStat {
     public void write_testdata(String code, List<String> date ,List<String> price,List<Integer> buy, List<Integer> sell) {
 
         String filename = code+"_testset";
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = DATADIR+filename+".xls";;
         WritableSheet writablesheet;
 
         java.io.File file1 = new java.io.File(PathFile);
@@ -741,9 +741,9 @@ public class MyExcel extends MyStat {
         WritableSheet writablesheet;
         WritableWorkbook workbook;
         String PathFile="";
-        if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
-        if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
-        if(index==2) PathFile = STOCKDIR+"monitor"+".xls";;
+        if(index==0) PathFile = INFODIR+"stockinfo"+".xls";
+        if(index==1) PathFile = INFODIR+"stockinfo01"+".xls";;
+        if(index==2) PathFile = INFODIR+"monitor"+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
 
         // 헤더를 붙여준다
@@ -808,7 +808,7 @@ public class MyExcel extends MyStat {
 
         int line, col;
         String PathFile="";
-        PathFile = STOCKDIR+filename+".xls";
+        PathFile = INFODIR+filename+".xls";
         if(file_check(PathFile)) {
             return ;
         }
@@ -875,9 +875,9 @@ public class MyExcel extends MyStat {
         String contents1=null;
         int line, col;
         String PathFile="";
-        if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
-        if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
-        if(index==2) PathFile = STOCKDIR+"monitor"+".xls";;
+        if(index==0) PathFile = INFODIR+"stockinfo"+".xls";
+        if(index==1) PathFile = INFODIR+"stockinfo01"+".xls";;
+        if(index==2) PathFile = INFODIR+"monitor"+".xls";;
         List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
 
         try {
@@ -931,7 +931,7 @@ public class MyExcel extends MyStat {
 
         int line, col;
         String PathFile="";
-        PathFile = STOCKDIR+filename+".xls";
+        PathFile = INFODIR+filename+".xls";
         if(file_check(PathFile)) {
             FormatStockInfo oneinfo = new FormatStockInfo();
             oneinfo.init();
@@ -987,7 +987,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+"index_sector"+".xls";;
+        String PathFile = INFODIR+"index_sector"+".xls";;
         List<FormatMyStock> mArrayBuffer = new ArrayList<FormatMyStock>();
 
         try {
@@ -1037,7 +1037,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+stock_code+"fogn.xls";;
+        String PathFile = DATADIR+stock_code+"fogn.xls";;
         if(group.equals("FOGN")) col = 1;
         else if(group.equals("AGENCY")) col = 2;
         else col = 1;
@@ -1083,7 +1083,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+stock_code+"fogn.xls";;
+        String PathFile = DATADIR+stock_code+"fogn.xls";;
 
         List<String> Buffer = new ArrayList<>();
         List<String> Buffer_rev = new ArrayList<>();
@@ -1116,7 +1116,7 @@ public class MyExcel extends MyStat {
     public String readTreemap() {
 
         StringBuilder  sb = new StringBuilder();
-        String PathFile = STOCKDIR+"treemap.xls";;
+        String PathFile = DATADIR+"treemap.xls";;
         InputStream is=null;
         Workbook wb=null;
         String spc10="          ";
@@ -1172,7 +1172,7 @@ public class MyExcel extends MyStat {
 
         String filename = "simul_list";
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = INFODIR+filename+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
@@ -1212,7 +1212,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+"simul_list"+".xls";;
+        String PathFile = INFODIR+"simul_list"+".xls";;
         List<String> stocklist = new ArrayList<String>();
 
         try {
@@ -1242,7 +1242,7 @@ public class MyExcel extends MyStat {
     public void writeColumn(String filename, List<String> data, int col) {
 
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = INFODIR+filename+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
@@ -1285,7 +1285,7 @@ public class MyExcel extends MyStat {
 
         String temp=null;
 
-        String PathFile = STOCKDIR+"mystock"+".xls";;
+        String PathFile = INFODIR+"mystock"+".xls";;
         List<FormatMyStock> mystocklist = new ArrayList<FormatMyStock>();
 
 
@@ -1324,7 +1324,7 @@ public class MyExcel extends MyStat {
 
 
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";
+        String PathFile = INFODIR+filename+".xls";
 
         java.io.File file1 = new java.io.File(PathFile);
         try {
@@ -1369,7 +1369,7 @@ public class MyExcel extends MyStat {
 
 
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";
+        String PathFile = INFODIR+filename+".xls";
 
         FormatUpjongInfo head = new FormatUpjongInfo();
         upjonglist.add(0,head.gethead());
@@ -1446,7 +1446,7 @@ public class MyExcel extends MyStat {
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = INFODIR+filename+".xls";;
 
         List<FormatUpjongInfo> upjonglist = new ArrayList<>();
 
@@ -1511,7 +1511,7 @@ public class MyExcel extends MyStat {
     public List<List<String>>  readraw(String filename) {
         InputStream is=null;
         Workbook wb=null;
-        String PathFile = STOCKDIR+filename+".xls";;
+        String PathFile = INFODIR+filename+".xls";;
         List<List<String>> multilist = new ArrayList<List<String>>();
 
         try {
@@ -1546,7 +1546,7 @@ public class MyExcel extends MyStat {
 
 
         WritableSheet writablesheet;
-        String PathFile = STOCKDIR+filename+".xls";
+        String PathFile = INFODIR+filename+".xls";
 
         java.io.File file1 = new java.io.File(PathFile);
         try {

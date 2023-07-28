@@ -1,7 +1,9 @@
 package main.java.com.gomu.gomustock.jlist;
 
+import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.knowm.xchart.XChartPanel;
+import org.knowm.xchart.XYChart;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -10,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class StockBookRenderer extends JPanel implements ListCellRenderer<StockBook> {
 
@@ -31,6 +34,16 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
 
     StockChart schart = new StockChart();
     String STOCKDIR = "D:\\MyML\\GomuStockJ\\";;
+
+
+    public interface IFCallback {
+        public void callback(String str);
+    }
+    // 콜백인터페이스를 구현한 클래스 인스턴스
+    private StockBookRenderer.IFCallback _cb;
+    public void setCallback(StockBookRenderer.IFCallback cb) {
+        this._cb = cb;
+    }
 
     public StockBookRenderer() {
         setLayout(new BorderLayout(5, 5));
@@ -57,6 +70,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         add(panelChart, BorderLayout.CENTER);
         add(panelFAIcon, BorderLayout.EAST);
     }
+
+
 
     @Override
     public Component getListCellRendererComponent(JList<? extends StockBook> list,
@@ -234,4 +249,21 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         }
         return img;
     }
+
+    public DefaultListModel<StockBook> loadInfoChart2List(List<FormatStockInfo> web_stockinfo) {
+        DefaultListModel<StockBook> model = new DefaultListModel<>();
+        int size = web_stockinfo.size();
+        for(int i=0;i<size;i++) {
+            String stock_code = web_stockinfo.get(i).stock_code;
+            String target = web_stockinfo.get(i).score;
+            if(target.equals("")) target="1";
+            _cb.callback("loading" + "\n" + "info/chart" + "\n" + "to List");
+            XYChart mychart = schart.GetPeriodChart(stock_code);
+            XYChart todaychart = schart.GetTodayChart(stock_code,Float.valueOf(target));
+            model.addElement(new StockBook(web_stockinfo.get(i), mychart, todaychart));
+        }
+        return model;
+    }
+
+
 }
