@@ -102,58 +102,24 @@ public class Main extends JFrame{
         iread.setCallback(new InfoRead.IFCallback() {
             @Override
             public void callback(String str) {
-                // 방법2의 콜백 구현
-                try {
-                    byte[] euckrStrBuffer = str.getBytes("CP949");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("read from " + str);
-                textfield.setText(htmltext(str));
+                DebugButton.setText(htmltext(str));
+                DebugButton.paint(DebugButton.getGraphics());;
             }
         });
 
         idown.setCallback(new InfoDownload.IFCallback() {
             @Override
             public void callback(String str) {
-                // 방법2의 콜백 구현
-                try {
-                    byte[] euckrStrBuffer = str.getBytes("euc-kr");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("down from " + str);
-                textfield.setText(htmltext(str));
+                DebugButton.setText(htmltext(str));
+                DebugButton.paint(DebugButton.getGraphics());;
             }
         });
 
         renderer.setCallback(new StockBookRenderer.IFCallback() {
             @Override
             public void callback(String str) {
-                // 방법2의 콜백 구현
-                try {
-                    byte[] euckrStrBuffer = str.getBytes("euc-kr");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                System.out.println(str);
-                textfield.setText(htmltext(str));
-            }
-        });
-
-        textfield.getDocument().addDocumentListener(new DocumentListener() {
-
-            public void removeUpdate(DocumentEvent e) {
-                //System.out.println("removeUpdate");
-            }
-
-            public void insertUpdate(DocumentEvent e) {
-                String str = textfield.getText();
-                DebugButton.setText(str);
-                DebugButton.paint(frame.getGraphics());;
-            }
-            public void changedUpdate(DocumentEvent e) {
-                //System.out.println("changedUpdate");
+                DebugButton.setText(htmltext(str));
+                DebugButton.paint(DebugButton.getGraphics());;
             }
         });
 
