@@ -5,27 +5,20 @@ import main.java.com.gomu.gomustock.MyExcel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StockDic {
+public class EtfDict {
+
     List<String> STOCK_CODE = new ArrayList<String>();
     List<String> STOCK_NAME = new ArrayList<String>();
-    List<String> MARKET = new ArrayList<String>();
-    List<String> STOCK_BELONG = new ArrayList<String>();
-    List<String> STOCK_TYPE = new ArrayList<String>();
-    public StockDic() {
+    List<String> BASEIDX = new ArrayList<String>();
+;
+    public EtfDict() {
         List<List<String>> result = new ArrayList<List<String>>();
         MyExcel myexcel = new MyExcel();
-        result = myexcel.readStockDic();
+        result = myexcel.readETFDict();
         STOCK_CODE = result.get(0);
         STOCK_NAME = result.get(1);
-        MARKET = result.get(2);
-        STOCK_BELONG = myexcel.readColumn("tablestock.xls",8);
-        STOCK_TYPE = myexcel.readColumn("tablestock.xls",7);
     }
-    public String getMarket(String stock_code) {
-        int index = STOCK_CODE.indexOf(stock_code);
-        if(index == -1) return "";
-        return MARKET.get(index);
-    }
+
     public String getStockname(String stock_code) {
         int index = STOCK_CODE.indexOf(stock_code);
         if(index == -1) return "";
@@ -41,15 +34,5 @@ public class StockDic {
         // 즉 한국주식이면 true, 외국주식이면 false 반환
         boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
         return isNumeric;
-    }
-    public String getStockbelong(String stock_code) {
-        int index = STOCK_CODE.indexOf(stock_code);
-        if(index == -1) return "";
-        return STOCK_BELONG.get(index+1);
-    }
-    public String getStocktype(String stock_code) {
-        int index = STOCK_CODE.indexOf(stock_code);
-        if(index == -1) return "";
-        return STOCK_TYPE.get(index+1);
     }
 }

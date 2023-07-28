@@ -256,14 +256,13 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         for(int i=0;i<size;i++) {
             String stock_code = web_stockinfo.get(i).stock_code;
             String target = web_stockinfo.get(i).score;
+            if(web_stockinfo.get(i).stock_type.equals("KETF")) target = web_stockinfo.get(i).nav.replace(",","");
             if(target.equals("")) target="1";
-            _cb.callback("loading" + "\n" + "info/chart" + "\n" + "to List");
+            _cb.callback("loading" + "\n" + "info/chart" + "\n" + "to List" + "\n" + stock_code);
             XYChart mychart = schart.GetPeriodChart(stock_code);
             XYChart todaychart = schart.GetTodayChart(stock_code,Float.valueOf(target));
             model.addElement(new StockBook(web_stockinfo.get(i), mychart, todaychart));
         }
         return model;
     }
-
-
 }

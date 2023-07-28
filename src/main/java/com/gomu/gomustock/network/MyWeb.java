@@ -947,4 +947,48 @@ public class MyWeb {
         if(header_flag != false) upjonglist.add(0,header);
         return upjonglist;
     }
+
+
+    public List<List<String>> getNaverGoodEarningETF() {
+
+        final String urlPost = "https://finance.naver.com/sise/etf.naver";
+        //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
+        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+        options.addArguments("headless"); // 크롬을 열지 않고 실행
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.get(urlPost);
+
+        WebElement tables = driver.findElement(By.tagName("table"));
+
+        //String tablestr = tables.getText();
+        WebElement tbody = tables.findElement(By.tagName("tbody"));
+
+        List<String> header = new ArrayList<>();
+        List<WebElement> thlists = tbody.findElements(By.tagName("th"));
+        int size3 = thlists.size();
+        for(int i =0;i<size3;i++) {
+            header.add(thlists.get(i).getText());
+        }
+
+        List<List<String>> etflist = new ArrayList<List<String>>();
+        List<WebElement> trlists = tbody.findElements(By.tagName("tr"));
+        int size1 = trlists.size();
+        for(int i =0;i<size1;i++) {
+            List<String> onelist = new ArrayList<>();
+            List<WebElement> tdlists = trlists.get(i).findElements(By.tagName("td"));
+            int size2 = tdlists.size();
+            if(size2 <= 2) continue;
+            for(int j =0;j<size2;j++) {
+                onelist.add(tdlists.get(j).getText());
+            }
+            etflist.add(onelist);
+            System.out.println(onelist.toString());
+        }
+        etflist.add(0,header);
+        return etflist;
+    }
 }

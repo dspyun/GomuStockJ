@@ -16,14 +16,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 
 public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
-        MyWeb myweb = new MyWeb();
-        MyExcel myexcel = new MyExcel();
+
         /*
         List<String> codelist = myexcel.readColumn("upjong_table.xls",0);
         List<String> namelist = myexcel.readColumn("upjong_table.xls",1);
@@ -35,7 +36,8 @@ public class Main extends JFrame{
             myweb.checkbox_test2(code, name);
         }
         */
-
+        //InfoDownload idown = new InfoDownload();
+        //idown.pickupNewEtf();
         mytest();
     }
 
@@ -49,8 +51,6 @@ public class Main extends JFrame{
         String monitor_text="";
         int index = 0;
         //trans();
-
-
 
         Dimension dim = new Dimension(1800,800);
         JFrame frame = new JFrame("XChart Swing Demo");
@@ -89,8 +89,10 @@ public class Main extends JFrame{
         HeaderPanel.add(button1);
         JButton button9 = new JButton("코드읽기");
         HeaderPanel.add(button9);
-        JButton button5 = new JButton("종목뽑기");
+        JButton button5 = new JButton("신규주식");
         HeaderPanel.add(button5);
+        JButton button6 = new JButton("신규ETF");
+        HeaderPanel.add(button6);
 
         JButton DebugButton = new JButton();
         DebugButton.setText("모니터버튼");
@@ -101,7 +103,12 @@ public class Main extends JFrame{
             @Override
             public void callback(String str) {
                 // 방법2의 콜백 구현
-                System.out.println("send from " + str);
+                try {
+                    byte[] euckrStrBuffer = str.getBytes("CP949");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("read from " + str);
                 textfield.setText(htmltext(str));
             }
         });
@@ -110,7 +117,12 @@ public class Main extends JFrame{
             @Override
             public void callback(String str) {
                 // 방법2의 콜백 구현
-                System.out.println("send from " + str);
+                try {
+                    byte[] euckrStrBuffer = str.getBytes("euc-kr");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("down from " + str);
                 textfield.setText(htmltext(str));
             }
         });
@@ -119,7 +131,12 @@ public class Main extends JFrame{
             @Override
             public void callback(String str) {
                 // 방법2의 콜백 구현
-                System.out.println("send from " + str);
+                try {
+                    byte[] euckrStrBuffer = str.getBytes("euc-kr");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(str);
                 textfield.setText(htmltext(str));
             }
         });
@@ -292,8 +309,14 @@ public class Main extends JFrame{
                 }
 
                 if(button5.equals(ae.getSource())){
-                    idown.pickupNewstock();
-                    textfield.setText("info_kospi");
+                    String filename = "group_newstock";
+                    idown.pickupNewStock(filename);
+                    textfield.setText(filename);
+                }
+                if(button6.equals(ae.getSource())){
+                    String filename = "group_newetf";
+                    idown.pickupNewEtf(filename);
+                    textfield.setText(filename);
                 }
             }
         };
@@ -302,6 +325,7 @@ public class Main extends JFrame{
         button3.addActionListener(listener);
         button4.addActionListener(listener);
         button5.addActionListener(listener);
+        button6.addActionListener(listener);
         button9.addActionListener(listener);
 
         frame.pack();

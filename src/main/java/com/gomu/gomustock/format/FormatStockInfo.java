@@ -23,6 +23,7 @@ public class FormatStockInfo {
     public String news;
     public String fninfo;
     public String etfinfo;
+    public String nav;
 
     public FormatStockInfo() {
         init();
@@ -47,6 +48,7 @@ public class FormatStockInfo {
         desc="";
         fninfo="";
         etfinfo="";
+        nav="";
     }
 
     public void fill_empty() {
@@ -66,7 +68,8 @@ public class FormatStockInfo {
         desc="정보";
         news="뉴스";
         fninfo="수익테이블";
-        etfinfo="";
+        etfinfo="etf정보";
+        nav="nav";
     }
 
     public String getDSC() {
@@ -105,6 +108,7 @@ public class FormatStockInfo {
         news="뉴스";
         fninfo="fn정보";
         etfinfo="ETF정보";
+        nav="nav";
     }
 
     public void addStockcode(String stockcode) {

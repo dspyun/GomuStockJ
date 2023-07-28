@@ -25,7 +25,7 @@ public class MyExcel extends MyStat {
     String oldfilename=null, oldline=null, oldcol=null;
     private String latest_filename, latest_line;
     private List<String> column00, column01, column02, column03;
-    private String DATADIR = "D:\\gomustockj\\history";;
+    private String DATADIR = "D:\\gomustockj\\history\\";;
     private String INFODIR = "D:\\gomustockj\\";
     private ArrayList<String> initInfo;
 
@@ -482,14 +482,14 @@ public class MyExcel extends MyStat {
 
 
     public List<List<String>> readStockDic() {
-        List<String> STOCK_NO = new ArrayList<String>();
+        List<String> STOCK_CODE = new ArrayList<String>();
         List<String> STOCK_NAME = new ArrayList<String>();
         List<String> MARKET = new ArrayList<String>();
         List<List<String>> diclist = new ArrayList<List<String>>();
         InputStream is=null;
         Workbook wb=null;
 
-        String PathFile = INFODIR+"stocktable.xls";;
+        String PathFile = INFODIR+"tablestock.xls";;
 
         try {
             is =  new FileInputStream(PathFile);
@@ -500,29 +500,9 @@ public class MyExcel extends MyStat {
                     // line1, col1에서 contents를 읽는다.
                     int size = sheet.getColumn(0).length;
                     for (int i = 1; i <= size-1; i++) {
-                        STOCK_NO.add(sheet.getCell(1, i).getContents());
+                        STOCK_CODE.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
                         MARKET.add(sheet.getCell(6, i).getContents());
-                    }
-                }
-                Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
-                if(sheet1 != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size1 = sheet1.getColumn(0).length;
-                    for (int i = 1; i <= size1-1; i++) {
-                        STOCK_NO.add(sheet1.getCell(1, i).getContents());
-                        STOCK_NAME.add(sheet1.getCell(3, i).getContents());
-                        MARKET.add(sheet1.getCell(6, i).getContents());
-                    }
-                }
-                Sheet sheet2 = wb.getSheet(2);   // 시트 불러오기
-                if(sheet2 != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size1 = sheet2.getColumn(0).length;
-                    for (int i = 1; i <= size1-1; i++) {
-                        STOCK_NO.add(sheet2.getCell(1, i).getContents());
-                        STOCK_NAME.add(sheet2.getCell(3, i).getContents());
-                        MARKET.add(sheet2.getCell(6, i).getContents());
                     }
                 }
             }
@@ -533,7 +513,45 @@ public class MyExcel extends MyStat {
         } catch (BiffException e) {
             e.printStackTrace();
         }
-        diclist.add(STOCK_NO);
+        diclist.add(STOCK_CODE);
+        diclist.add(STOCK_NAME);
+        diclist.add(MARKET);
+        return diclist;
+    }
+
+    public List<List<String>> readETFDict() {
+        List<String> STOCK_CODE = new ArrayList<String>();
+        List<String> STOCK_NAME = new ArrayList<String>();
+        List<String> MARKET = new ArrayList<String>();
+        List<List<String>> diclist = new ArrayList<List<String>>();
+        InputStream is=null;
+        Workbook wb=null;
+
+        String PathFile = INFODIR+"tableetf.xls";;
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for (int i = 1; i <= size-1; i++) {
+                        STOCK_CODE.add(sheet.getCell(1, i).getContents());
+                        STOCK_NAME.add(sheet.getCell(3, i).getContents());
+                        MARKET.add(sheet.getCell(3, i).getContents());
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        diclist.add(STOCK_CODE);
         diclist.add(STOCK_NAME);
         diclist.add(MARKET);
         return diclist;
@@ -781,6 +799,7 @@ public class MyExcel extends MyStat {
                         writablesheet.addCell(new Label(14, row, information.get(row).news));
                         writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
                         writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
+                        writablesheet.addCell(new Label(17, row, information.get(row).nav));
                     }
                 }
             }
@@ -850,6 +869,7 @@ public class MyExcel extends MyStat {
                         writablesheet.addCell(new Label(14, row, information.get(row).news));
                         writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
                         writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
+                        writablesheet.addCell(new Label(17, row, information.get(row).nav));
                     }
                 }
             }
@@ -909,6 +929,7 @@ public class MyExcel extends MyStat {
                         temp.news = sheet.getCell(14, i).getContents();
                         temp.fninfo = sheet.getCell(15, i).getContents();
                         temp.etfinfo = sheet.getCell(16, i).getContents();
+                        temp.nav = sheet.getCell(17, i).getContents();
                         mArrayBuffer.add(temp);
                     }
                 }
@@ -968,6 +989,7 @@ public class MyExcel extends MyStat {
                         temp.news = sheet.getCell(14, i).getContents();
                         temp.fninfo = sheet.getCell(15, i).getContents();
                         temp.etfinfo = sheet.getCell(16, i).getContents();
+                        temp.nav = sheet.getCell(17, i).getContents();
                         mArrayBuffer.add(temp);
                     }
                 }
@@ -1020,7 +1042,6 @@ public class MyExcel extends MyStat {
                         mArrayBuffer.add(temp);
                     }
                 }
-
             }
             wb.close();
             is.close();

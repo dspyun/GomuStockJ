@@ -79,11 +79,18 @@ public class StockChart {
 
     public XYChart GetPeriodChart(String stock_code) {
 
+        if(stock_code.equals("278240")) {
+            int test = 1;
+        }
         int test_period = 120;
         Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.ORANGE,Color.BLUE};
         MyStat mystat = new MyStat();
         PriceBox kbbank = new PriceBox(stock_code);
         List<Float> kbband_close = kbbank.getClose(test_period);
+        if(kbband_close.get(0)==0 || kbband_close.size() < test_period) {
+            XYChart chart  = new XYChartBuilder().width(300).height(200).build();
+            return chart;
+        }
         BBandTest bbtest = new BBandTest(stock_code,kbband_close,test_period);
         RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
         List<Float> rsi_line = rsitest.test_line();
