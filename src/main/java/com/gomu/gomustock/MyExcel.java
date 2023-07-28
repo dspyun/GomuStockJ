@@ -11,7 +11,6 @@ import jxl.write.biff.RowsExceededException;
 import main.java.com.gomu.gomustock.format.*;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,20 +19,12 @@ import static java.lang.Boolean.TRUE;
 public class MyExcel extends MyStat {
 
 
-    private String ExcelFile;
-    private int colTotal, rowTotal;
-    String oldfilename=null, oldline=null, oldcol=null;
-    private String latest_filename, latest_line;
-    private List<String> column00, column01, column02, column03;
+
     private String DATADIR = "D:\\gomustockj\\history\\";;
     private String INFODIR = "D:\\gomustockj\\";
     private ArrayList<String> initInfo;
-
-    List<String> ETF_NO = new ArrayList<String>();
-    List<String> ETF_NAME = new ArrayList<String>();
-
     public MyExcel(String filename) {
-        ExcelFile=filename;
+
     }
 
     public MyExcel() {
@@ -43,15 +34,12 @@ public class MyExcel extends MyStat {
 
     public List<String> readColumn(String excelfile, int col) {
 
-        InputStream is=null;
-        Workbook wb=null;
-        String contents=null;
         String PathFile = INFODIR+excelfile;
         List<String> mArrayBuffer = new ArrayList<String>();
 
         try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
             if(wb != null) {
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
@@ -59,38 +47,30 @@ public class MyExcel extends MyStat {
                     // 현재 컬럼의 내용을 추가한다.
                     int size = sheet.getColumn(col).length;
                     for(int i=0; i < size-1; i++) {
-                        contents = sheet.getCell(col, i).getContents();
+                        String contents = sheet.getCell(col, i).getContents();
                         mArrayBuffer.add(contents);
                     }
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
         return mArrayBuffer;
     }
 
 
     public List<FormatTestData> readall_testdata(String code, boolean header) {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
+
         String filename = code+"_testset";
         String PathFile = DATADIR+filename+".xls";;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
         try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
             if(wb != null) {
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
@@ -112,13 +92,8 @@ public class MyExcel extends MyStat {
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
 
         return testdatalist;
@@ -156,17 +131,11 @@ public class MyExcel extends MyStat {
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (IOException | WriteException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
+        }//Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
 
-        }
     }
 
 
@@ -200,17 +169,11 @@ public class MyExcel extends MyStat {
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (IOException | WriteException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
+        }//Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
 
-        }
     }
 
     public int getTagColumn(String tag) {
@@ -262,16 +225,8 @@ public class MyExcel extends MyStat {
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+        } catch (IOException | WriteException e) {
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
-
         }
     }
 
@@ -279,17 +234,12 @@ public class MyExcel extends MyStat {
     public List<String> oa_readItem(String filename, String tag, boolean header) {
 
         int column = getTagColumn(tag);
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
         String PathFile = DATADIR+filename;;
         List<String> pricebuffer = new ArrayList<String>();
 
-
         try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
             if(wb != null) {
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
@@ -306,13 +256,8 @@ public class MyExcel extends MyStat {
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
 
         return pricebuffer;
@@ -348,37 +293,30 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0, end;
-                    if(header != true) start = 1;
-                    maxcol = sheet.getColumn(column).length;
-                    // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
-                    if(days >= maxcol || days <= -1) {
-                        start = 1;
-                        end = maxcol;
-                    }
-                    else {
-                        start = maxcol-days;
-                        end = maxcol;
-                    }
-                    for(int i=start;i<end;i++) {
-                        // formatOA class의 구조로 저장된다
-                        pricebuffer.add(sheet.getCell(column, i).getContents());
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int start = 0, end;
+                if(header != true) start = 1;
+                maxcol = sheet.getColumn(column).length;
+                // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
+                if(days >= maxcol || days <= -1) {
+                    start = 1;
+                    end = maxcol;
+                }
+                else {
+                    start = maxcol-days;
+                    end = maxcol;
+                }
+                for(int i=start;i<end;i++) {
+                    // formatOA class의 구조로 저장된다
+                    pricebuffer.add(sheet.getCell(column, i).getContents());
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
 
         List<String> pricebuffer_rev = new ArrayList<>();
@@ -404,37 +342,30 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0, end;
-                    if(header != true) start = 1;
-                    maxcol = sheet.getColumn(column).length;
-                    // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
-                    if(days >= maxcol || days <= -1) {
-                        start = 1;
-                        end = maxcol;
-                    }
-                    else {
-                        start = maxcol-days;
-                        end = maxcol;
-                    }
-                    for(int i=start;i<end;i++) {
-                        // formatOA class의 구조로 저장된다
-                        pricebuffer.add(sheet.getCell(column, i).getContents());
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int start = 0, end;
+                if(!header) start = 1;
+                maxcol = sheet.getColumn(column).length;
+                // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
+                if(days >= maxcol || days <= -1) {
+                    start = 1;
+                    end = maxcol;
+                }
+                else {
+                    start = maxcol-days;
+                    end = maxcol;
+                }
+                for(int i=start;i<end;i++) {
+                    // formatOA class의 구조로 저장된다
+                    pricebuffer.add(sheet.getCell(column, i).getContents());
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
 
         return pricebuffer;
@@ -450,30 +381,26 @@ public class MyExcel extends MyStat {
         try {
             InputStream is =  new FileInputStream(PathFile);
             Workbook wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i=1;i<size;i++) {
-                        FormatOHLCV oneohlcv = new FormatOHLCV();
-                        // formatOA class의 구조로 저장된다
-                        oneohlcv.date = sheet.getCell(0, i).getContents();
-                        oneohlcv.open = sheet.getCell(1, i).getContents();
-                        oneohlcv.high = sheet.getCell(2, i).getContents();
-                        oneohlcv.low = sheet.getCell(3, i).getContents();
-                        oneohlcv.close = sheet.getCell(4, i).getContents();
-                        oneohlcv.adjclose = sheet.getCell(5, i).getContents();
-                        oneohlcv.volume = sheet.getCell(6, i).getContents();
-                        ohlcvlist.add(oneohlcv);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for(int i=1;i<size;i++) {
+                    FormatOHLCV oneohlcv = new FormatOHLCV();
+                    // formatOA class의 구조로 저장된다
+                    oneohlcv.date = sheet.getCell(0, i).getContents();
+                    oneohlcv.open = sheet.getCell(1, i).getContents();
+                    oneohlcv.high = sheet.getCell(2, i).getContents();
+                    oneohlcv.low = sheet.getCell(3, i).getContents();
+                    oneohlcv.close = sheet.getCell(4, i).getContents();
+                    oneohlcv.adjclose = sheet.getCell(5, i).getContents();
+                    oneohlcv.volume = sheet.getCell(6, i).getContents();
+                    ohlcvlist.add(oneohlcv);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
 
@@ -486,31 +413,25 @@ public class MyExcel extends MyStat {
         List<String> STOCK_NAME = new ArrayList<String>();
         List<String> MARKET = new ArrayList<String>();
         List<List<String>> diclist = new ArrayList<List<String>>();
-        InputStream is=null;
-        Workbook wb=null;
 
         String PathFile = INFODIR+"tablestock.xls";;
 
         try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for (int i = 1; i <= size-1; i++) {
-                        STOCK_CODE.add(sheet.getCell(1, i).getContents());
-                        STOCK_NAME.add(sheet.getCell(3, i).getContents());
-                        MARKET.add(sheet.getCell(6, i).getContents());
-                    }
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for (int i = 1; i <= size-1; i++) {
+                    STOCK_CODE.add(sheet.getCell(1, i).getContents());
+                    STOCK_NAME.add(sheet.getCell(3, i).getContents());
+                    MARKET.add(sheet.getCell(6, i).getContents());
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         diclist.add(STOCK_CODE);
@@ -532,23 +453,19 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for (int i = 1; i <= size-1; i++) {
-                        STOCK_CODE.add(sheet.getCell(1, i).getContents());
-                        STOCK_NAME.add(sheet.getCell(3, i).getContents());
-                        MARKET.add(sheet.getCell(3, i).getContents());
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for (int i = 1; i <= size-1; i++) {
+                    STOCK_CODE.add(sheet.getCell(1, i).getContents());
+                    STOCK_NAME.add(sheet.getCell(3, i).getContents());
+                    MARKET.add(sheet.getCell(3, i).getContents());
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         diclist.add(STOCK_CODE);
@@ -561,17 +478,13 @@ public class MyExcel extends MyStat {
     public Boolean file_check(String filename) {
 
         String PathFile = DATADIR + filename;
-        Boolean return_flag=false;
+        boolean return_flag=false;
 
-        try {
-            java.io.File file1 = new java.io.File(PathFile);
-            // 1. check if the file exists or not
-            if (file1.exists()) return_flag = true;
-            else return_flag = false;
+        java.io.File file1 = new java.io.File(PathFile);
+        // 1. check if the file exists or not
+        if (file1.exists()) return_flag = true;
+        else return_flag = false;
 
-        } catch (Exception e) {
-
-        }
         return return_flag;
     }
 
@@ -588,77 +501,60 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0;
-                    if(header != TRUE) start = 0;
-                    int size = sheet.getColumn(0).length;
-                    for(int i=start;i<size;i++) {
-                        // formatOA class의 구조로 저장된다
-                        // 종가는 6번째 컬럼의 값
-                        testdata = new FormatTestData();
-                        testdata.date = sheet.getCell(0, i).getContents();
-                        testdata.price = sheet.getCell(1, i).getContents();
-                        testdata.buy_quantity = sheet.getCell(2, i).getContents();
-                        testdata.sell_quantity = sheet.getCell(3, i).getContents();
-                        testdatalist.add(testdata);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int start = 0;
+                if(header != TRUE) start = 0;
+                int size = sheet.getColumn(0).length;
+                for(int i=start;i<size;i++) {
+                    // formatOA class의 구조로 저장된다
+                    // 종가는 6번째 컬럼의 값
+                    testdata = new FormatTestData();
+                    testdata.date = sheet.getCell(0, i).getContents();
+                    testdata.price = sheet.getCell(1, i).getContents();
+                    testdata.buy_quantity = sheet.getCell(2, i).getContents();
+                    testdata.sell_quantity = sheet.getCell(3, i).getContents();
+                    testdatalist.add(testdata);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
 
         return testdatalist;
     }
     public List<FormatTestData> readtestbuy(String filename, boolean header) {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
+
         String PathFile = DATADIR+filename;;
         List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
         FormatTestData testdata = new FormatTestData();
 
         try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0;
-                    if(header != TRUE) start = 0;
-                    int size = sheet.getColumn(0).length;
-                    for(int i=start;i<size;i++) {
-                        // formatOA class의 구조로 저장된다
-                        // 종가는 6번째 컬럼의 값
-                        testdata = new FormatTestData();
-                        testdata.date = sheet.getCell(0, i).getContents();
-                        testdata.price = sheet.getCell(1, i).getContents();
-                        testdata.buy_quantity = sheet.getCell(2, i).getContents();
-                        testdatalist.add(testdata);
-                    }
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int start = 0;
+                if(header != TRUE) start = 0;
+                int size = sheet.getColumn(0).length;
+                for(int i=start;i<size;i++) {
+                    // formatOA class의 구조로 저장된다
+                    // 종가는 6번째 컬럼의 값
+                    testdata = new FormatTestData();
+                    testdata.date = sheet.getCell(0, i).getContents();
+                    testdata.price = sheet.getCell(1, i).getContents();
+                    testdata.buy_quantity = sheet.getCell(2, i).getContents();
+                    testdatalist.add(testdata);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
 
         return testdatalist;
@@ -677,34 +573,26 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    int start = 0;
-                    if(header != TRUE) start = 0;
-                    for(int i=start;i<size;i++) {
-                        // sell quantity를 읽는ㄴ다
-                        testdata = new FormatTestData();
-                        testdata.date = sheet.getCell(0, i).getContents();
-                        testdata.price = sheet.getCell(1, i).getContents();
-                        testdata.sell_quantity = sheet.getCell(3, i).getContents();
-                        testdatalist.add(testdata);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                int start = 0;
+                if(header != TRUE) start = 0;
+                for(int i=start;i<size;i++) {
+                    // sell quantity를 읽는ㄴ다
+                    testdata = new FormatTestData();
+                    testdata.date = sheet.getCell(0, i).getContents();
+                    testdata.price = sheet.getCell(1, i).getContents();
+                    testdata.sell_quantity = sheet.getCell(3, i).getContents();
+                    testdatalist.add(testdata);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
-
         return testdatalist;
     }
 
@@ -720,37 +608,29 @@ public class MyExcel extends MyStat {
             WritableWorkbook workbook = Workbook.createWorkbook(file1);
             //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet1", 0);
+            writablesheet = workbook.getSheet(0);
+            //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
 
-                if(writablesheet != null) {
-                    // header 때문에 1부터 시작해야 한다
-                    int size = buy.size();
-                    for(int row =1;row < size+1 ;row++) {
-                        writablesheet.addCell(new Label(0, row, date.get(row-1)));
-                        writablesheet.addCell(new Label(1, row, price.get(row-1)));
-                        writablesheet.addCell(new Label(2, row, String.valueOf(buy.get(row-1))));
-                        writablesheet.addCell(new Label(3, row, String.valueOf(sell.get(row-1))));
-                    }
+            if(writablesheet != null) {
+                // header 때문에 1부터 시작해야 한다
+                int size = buy.size();
+                for(int row =1;row < size+1 ;row++) {
+                    writablesheet.addCell(new Label(0, row, date.get(row-1)));
+                    writablesheet.addCell(new Label(1, row, price.get(row-1)));
+                    writablesheet.addCell(new Label(2, row, String.valueOf(buy.get(row-1))));
+                    writablesheet.addCell(new Label(3, row, String.valueOf(sell.get(row-1))));
                 }
             }
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (IOException | WriteException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
+        }//Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
 
-        }
     }
 
 
@@ -774,49 +654,41 @@ public class MyExcel extends MyStat {
             workbook = Workbook.createWorkbook(file1);
             //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet0", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
-                int size = information.size();
-                if(writablesheet != null) {
-                    for(int row =0;row<size;row++) {
-                        writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
-                        writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
-                        writablesheet.addCell(new Label(2, row, information.get(row).stock_type));
-                        writablesheet.addCell(new Label(3, row, information.get(row).ranking));
-                        writablesheet.addCell(new Label(4, row, information.get(row).per));
-                        writablesheet.addCell(new Label(5, row, information.get(row).expect_per));
-                        writablesheet.addCell(new Label(6, row, information.get(row).area_per));
-                        writablesheet.addCell(new Label(7, row, information.get(row).pbr));
-                        writablesheet.addCell(new Label(8, row, information.get(row).div_rate));
-                        writablesheet.addCell(new Label(9, row, information.get(row).fogn_rate));
-                        writablesheet.addCell(new Label(10, row, information.get(row).recommend));
-                        writablesheet.addCell(new Label(11, row, information.get(row).cur_price));
-                        writablesheet.addCell(new Label(12, row, information.get(row).score));
-                        writablesheet.addCell(new Label(13, row, information.get(row).desc));
-                        writablesheet.addCell(new Label(14, row, information.get(row).news));
-                        writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
-                        writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
-                        writablesheet.addCell(new Label(17, row, information.get(row).nav));
-                    }
+            //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet0", 0);
+            writablesheet = workbook.getSheet(0);
+            //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+            int size = information.size();
+            if(writablesheet != null) {
+                for(int row =0;row<size;row++) {
+                    writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
+                    writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
+                    writablesheet.addCell(new Label(2, row, information.get(row).stock_type));
+                    writablesheet.addCell(new Label(3, row, information.get(row).ranking));
+                    writablesheet.addCell(new Label(4, row, information.get(row).per));
+                    writablesheet.addCell(new Label(5, row, information.get(row).expect_per));
+                    writablesheet.addCell(new Label(6, row, information.get(row).area_per));
+                    writablesheet.addCell(new Label(7, row, information.get(row).pbr));
+                    writablesheet.addCell(new Label(8, row, information.get(row).div_rate));
+                    writablesheet.addCell(new Label(9, row, information.get(row).fogn_rate));
+                    writablesheet.addCell(new Label(10, row, information.get(row).recommend));
+                    writablesheet.addCell(new Label(11, row, information.get(row).cur_price));
+                    writablesheet.addCell(new Label(12, row, information.get(row).score));
+                    writablesheet.addCell(new Label(13, row, information.get(row).desc));
+                    writablesheet.addCell(new Label(14, row, information.get(row).news));
+                    writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
+                    writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
+                    writablesheet.addCell(new Label(17, row, information.get(row).nav));
                 }
             }
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (IOException | WriteException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
+        }//Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
 
-        }
     }
 
 
@@ -844,49 +716,41 @@ public class MyExcel extends MyStat {
             workbook = Workbook.createWorkbook(file1);
             //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet0", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
-                int size = information.size();
-                if(writablesheet != null) {
-                    for(int row =0;row<size;row++) {
-                        writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
-                        writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
-                        writablesheet.addCell(new Label(2, row, information.get(row).stock_type));
-                        writablesheet.addCell(new Label(3, row, information.get(row).ranking));
-                        writablesheet.addCell(new Label(4, row, information.get(row).per));
-                        writablesheet.addCell(new Label(5, row, information.get(row).expect_per));
-                        writablesheet.addCell(new Label(6, row, information.get(row).area_per));
-                        writablesheet.addCell(new Label(7, row, information.get(row).pbr));
-                        writablesheet.addCell(new Label(8, row, information.get(row).div_rate));
-                        writablesheet.addCell(new Label(9, row, information.get(row).fogn_rate));
-                        writablesheet.addCell(new Label(10, row, information.get(row).recommend));
-                        writablesheet.addCell(new Label(11, row, information.get(row).cur_price));
-                        writablesheet.addCell(new Label(12, row, information.get(row).score));
-                        writablesheet.addCell(new Label(13, row, information.get(row).desc));
-                        writablesheet.addCell(new Label(14, row, information.get(row).news));
-                        writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
-                        writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
-                        writablesheet.addCell(new Label(17, row, information.get(row).nav));
-                    }
+            //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet0", 0);
+            writablesheet = workbook.getSheet(0);
+            //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+            int size = information.size();
+            if(writablesheet != null) {
+                for(int row =0;row<size;row++) {
+                    writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
+                    writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
+                    writablesheet.addCell(new Label(2, row, information.get(row).stock_type));
+                    writablesheet.addCell(new Label(3, row, information.get(row).ranking));
+                    writablesheet.addCell(new Label(4, row, information.get(row).per));
+                    writablesheet.addCell(new Label(5, row, information.get(row).expect_per));
+                    writablesheet.addCell(new Label(6, row, information.get(row).area_per));
+                    writablesheet.addCell(new Label(7, row, information.get(row).pbr));
+                    writablesheet.addCell(new Label(8, row, information.get(row).div_rate));
+                    writablesheet.addCell(new Label(9, row, information.get(row).fogn_rate));
+                    writablesheet.addCell(new Label(10, row, information.get(row).recommend));
+                    writablesheet.addCell(new Label(11, row, information.get(row).cur_price));
+                    writablesheet.addCell(new Label(12, row, information.get(row).score));
+                    writablesheet.addCell(new Label(13, row, information.get(row).desc));
+                    writablesheet.addCell(new Label(14, row, information.get(row).news));
+                    writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
+                    writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
+                    writablesheet.addCell(new Label(17, row, information.get(row).nav));
                 }
             }
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (IOException | WriteException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
+        }//Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
 
-        }
     }
 
     public List<FormatStockInfo> readStockinfo(int index, boolean header) {
@@ -903,42 +767,38 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    int start = 0;
-                    if(header != TRUE) start = 1;
-                    for(int i=start;i<size;i++) {
-                        FormatStockInfo temp = new FormatStockInfo();
-                        temp.stock_code = sheet.getCell(0, i).getContents();
-                        temp.stock_name = sheet.getCell(1, i).getContents();
-                        temp.stock_type = sheet.getCell(2, i).getContents();
-                        temp.ranking = sheet.getCell(3, i).getContents();
-                        temp.per = sheet.getCell(4, i).getContents();
-                        temp.expect_per = sheet.getCell(5, i).getContents();
-                        temp.area_per = sheet.getCell(6, i).getContents();
-                        temp.pbr = sheet.getCell(7, i).getContents();
-                        temp.div_rate = sheet.getCell(8, i).getContents();
-                        temp.fogn_rate = sheet.getCell(9, i).getContents();
-                        temp.recommend = sheet.getCell(10, i).getContents();
-                        temp.cur_price = sheet.getCell(11, i).getContents();
-                        temp.score = sheet.getCell(12, i).getContents();
-                        temp.desc = sheet.getCell(13, i).getContents();
-                        temp.news = sheet.getCell(14, i).getContents();
-                        temp.fninfo = sheet.getCell(15, i).getContents();
-                        temp.etfinfo = sheet.getCell(16, i).getContents();
-                        temp.nav = sheet.getCell(17, i).getContents();
-                        mArrayBuffer.add(temp);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                int start = 0;
+                if(header != TRUE) start = 1;
+                for(int i=start;i<size;i++) {
+                    FormatStockInfo temp = new FormatStockInfo();
+                    temp.stock_code = sheet.getCell(0, i).getContents();
+                    temp.stock_name = sheet.getCell(1, i).getContents();
+                    temp.stock_type = sheet.getCell(2, i).getContents();
+                    temp.ranking = sheet.getCell(3, i).getContents();
+                    temp.per = sheet.getCell(4, i).getContents();
+                    temp.expect_per = sheet.getCell(5, i).getContents();
+                    temp.area_per = sheet.getCell(6, i).getContents();
+                    temp.pbr = sheet.getCell(7, i).getContents();
+                    temp.div_rate = sheet.getCell(8, i).getContents();
+                    temp.fogn_rate = sheet.getCell(9, i).getContents();
+                    temp.recommend = sheet.getCell(10, i).getContents();
+                    temp.cur_price = sheet.getCell(11, i).getContents();
+                    temp.score = sheet.getCell(12, i).getContents();
+                    temp.desc = sheet.getCell(13, i).getContents();
+                    temp.news = sheet.getCell(14, i).getContents();
+                    temp.fninfo = sheet.getCell(15, i).getContents();
+                    temp.etfinfo = sheet.getCell(16, i).getContents();
+                    temp.nav = sheet.getCell(17, i).getContents();
+                    mArrayBuffer.add(temp);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return mArrayBuffer;
@@ -963,42 +823,38 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    int start = 0;
-                    if(header != TRUE) start = 1;
-                    for(int i=start;i<size;i++) {
-                        FormatStockInfo temp = new FormatStockInfo();
-                        temp.stock_code = sheet.getCell(0, i).getContents();
-                        temp.stock_name = sheet.getCell(1, i).getContents();
-                        temp.stock_type = sheet.getCell(2, i).getContents();
-                        temp.ranking = sheet.getCell(3, i).getContents();
-                        temp.per = sheet.getCell(4, i).getContents();
-                        temp.expect_per = sheet.getCell(5, i).getContents();
-                        temp.area_per = sheet.getCell(6, i).getContents();
-                        temp.pbr = sheet.getCell(7, i).getContents();
-                        temp.div_rate = sheet.getCell(8, i).getContents();
-                        temp.fogn_rate = sheet.getCell(9, i).getContents();
-                        temp.recommend = sheet.getCell(10, i).getContents();
-                        temp.cur_price = sheet.getCell(11, i).getContents();
-                        temp.score = sheet.getCell(12, i).getContents();
-                        temp.desc = sheet.getCell(13, i).getContents();
-                        temp.news = sheet.getCell(14, i).getContents();
-                        temp.fninfo = sheet.getCell(15, i).getContents();
-                        temp.etfinfo = sheet.getCell(16, i).getContents();
-                        temp.nav = sheet.getCell(17, i).getContents();
-                        mArrayBuffer.add(temp);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                int start = 0;
+                if(header != TRUE) start = 1;
+                for(int i=start;i<size;i++) {
+                    FormatStockInfo temp = new FormatStockInfo();
+                    temp.stock_code = sheet.getCell(0, i).getContents();
+                    temp.stock_name = sheet.getCell(1, i).getContents();
+                    temp.stock_type = sheet.getCell(2, i).getContents();
+                    temp.ranking = sheet.getCell(3, i).getContents();
+                    temp.per = sheet.getCell(4, i).getContents();
+                    temp.expect_per = sheet.getCell(5, i).getContents();
+                    temp.area_per = sheet.getCell(6, i).getContents();
+                    temp.pbr = sheet.getCell(7, i).getContents();
+                    temp.div_rate = sheet.getCell(8, i).getContents();
+                    temp.fogn_rate = sheet.getCell(9, i).getContents();
+                    temp.recommend = sheet.getCell(10, i).getContents();
+                    temp.cur_price = sheet.getCell(11, i).getContents();
+                    temp.score = sheet.getCell(12, i).getContents();
+                    temp.desc = sheet.getCell(13, i).getContents();
+                    temp.news = sheet.getCell(14, i).getContents();
+                    temp.fninfo = sheet.getCell(15, i).getContents();
+                    temp.etfinfo = sheet.getCell(16, i).getContents();
+                    temp.nav = sheet.getCell(17, i).getContents();
+                    mArrayBuffer.add(temp);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return mArrayBuffer;
@@ -1015,39 +871,35 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                int size=0, start = 0;
-                if(header != TRUE) start = 1;
+            int size=0, start = 0;
+            if(header != TRUE) start = 1;
 
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    size = sheet.getColumn(0).length;
-                    for(int i=start;i<size;i++) {
-                        FormatMyStock temp = new FormatMyStock();
-                        temp.stock_code = sheet.getCell(0, i).getContents();
-                        temp.stock_name = sheet.getCell(1, i).getContents();
-                        mArrayBuffer.add(temp);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                size = sheet.getColumn(0).length;
+                for(int i=start;i<size;i++) {
+                    FormatMyStock temp = new FormatMyStock();
+                    temp.stock_code = sheet.getCell(0, i).getContents();
+                    temp.stock_name = sheet.getCell(1, i).getContents();
+                    mArrayBuffer.add(temp);
                 }
+            }
 
-                Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    size = sheet1.getColumn(0).length;
-                    for(int i=start;i<size;i++) {
-                        FormatMyStock temp = new FormatMyStock();
-                        temp.stock_code = sheet1.getCell(0, i).getContents();
-                        temp.stock_name = sheet1.getCell(1, i).getContents();
-                        mArrayBuffer.add(temp);
-                    }
+            Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                size = sheet1.getColumn(0).length;
+                for(int i=start;i<size;i++) {
+                    FormatMyStock temp = new FormatMyStock();
+                    temp.stock_code = sheet1.getCell(0, i).getContents();
+                    temp.stock_name = sheet1.getCell(1, i).getContents();
+                    mArrayBuffer.add(temp);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return mArrayBuffer;
@@ -1056,7 +908,6 @@ public class MyExcel extends MyStat {
     public List<String> readFogninfo(String stock_code, String group, boolean header) {
         InputStream is=null;
         Workbook wb=null;
-        String contents1=null;
         int line, col;
         String PathFile = DATADIR+stock_code+"fogn.xls";;
         if(group.equals("FOGN")) col = 1;
@@ -1069,66 +920,55 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0;
-                    if(header != TRUE) start = 1;
-                    //for(int i=start;i<sheet.getColumn(col).length;i++) {
-                    for(int i=start;i<20;i++) {
-                        Buffer.add(sheet.getCell(col, i).getContents());
-                    }
-                    // 주가의 데이터 순서와 맞춰준다
-                    // 과거의 데이터를 시작으로 해서 최신 데이터가 가장 끝에 오도록 재정렬 해준다
-                    // 저장할 때 역순으로 먼저 저장해도 되지만
-                    // 100개를 역순으로 저장하고 20개를 읽으면 20개에 최신 데이터가 포함되지 않는다
-                    // 최과거 데이터가 0번이기 때문에 최과거 기준으로 20개가 읽히므로
-                    // 그것을 방지하기 위해 읽는 곳에서 데이터를 역순으로 배열시킨다
-                    for(int j =Buffer.size()-1;j>=0;j--) {
-                        Buffer_rev.add(Buffer.get(j));
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int start = 0;
+                if(header != TRUE) start = 1;
+                //for(int i=start;i<sheet.getColumn(col).length;i++) {
+                for(int i=start;i<20;i++) {
+                    Buffer.add(sheet.getCell(col, i).getContents());
+                }
+                // 주가의 데이터 순서와 맞춰준다
+                // 과거의 데이터를 시작으로 해서 최신 데이터가 가장 끝에 오도록 재정렬 해준다
+                // 저장할 때 역순으로 먼저 저장해도 되지만
+                // 100개를 역순으로 저장하고 20개를 읽으면 20개에 최신 데이터가 포함되지 않는다
+                // 최과거 데이터가 0번이기 때문에 최과거 기준으로 20개가 읽히므로
+                // 그것을 방지하기 위해 읽는 곳에서 데이터를 역순으로 배열시킨다
+                for(int j =Buffer.size()-1;j>=0;j--) {
+                    Buffer_rev.add(Buffer.get(j));
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return Buffer_rev;
     }
     public List<String> readTodayFogninfo(String stock_code,boolean header) {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
+
         String PathFile = DATADIR+stock_code+"fogn.xls";;
 
         List<String> Buffer = new ArrayList<>();
-        List<String> Buffer_rev = new ArrayList<>();
+
 
         try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0;
-                    if(header != TRUE) start = 1;
-                    // 최신 외국인 매수량
-                    Buffer.add(sheet.getCell(1, 1).getContents());
-                    // 최신 기관 매수량
-                    Buffer.add(sheet.getCell(2, 1).getContents());
-                }
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int start = 0;
+                if(header != TRUE) start = 1;
+                // 최신 외국인 매수량
+                Buffer.add(sheet.getCell(1, 1).getContents());
+                // 최신 기관 매수량
+                Buffer.add(sheet.getCell(2, 1).getContents());
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return Buffer;
@@ -1163,9 +1003,7 @@ public class MyExcel extends MyStat {
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return sb.toString();
@@ -1181,10 +1019,7 @@ public class MyExcel extends MyStat {
             fw.write(html_string);
             fw.close();
         } catch (IOException e) {
-            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } finally {
-
         }
     }
 
@@ -1198,35 +1033,21 @@ public class MyExcel extends MyStat {
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
             WritableWorkbook workbook = Workbook.createWorkbook(file1);
-            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet1", 0);
+            writablesheet = workbook.getSheet(0);
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
-
-                if(writablesheet != null) {
-                    int size = stocklist.size();
-                    for(int row =0;row < size ;row++) {
-                        writablesheet.addCell(new Label(0, row, stocklist.get(row)));
-                    }
+            if(writablesheet != null) {
+                int size = stocklist.size();
+                for(int row =0;row < size ;row++) {
+                    writablesheet.addCell(new Label(0, row, stocklist.get(row)));
                 }
             }
             workbook.write();
             workbook.close();
-            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+        } catch (IOException | WriteException e) {
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
-
         }
+
     }
     public List<String> readSimullist() {
         InputStream is=null;
@@ -1239,21 +1060,17 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i=0;i<size;i++) {
-                        stocklist.add(sheet.getCell(0, i).getContents());
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for(int i=0;i<size;i++) {
+                    stocklist.add(sheet.getCell(0, i).getContents());
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return stocklist;
@@ -1268,73 +1085,53 @@ public class MyExcel extends MyStat {
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
             WritableWorkbook workbook = Workbook.createWorkbook(file1);
-            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet1", 0);
+            writablesheet = workbook.getSheet(0);
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
-
-                if(writablesheet != null) {
-                    int size = data.size();
-                    for(int row =1;row < size ;row++) {
-                        writablesheet.addCell(new Label(col, row, data.get(row)));
-                    }
+            if(writablesheet != null) {
+                int size = data.size();
+                for(int row =1;row < size ;row++) {
+                    writablesheet.addCell(new Label(col, row, data.get(row)));
                 }
             }
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (IOException | WriteException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
+        }//Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
 
-        }
     }
-
-
 
 
     public List<FormatMyStock> readMyStockList() {
 
         String temp=null;
-
         String PathFile = INFODIR+"mystock"+".xls";;
         List<FormatMyStock> mystocklist = new ArrayList<FormatMyStock>();
-
 
         try {
             InputStream is =  new FileInputStream(PathFile);
             Workbook wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i=1;i<size;i++) {
-                        FormatMyStock mystock = new FormatMyStock();
-                        mystock.stock_code = sheet.getCell(0, i).getContents();
-                        mystock.stock_name = sheet.getCell(1, i).getContents();
-                        temp = sheet.getCell(2, i).getContents();
-                        mystock.quantity = Integer.parseInt(temp);
-                        temp = sheet.getCell(3, i).getContents();
-                        mystock.buy_price = Integer.parseInt(temp);
-                        mystocklist.add(mystock);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for(int i=1;i<size;i++) {
+                    FormatMyStock mystock = new FormatMyStock();
+                    mystock.stock_code = sheet.getCell(0, i).getContents();
+                    mystock.stock_name = sheet.getCell(1, i).getContents();
+                    temp = sheet.getCell(2, i).getContents();
+                    mystock.quantity = Integer.parseInt(temp);
+                    temp = sheet.getCell(3, i).getContents();
+                    mystock.buy_price = Integer.parseInt(temp);
+                    mystocklist.add(mystock);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return mystocklist;
@@ -1351,40 +1148,28 @@ public class MyExcel extends MyStat {
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
             WritableWorkbook workbook = Workbook.createWorkbook(file1);
-            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet1", 0);
+            writablesheet = workbook.getSheet(0);
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
 
-                if(writablesheet != null) {
-                    int size = upjonglist.size();
-                    for(int row =0;row < size ;row++) {
-                        List<String> onelist = new ArrayList<>();
-                        onelist = upjonglist.get(row);
-                        int size2 = onelist.size();
-                        for(int j =0;j<size2;j++) {
-                            writablesheet.addCell(new Label(j, row, onelist.get(j)));
-                        }
+            if(writablesheet != null) {
+                int size = upjonglist.size();
+                for(int row =0;row < size ;row++) {
+                    List<String> onelist = new ArrayList<>();
+                    onelist = upjonglist.get(row);
+                    int size2 = onelist.size();
+                    for(int j =0;j<size2;j++) {
+                        writablesheet.addCell(new Label(j, row, onelist.get(j)));
                     }
                 }
             }
             workbook.write();
             workbook.close();
-            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
 
+        } catch (IOException | WriteException e) {
+            e.printStackTrace();
         }
+
     }
     public void writenaverupjong(String filename,List<FormatUpjongInfo> upjonglist) {
 
@@ -1401,65 +1186,57 @@ public class MyExcel extends MyStat {
             WritableWorkbook workbook = Workbook.createWorkbook(file1);
             //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet1", 0);
+            writablesheet = workbook.getSheet(0);
+            //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
 
-                if(writablesheet != null) {
-                    int size = upjonglist.size();
-                    for(int row =0;row < size ;row++) {
-                        writablesheet.addCell(new Label(0, row, upjonglist.get(row).stock_code));
-                        writablesheet.addCell(new Label(1, row, upjonglist.get(row).stock_name));
-                        writablesheet.addCell(new Label(2, row, upjonglist.get(row).market_type));
-                        writablesheet.addCell(new Label(3, row, upjonglist.get(row).cur_price));
-                        writablesheet.addCell(new Label(4, row, upjonglist.get(row).compare_yester));
-                        writablesheet.addCell(new Label(5, row, upjonglist.get(row).updown_ratio));
-                        writablesheet.addCell(new Label(6, row, upjonglist.get(row).tran_quantity));
-                        writablesheet.addCell(new Label(7, row, upjonglist.get(row).callbuy));
-                        writablesheet.addCell(new Label(8, row, upjonglist.get(row).tran_money));
-                        writablesheet.addCell(new Label(9, row, upjonglist.get(row).market_volume));
-                        writablesheet.addCell(new Label(10, row, upjonglist.get(row).profit));
-                        writablesheet.addCell(new Label(11, row, upjonglist.get(row).per));
-                        writablesheet.addCell(new Label(12, row, upjonglist.get(row).begin_price));
-                        writablesheet.addCell(new Label(13, row, upjonglist.get(row).callsell));
-                        writablesheet.addCell(new Label(14, row, upjonglist.get(row).preday_tran_quantity));
-                        writablesheet.addCell(new Label(15, row, upjonglist.get(row).assets_total));
-                        writablesheet.addCell(new Label(16, row, upjonglist.get(row).profit_ratio));
-                        writablesheet.addCell(new Label(17, row, upjonglist.get(row).roe));
-                        writablesheet.addCell(new Label(18, row, upjonglist.get(row).high_price));
-                        writablesheet.addCell(new Label(19, row, upjonglist.get(row).remain_buy_quantity));
-                        writablesheet.addCell(new Label(20, row, upjonglist.get(row).fogn_ratio));
-                        writablesheet.addCell(new Label(21, row, upjonglist.get(row).debt_total));
-                        writablesheet.addCell(new Label(22, row, upjonglist.get(row).quarter_pureprofit));
-                        writablesheet.addCell(new Label(23, row, upjonglist.get(row).roa));
-                        writablesheet.addCell(new Label(24, row, upjonglist.get(row).low_price));
-                        writablesheet.addCell(new Label(25, row, upjonglist.get(row).remain_sell_quantity));
-                        writablesheet.addCell(new Label(26, row, upjonglist.get(row).stock_total));
-                        writablesheet.addCell(new Label(27, row, upjonglist.get(row).revenue));
-                        writablesheet.addCell(new Label(28, row, upjonglist.get(row).pureprofit_per));
-                        writablesheet.addCell(new Label(29, row, upjonglist.get(row).pbr));
-                        writablesheet.addCell(new Label(30, row, upjonglist.get(row).revenue_ratio));
-                        writablesheet.addCell(new Label(31, row, upjonglist.get(row).div_money));
-                        writablesheet.addCell(new Label(32, row, upjonglist.get(row).reserved_ratio));
-                    }
+            if(writablesheet != null) {
+                int size = upjonglist.size();
+                for(int row =0;row < size ;row++) {
+                    writablesheet.addCell(new Label(0, row, upjonglist.get(row).stock_code));
+                    writablesheet.addCell(new Label(1, row, upjonglist.get(row).stock_name));
+                    writablesheet.addCell(new Label(2, row, upjonglist.get(row).market_type));
+                    writablesheet.addCell(new Label(3, row, upjonglist.get(row).cur_price));
+                    writablesheet.addCell(new Label(4, row, upjonglist.get(row).compare_yester));
+                    writablesheet.addCell(new Label(5, row, upjonglist.get(row).updown_ratio));
+                    writablesheet.addCell(new Label(6, row, upjonglist.get(row).tran_quantity));
+                    writablesheet.addCell(new Label(7, row, upjonglist.get(row).callbuy));
+                    writablesheet.addCell(new Label(8, row, upjonglist.get(row).tran_money));
+                    writablesheet.addCell(new Label(9, row, upjonglist.get(row).market_volume));
+                    writablesheet.addCell(new Label(10, row, upjonglist.get(row).profit));
+                    writablesheet.addCell(new Label(11, row, upjonglist.get(row).per));
+                    writablesheet.addCell(new Label(12, row, upjonglist.get(row).begin_price));
+                    writablesheet.addCell(new Label(13, row, upjonglist.get(row).callsell));
+                    writablesheet.addCell(new Label(14, row, upjonglist.get(row).preday_tran_quantity));
+                    writablesheet.addCell(new Label(15, row, upjonglist.get(row).assets_total));
+                    writablesheet.addCell(new Label(16, row, upjonglist.get(row).profit_ratio));
+                    writablesheet.addCell(new Label(17, row, upjonglist.get(row).roe));
+                    writablesheet.addCell(new Label(18, row, upjonglist.get(row).high_price));
+                    writablesheet.addCell(new Label(19, row, upjonglist.get(row).remain_buy_quantity));
+                    writablesheet.addCell(new Label(20, row, upjonglist.get(row).fogn_ratio));
+                    writablesheet.addCell(new Label(21, row, upjonglist.get(row).debt_total));
+                    writablesheet.addCell(new Label(22, row, upjonglist.get(row).quarter_pureprofit));
+                    writablesheet.addCell(new Label(23, row, upjonglist.get(row).roa));
+                    writablesheet.addCell(new Label(24, row, upjonglist.get(row).low_price));
+                    writablesheet.addCell(new Label(25, row, upjonglist.get(row).remain_sell_quantity));
+                    writablesheet.addCell(new Label(26, row, upjonglist.get(row).stock_total));
+                    writablesheet.addCell(new Label(27, row, upjonglist.get(row).revenue));
+                    writablesheet.addCell(new Label(28, row, upjonglist.get(row).pureprofit_per));
+                    writablesheet.addCell(new Label(29, row, upjonglist.get(row).pbr));
+                    writablesheet.addCell(new Label(30, row, upjonglist.get(row).revenue_ratio));
+                    writablesheet.addCell(new Label(31, row, upjonglist.get(row).div_money));
+                    writablesheet.addCell(new Label(32, row, upjonglist.get(row).reserved_ratio));
                 }
             }
             workbook.write();
             workbook.close();
             //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (IOException | WriteException e) {
             //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
+        }//Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
 
-        }
     }
 
     public List<FormatUpjongInfo>  readnaverupjong(String filename) {
@@ -1474,55 +1251,51 @@ public class MyExcel extends MyStat {
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i=1;i<size;i++) {
-                        FormatUpjongInfo one = new FormatUpjongInfo();
-                        one.stock_code = sheet.getCell(0, i).getContents();
-                        one.stock_name= sheet.getCell(1, i).getContents();
-                        one.market_type= sheet.getCell(2, i).getContents();
-                        one.cur_price= sheet.getCell(3, i).getContents();
-                        one.compare_yester= sheet.getCell(4, i).getContents();
-                        one.updown_ratio= sheet.getCell(5, i).getContents();
-                        one.tran_quantity= sheet.getCell(6, i).getContents();
-                        one.callbuy= sheet.getCell(7, i).getContents();
-                        one.tran_money= sheet.getCell(8, i).getContents();
-                        one.market_volume= sheet.getCell(9, i).getContents();
-                        one.profit= sheet.getCell(10, i).getContents();
-                        one.per= sheet.getCell(11, i).getContents();
-                        one.begin_price= sheet.getCell(12, i).getContents();
-                        one.callsell= sheet.getCell(13, i).getContents();
-                        one.preday_tran_quantity= sheet.getCell(14, i).getContents();
-                        one.assets_total= sheet.getCell(15, i).getContents();
-                        one.profit_ratio= sheet.getCell(16, i).getContents();
-                        one.roe= sheet.getCell(17, i).getContents();
-                        one.high_price= sheet.getCell(18, i).getContents();
-                        one.remain_buy_quantity= sheet.getCell(19, i).getContents();
-                        one.fogn_ratio= sheet.getCell(20, i).getContents();
-                        one.debt_total= sheet.getCell(21, i).getContents();
-                        one.quarter_pureprofit= sheet.getCell(22, i).getContents();
-                        one.roa= sheet.getCell(23, i).getContents();
-                        one.low_price= sheet.getCell(24, i).getContents();
-                        one.remain_sell_quantity= sheet.getCell(25, i).getContents();
-                        one.stock_total= sheet.getCell(26, i).getContents();
-                        one.revenue= sheet.getCell(27, i).getContents();
-                        one.pureprofit_per= sheet.getCell(28, i).getContents();
-                        one.pbr= sheet.getCell(29, i).getContents();
-                        one.revenue_ratio= sheet.getCell(30, i).getContents();;
-                        one.div_money= sheet.getCell(31, i).getContents();
-                        one.reserved_ratio= sheet.getCell(32, i).getContents();
-                        upjonglist.add(one);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for(int i=1;i<size;i++) {
+                    FormatUpjongInfo one = new FormatUpjongInfo();
+                    one.stock_code = sheet.getCell(0, i).getContents();
+                    one.stock_name= sheet.getCell(1, i).getContents();
+                    one.market_type= sheet.getCell(2, i).getContents();
+                    one.cur_price= sheet.getCell(3, i).getContents();
+                    one.compare_yester= sheet.getCell(4, i).getContents();
+                    one.updown_ratio= sheet.getCell(5, i).getContents();
+                    one.tran_quantity= sheet.getCell(6, i).getContents();
+                    one.callbuy= sheet.getCell(7, i).getContents();
+                    one.tran_money= sheet.getCell(8, i).getContents();
+                    one.market_volume= sheet.getCell(9, i).getContents();
+                    one.profit= sheet.getCell(10, i).getContents();
+                    one.per= sheet.getCell(11, i).getContents();
+                    one.begin_price= sheet.getCell(12, i).getContents();
+                    one.callsell= sheet.getCell(13, i).getContents();
+                    one.preday_tran_quantity= sheet.getCell(14, i).getContents();
+                    one.assets_total= sheet.getCell(15, i).getContents();
+                    one.profit_ratio= sheet.getCell(16, i).getContents();
+                    one.roe= sheet.getCell(17, i).getContents();
+                    one.high_price= sheet.getCell(18, i).getContents();
+                    one.remain_buy_quantity= sheet.getCell(19, i).getContents();
+                    one.fogn_ratio= sheet.getCell(20, i).getContents();
+                    one.debt_total= sheet.getCell(21, i).getContents();
+                    one.quarter_pureprofit= sheet.getCell(22, i).getContents();
+                    one.roa= sheet.getCell(23, i).getContents();
+                    one.low_price= sheet.getCell(24, i).getContents();
+                    one.remain_sell_quantity= sheet.getCell(25, i).getContents();
+                    one.stock_total= sheet.getCell(26, i).getContents();
+                    one.revenue= sheet.getCell(27, i).getContents();
+                    one.pureprofit_per= sheet.getCell(28, i).getContents();
+                    one.pbr= sheet.getCell(29, i).getContents();
+                    one.revenue_ratio= sheet.getCell(30, i).getContents();;
+                    one.div_money= sheet.getCell(31, i).getContents();
+                    one.reserved_ratio= sheet.getCell(32, i).getContents();
+                    upjonglist.add(one);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return upjonglist;
@@ -1530,34 +1303,29 @@ public class MyExcel extends MyStat {
 
 
     public List<List<String>>  readraw(String filename) {
-        InputStream is=null;
-        Workbook wb=null;
+
         String PathFile = INFODIR+filename+".xls";;
         List<List<String>> multilist = new ArrayList<List<String>>();
 
         try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i=1;i<size;i++) {
-                        List<String> onelist = new ArrayList<>();
-                        int rowlength = sheet.getRow(0).length;
-                        for(int j =0;j<rowlength;j++) {
-                            onelist.add(sheet.getCell(j, i).getContents());
-                        }
-                        multilist.add(onelist);
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for(int i=1;i<size;i++) {
+                    List<String> onelist = new ArrayList<>();
+                    int rowlength = sheet.getRow(0).length;
+                    for(int j =0;j<rowlength;j++) {
+                        onelist.add(sheet.getCell(j, i).getContents());
                     }
+                    multilist.add(onelist);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return multilist;
@@ -1573,55 +1341,40 @@ public class MyExcel extends MyStat {
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
             WritableWorkbook workbook = Workbook.createWorkbook(file1);
-            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+            workbook.createSheet("sheet1", 0);
+            writablesheet = workbook.getSheet(0);
 
-            if(workbook != null) {
-                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
-                writablesheet = workbook.getSheet(0);
-                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+            if(writablesheet != null) {
 
-                if(writablesheet != null) {
-
-                    int size = multilist.size();
-                    for(int i=1;i<size;i++) {
-                        List<String> onelist = multilist.get(i);
-                        int rowlength = onelist.size();
-                        for(int j =0;j<rowlength;j++) {
-                            writablesheet.addCell(new Label(i, j, onelist.get(i)));
-                        }
+                int size = multilist.size();
+                for(int i=1;i<size;i++) {
+                    List<String> onelist = multilist.get(i);
+                    int rowlength = onelist.size();
+                    for(int j =0;j<rowlength;j++) {
+                        writablesheet.addCell(new Label(i, j, onelist.get(i)));
                     }
                 }
             }
             workbook.write();
             workbook.close();
-            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+        } catch (IOException | WriteException e) {
             e.printStackTrace();
-        } catch (RowsExceededException e) {
-            e.printStackTrace();
-        } catch (WriteException e) {
-            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } finally {
-
         }
+
     }
 
     public void mergenaverupjong(String basefile,String insertfile) {
 
         List<List<String>> basedata = readraw(basefile);
         List<List<String>> insertdata = readraw(insertfile);
-        int size = insertdata.size();
-        for(int i =0;i<size;i++) {
-            List<String> onelist = insertdata.get(i);
+
+        for (List<String> onelist : insertdata) {
             String stock_name = onelist.get(1);
             int size2 = onelist.size();
             int index = findsamestock(basedata, stock_name);
-            for(int j=0;j<size2;j++) {
+            for (int j = 0; j < size2; j++) {
                 String data = onelist.get(j);
-                if(!data.equals("")) basedata.get(index).set(j,data);
+                if (!data.equals("")) basedata.get(index).set(j, data);
             }
         }
 
