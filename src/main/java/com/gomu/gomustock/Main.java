@@ -52,14 +52,13 @@ public class Main extends JFrame{
         int index = 0;
         //trans();
 
-        Dimension dim = new Dimension(1800,800);
+        Dimension dim = new Dimension(1700,800);
         JFrame frame = new JFrame("XChart Swing Demo");
         frame.setPreferredSize(dim);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
         JPanel listpanel = new JPanel(new BorderLayout());
-        listpanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         frame.add(listpanel,BorderLayout.CENTER);
 
         // header panel에는 버튼과 텍스트필드를 넣는다
@@ -71,7 +70,6 @@ public class Main extends JFrame{
         JLabel TitleLabel = new JLabel("DLStockInfo");
         TitleLabel.setPreferredSize( new Dimension( 200, 24 ) );
         HeaderPanel.add(TitleLabel);
-
 
         JButton button2 = new JButton("보유주식");
         HeaderPanel.add(button2);
@@ -87,7 +85,7 @@ public class Main extends JFrame{
         HeaderPanel.add(button4);
         JButton button1 = new JButton("오늘차트");
         HeaderPanel.add(button1);
-        JButton button9 = new JButton("코드읽기");
+        JButton button9 = new JButton("이름>코드");
         HeaderPanel.add(button9);
         JButton button5 = new JButton("신규주식");
         HeaderPanel.add(button5);
@@ -126,7 +124,6 @@ public class Main extends JFrame{
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-
 
                 // 오늘 가격 다운로드 + 정보읽어 보여주기
                 if(button1.equals(ae.getSource())){

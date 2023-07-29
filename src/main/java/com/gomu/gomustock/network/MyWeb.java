@@ -538,7 +538,7 @@ public class MyWeb {
 
             String time = mydate.getTodayFullTime();
             // /item/sise_time.naver?code=005490&thistime=20230721113906
-            //time = "20230721153000";
+            time = "20230728153000";
             String URL = "https://finance.naver.com/item/sise_time.naver?code="+stock_code+"&thistime="+time+pagenumber;
             Document doc;
             doc = Jsoup.connect(URL).get();

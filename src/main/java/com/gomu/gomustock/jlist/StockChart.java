@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class StockChart {
@@ -45,9 +46,11 @@ public class StockChart {
         java.util.List<String> dealprice = myexcel.readtodayprice(stock_code+"today","DEAL",-1,false);
         java.util.List<String> sellprice = myexcel.readtodayprice(stock_code+"today","SELL",-1,false);
         java.util.List<String> buyprice = myexcel.readtodayprice(stock_code+"today","BUY",-1,false);
+        java.util.List<String> volume = myexcel.readtodayprice(stock_code+"today","VOLUME",-1,false);
         java.util.List<Float> kbband_deal = myexcel.string2float_fillpre(dealprice,1);
         java.util.List<Float> kbband_sell = myexcel.string2float_fillpre(sellprice,1);
         java.util.List<Float> kbband_buy = myexcel.string2float_fillpre(buyprice,1);
+        java.util.List<Float> kbband_vol = myexcel.string2float_fillpre(volume,1);
         List<Float> targetlist = new ArrayList<>();
 
         float target;
@@ -66,6 +69,11 @@ public class StockChart {
         series_s.setLineWidth(linewidth);
         XYSeries series_b = chart.addSeries("buy",kbband_buy);
         series_b.setLineWidth(linewidth);
+        float low_price = Collections.min(kbband_buy);
+        MyStat mystat = new MyStat();
+        List<Float> vol2 = mystat.scaling_float2(kbband_vol,low_price);
+        XYSeries series_v = chart.addSeries("vol",vol2);
+        series_v.setLineWidth(linewidth);
 
         XYSeries series_t = chart.addSeries("target",targetlist);
         series_t.setLineWidth(linewidth);
