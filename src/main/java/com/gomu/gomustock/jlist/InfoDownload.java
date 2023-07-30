@@ -132,18 +132,20 @@ public class InfoDownload {
 
     public void downloadNowPrice(List<String> stock_list, int hour) {
         int size = stock_list.size();
+        String sizestr = Integer.toString(size);
         for(int i =0;i<size;i++) {
             String stock_code = stock_list.get(i);
-            _cb.callback("오늘가격" + "\n"+"다운로드" + "\n" + stock_code);
+            _cb.callback("오늘가격" + "\n"+"다운로드" + "\n"+sizestr + "/"+Integer.toString(i) +"\n"+ stock_code);
             myweb.getNaverpriceByToday(stock_code, 6 * hour); // 1시간을 읽어서 저장한다
         }
     }
 
     public void downloadYFPrice(List<String> stock_list) {
         int size = stock_list.size();
+        String sizestr = Integer.toString(size);
         for(int i =0;i<size;i++) {
             String stock_code = stock_list.get(i);
-            _cb.callback("일년가격" + "\n"+"다운로드" + "\n" + stock_code);
+            _cb.callback("일년가격" + "\n"+"다운로드" + "\n" +sizestr + "/"+Integer.toString(i) +"\n"+ stock_code);
             new YFDownload(stock_code);
         }
     }

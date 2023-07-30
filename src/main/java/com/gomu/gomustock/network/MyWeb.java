@@ -535,10 +535,18 @@ public class MyWeb {
             String pagenumber;
             if(pageno.equals("0")) pagenumber="";
             else pagenumber = "&page="+pageno;
-
-            String time = mydate.getTodayFullTime();
+            String time="";
+            if(mydate.getTodayDayofWeek() == 6) {
+                time = mydate.getBeforeday(1);
+                time += 153000;
+            } else if (mydate.getTodayDayofWeek() == 7){
+                time = mydate.getBeforeday(2);
+                time += 153000;
+            } else {
+                time = mydate.getTodayFullTime();
+            }
             // /item/sise_time.naver?code=005490&thistime=20230721113906
-            time = "20230728153000";
+            //time = "20230728153000";
             String URL = "https://finance.naver.com/item/sise_time.naver?code="+stock_code+"&thistime="+time+pagenumber;
             Document doc;
             doc = Jsoup.connect(URL).get();
