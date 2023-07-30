@@ -18,25 +18,6 @@ public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
 
-        /*
-        List<String> codelist = myexcel.readColumn("upjong_table.xls",0);
-        List<String> namelist = myexcel.readColumn("upjong_table.xls",1);
-        int size = codelist.size();
-
-        for(int i=1;i<size;i++) {
-            String code = codelist.get(i);
-            String name = namelist.get(i);
-            myweb.checkbox_test2(code, name);
-        }
-        */
-        //InfoDownload idown = new InfoDownload();
-        //idown.pickupNewEtf();
-        /*
-        CPUID cpuid = new CPUID("c");
-        boolean flag = cpuid.checkID();
-        if(flag==true) System.out.println("permission is valid");
-        else System.out.println("permission invalid");
-        */
         mytest();
     }
 
@@ -58,7 +39,6 @@ public class Main extends JFrame{
         }
         JFrame popupfrm = new JFrame("팝업창 및 알림창 호출");
         setpopup(popupfrm);
-
 
         Dimension dim = new Dimension(1700,800);
         JFrame frame = new JFrame("XChart Swing Demo");
@@ -140,6 +120,14 @@ public class Main extends JFrame{
                 textfield.paint(textfield.getGraphics());
                 myweb.getNaverUpjong(code, name);
                 JOptionPane.showConfirmDialog(popupfrm, "full down을 누르세요. ","TITTLE", JOptionPane.YES_NO_CANCEL_OPTION);
+            }
+        });
+
+        myweb.setCallback(new MyWeb.IFCallback() {
+            @Override
+            public void callback(String str) {
+                DebugButton.setText(htmltext(str));
+                DebugButton.paint(DebugButton.getGraphics());
             }
         });
 

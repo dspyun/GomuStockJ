@@ -135,7 +135,7 @@ public class InfoDownload {
         String sizestr = Integer.toString(size);
         for(int i =0;i<size;i++) {
             String stock_code = stock_list.get(i);
-            _cb.callback("오늘가격" + "\n"+"다운로드" + "\n"+sizestr + "/"+Integer.toString(i) +"\n"+ stock_code);
+            _cb.callback("오늘가격" + "\n"+"다운로드" + "\n"+ Integer.toString(i)+ "/"+ sizestr+"\n"+ stock_code);
             myweb.getNaverpriceByToday(stock_code, 6 * hour); // 1시간을 읽어서 저장한다
         }
     }
@@ -145,7 +145,8 @@ public class InfoDownload {
         String sizestr = Integer.toString(size);
         for(int i =0;i<size;i++) {
             String stock_code = stock_list.get(i);
-            _cb.callback("일년가격" + "\n"+"다운로드" + "\n" +sizestr + "/"+Integer.toString(i) +"\n"+ stock_code);
+            if(stock_code.equals("")) continue;
+            _cb.callback("일년가격" + "\n"+"다운로드" + "\n" +Integer.toString(i)+ "/"+ sizestr+"\n"+ stock_code);
             new YFDownload(stock_code);
         }
     }

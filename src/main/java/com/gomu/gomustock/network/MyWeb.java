@@ -6,6 +6,7 @@ import main.java.com.gomu.gomustock.MyStat;
 
 
 import main.java.com.gomu.gomustock.format.*;
+import main.java.com.gomu.gomustock.jlist.InfoDownload;
 import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,6 +38,16 @@ public class MyWeb {
         target_stock = stock_no;
         target_stock = "005930";
     }
+
+    public interface IFCallback {
+        public void callback(String str);
+    }
+    // 콜백인터페이스를 구현한 클래스 인스턴스
+    private MyWeb.IFCallback _cb;
+    public void setCallback(MyWeb.IFCallback cb) {
+        this._cb = cb;
+    }
+
 
     public boolean checkKRStock(String stock_code) {
         // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
@@ -311,30 +322,6 @@ public class MyWeb {
         return stockprice;
     }
 
-    public String getCurrentKospi200() {
-
-        //https://jul-liet.tistory.com/209
-        String stockprice="";
-        String URL = "https://finance.naver.com/sise/sise_index.naver?code=KPI200";
-        Document doc;
-
-        try {
-            doc = Jsoup.connect(URL).get();
-
-            Elements todaylist =doc.select(".subtop_sise_detail");
-
-            Element tdlist = todaylist.select("tr").get(0);
-            Element kospi200 = tdlist.select("td").get(0);
-            return kospi200.text();
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        System.out.println("반환값 "+stockprice);
-
-        return stockprice;
-    }
 
     public String checkOpenday() {
 
@@ -832,6 +819,7 @@ public class MyWeb {
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
         System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
 
+        _cb.callback("다운로드" + "\n" + "준비중");
         ChromeOptions options = new ChromeOptions();
         options.setBinary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
         options.addArguments("headless"); // 크롬을 열지 않고 실행
@@ -864,6 +852,7 @@ public class MyWeb {
         List<WebElement> trlist = mytbody.get(2).findElements(By.tagName("tr"));
         List<List<String>> upjonglist = new ArrayList<List<String>>();
         size = trlist.size();
+        String sizestr = Integer.toString(size);
         for(int i=0;i<trlist.size();i++) {
             List<String> one = new ArrayList<>();
             List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
@@ -873,6 +862,7 @@ public class MyWeb {
                 one.add(tdlist.get(j).getText());
             }
             System.out.println(i + " " + one.get(0));
+            _cb.callback("download" + "\n" +Integer.toString(i)+"/"+sizestr +"\n" + one.get(0));
             String stock_code = mydict.getStockcode(one.get(0));
             one.add(0, stock_code);
             upjonglist.add(one);

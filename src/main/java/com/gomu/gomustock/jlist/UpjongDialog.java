@@ -47,8 +47,8 @@ public class UpjongDialog extends Frame implements ActionListener {
                 System.out.println(codelist.get(i));
                 code = codelist.get(i);
                 name = namelist.get(i);
-                _cb.callback(code, name);
                 dispose();
+                _cb.callback(code, name);
                 break;
             }
         }
