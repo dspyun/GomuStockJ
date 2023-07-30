@@ -3,25 +3,18 @@ package main.java.com.gomu.gomustock;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.jlist.*;
 import main.java.com.gomu.gomustock.network.MyWeb;
-import main.java.com.gomu.gomustock.network.YFDownload;
-import main.java.com.gomu.gomustock.stockengin.StockDic;
-
-import org.knowm.xchart.*;
+import main.java.com.gomu.gomustock.stockengin.CPUID;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 
 public class Main extends JFrame{
+
 
     public static void main(String[] args) throws IOException {
 
@@ -38,6 +31,12 @@ public class Main extends JFrame{
         */
         //InfoDownload idown = new InfoDownload();
         //idown.pickupNewEtf();
+        /*
+        CPUID cpuid = new CPUID("c");
+        boolean flag = cpuid.checkID();
+        if(flag==true) System.out.println("permission is valid");
+        else System.out.println("permission invalid");
+        */
         mytest();
     }
 
@@ -50,7 +49,16 @@ public class Main extends JFrame{
         StockBookRenderer renderer = new StockBookRenderer();
         String monitor_text="";
         int index = 0;
-        //trans();
+
+
+        CPUID cpuid = new CPUID("c");
+        if(cpuid.checkID()==false) {
+            System.out.println("permission invalid");
+            return;
+        }
+        JFrame popupfrm = new JFrame("팝업창 및 알림창 호출");
+        setpopup(popupfrm);
+
 
         Dimension dim = new Dimension(1700,800);
         JFrame frame = new JFrame("XChart Swing Demo");
@@ -91,6 +99,8 @@ public class Main extends JFrame{
         HeaderPanel.add(button5);
         JButton button6 = new JButton("신규ETF");
         HeaderPanel.add(button6);
+        JButton button7 = new JButton("업종선택");
+        HeaderPanel.add(button7);
 
         JButton DebugButton = new JButton();
         DebugButton.setText("모니터버튼");
@@ -118,6 +128,18 @@ public class Main extends JFrame{
             public void callback(String str) {
                 DebugButton.setText(htmltext(str));
                 DebugButton.paint(DebugButton.getGraphics());;
+            }
+        });
+
+        UpjongDialog test = new UpjongDialog();
+
+        test.setCallback(new UpjongDialog.IFCallback() {
+            @Override
+            public void callback(String code, String name) {
+                textfield.setText("group_"+name);
+                textfield.paint(textfield.getGraphics());
+                myweb.getNaverUpjong(code, name);
+                JOptionPane.showConfirmDialog(popupfrm, "full down을 누르세요. ","TITTLE", JOptionPane.YES_NO_CANCEL_OPTION);
             }
         });
 
@@ -203,7 +225,8 @@ public class Main extends JFrame{
                     DefaultListModel<StockBook> model = new DefaultListModel<>();
 
                     List<String> stock_list = new ArrayList<>();
-                    stock_list = iread.getStockListCustom(filename);
+                    stock_list = myexcel.readColumn(filename+".xls",0);
+                    stock_list.remove(0);
                     int size = stock_list.size();
                     if(stock_list.size()==0) {
                         frame.pack();
@@ -281,6 +304,22 @@ public class Main extends JFrame{
                     idown.pickupNewEtf(filename);
                     textfield.setText(filename);
                 }
+                if(button7.equals(ae.getSource())){
+                    /*
+                    String[] upjong = {"test","test1","test2","test3","test4"};
+
+                    //int qut_data = JOptionPane.showConfirmDialog(popupfrm, "질문 알림창입니다 !! ","TITTLE", JOptionPane.YES_NO_CANCEL_OPTION);
+                    int qut_data = JOptionPane.showOptionDialog(popupfrm, "먹고싶은 과일은?", "Option"
+                            ,JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null,upjong, null );
+
+                    System.out.println("click number is " + qut_data);
+                     */
+                    test.setSize(1200, 600);
+                    test.setLocation(200,100);
+                    test.setVisible(true);
+
+                }
+
             }
         };
         button1.addActionListener(listener);
@@ -289,6 +328,7 @@ public class Main extends JFrame{
         button4.addActionListener(listener);
         button5.addActionListener(listener);
         button6.addActionListener(listener);
+        button7.addActionListener(listener);
         button9.addActionListener(listener);
 
         frame.pack();
@@ -301,6 +341,21 @@ public class Main extends JFrame{
         result+=input_str.replaceAll("\n","<br>");
         result+="</HTML>";
         return result;
+    }
+
+
+    public static void setpopup(JFrame frm) {
+
+        //TODO 부모 프레임 크기 설정 (가로, 세로)
+        frm.setSize(500, 500);
+        //TODO 부모 프레임을 화면 가운데에 배치
+        frm.setLocationRelativeTo(null);
+        //TODO 부모 프레임을 닫았을 때 메모리에서 제거되도록 설정
+        frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //TODO 부모 프레임 창 크기 고정 실시
+        frm.setResizable(false);
+        //TODO 부모 레이아웃 설정
+        frm.getContentPane().setLayout(null);
     }
 
 }

@@ -52,7 +52,7 @@ public class InfoDownload {
             fnGuide myfnguide = new fnGuide();
             String news;
 
-
+            if(stock_code.equals("")) continue;
             if(stockdic.checkKRStock(stock_code) && (stockdic.getMarket(stock_code)!="")) {
                 // stock_cdoe정보를 포함하고 있는
                 // 네이버 정보를 가장 먼저 가져오고 그 다음에 다른 정보를 추가해야 한다

@@ -6,6 +6,7 @@ import main.java.com.gomu.gomustock.MyStat;
 
 
 import main.java.com.gomu.gomustock.format.*;
+import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -824,8 +825,9 @@ public class MyWeb {
         myexcel.writenaverupjong("info_"+upjong_name,upjonglist );
     }
 
-    public void checkbox_test2(String upjong_code,String upjong_name) throws IOException {
+    public void getNaverUpjong(String upjong_code,String upjong_name) {
 
+        StockDic mydict = new StockDic();
         final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no="+upjong_code;
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
         System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
@@ -862,7 +864,7 @@ public class MyWeb {
         List<WebElement> trlist = mytbody.get(2).findElements(By.tagName("tr"));
         List<List<String>> upjonglist = new ArrayList<List<String>>();
         size = trlist.size();
-        for(int i=0;i<trlist.size()-10;i++) {
+        for(int i=0;i<trlist.size();i++) {
             List<String> one = new ArrayList<>();
             List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
             one.add(tdlist.get(0).getText().replace(" *",""));
@@ -871,10 +873,14 @@ public class MyWeb {
                 one.add(tdlist.get(j).getText());
             }
             System.out.println(i + " " + one.get(0));
+            String stock_code = mydict.getStockcode(one.get(0));
+            one.add(0, stock_code);
             upjonglist.add(one);
         }
         MyExcel myexcel = new MyExcel();
         upjonglist.add(0,header);
+        FormatStockInfo oneinfo = new FormatStockInfo();
+        myexcel.writenaverupjong2("group_"+upjong_name,upjonglist );
         myexcel.writenaverupjong2("info_"+upjong_name,upjonglist );
     }
     public int cboxname(String name) {

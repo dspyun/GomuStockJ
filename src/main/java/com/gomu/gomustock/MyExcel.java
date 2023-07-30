@@ -1161,6 +1161,9 @@ public class MyExcel extends MyStat {
                     for(int j =0;j<size2;j++) {
                         writablesheet.addCell(new Label(j, row, onelist.get(j)));
                     }
+                    for(int j =size2;j<size2+20;j++) {
+                        writablesheet.addCell(new Label(j, row, ""));
+                    }
                 }
             }
             workbook.write();
