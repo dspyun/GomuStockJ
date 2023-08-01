@@ -46,7 +46,7 @@ public class MyExcel extends MyStat {
                     // line1, col1에서 contents를 읽는다.
                     // 현재 컬럼의 내용을 추가한다.
                     int size = sheet.getColumn(col).length;
-                    for(int i=0; i < size-1; i++) {
+                    for(int i=0; i < size; i++) {
                         String contents = sheet.getCell(col, i).getContents();
                         mArrayBuffer.add(contents);
                     }
@@ -377,7 +377,6 @@ public class MyExcel extends MyStat {
         String PathFile = DATADIR+stock_code+".xls";;
         List<FormatOHLCV> ohlcvlist = new ArrayList<FormatOHLCV>();
 
-
         try {
             InputStream is =  new FileInputStream(PathFile);
             Workbook wb = Workbook.getWorkbook(is);
@@ -414,7 +413,7 @@ public class MyExcel extends MyStat {
         List<String> MARKET = new ArrayList<String>();
         List<List<String>> diclist = new ArrayList<List<String>>();
 
-        String PathFile = INFODIR+"tablestock.xls";;
+        String PathFile = INFODIR+"table_stock.xls";;
 
         try {
             InputStream is =  new FileInputStream(PathFile);
@@ -448,7 +447,7 @@ public class MyExcel extends MyStat {
         InputStream is=null;
         Workbook wb=null;
 
-        String PathFile = INFODIR+"tableetf.xls";;
+        String PathFile = INFODIR+"table_etf.xls";;
 
         try {
             is =  new FileInputStream(PathFile);
@@ -741,6 +740,12 @@ public class MyExcel extends MyStat {
                     writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
                     writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
                     writablesheet.addCell(new Label(17, row, information.get(row).nav));
+                    writablesheet.addCell(new Label(18, row, "-"));
+                    writablesheet.addCell(new Label(19, row, "-"));
+                    writablesheet.addCell(new Label(20, row, "-"));
+                    writablesheet.addCell(new Label(21, row, "-"));
+                    writablesheet.addCell(new Label(22, row, "-"));
+                    writablesheet.addCell(new Label(23, row, "-"));
                 }
             }
             workbook.write();
@@ -1135,6 +1140,43 @@ public class MyExcel extends MyStat {
             e.printStackTrace();
         }
         return mystocklist;
+    }
+
+    public List<FormatAccount> readMyAccount() {
+
+        String temp=null;
+        String PathFile = INFODIR+"myaccount"+".xls";;
+        List<FormatAccount> accountlist = new ArrayList<FormatAccount>();
+
+        try {
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for(int i=1;i<size;i++) {
+                    FormatAccount account = new FormatAccount();
+                    account.stock_code = sheet.getCell(0, i).getContents();
+                    account.stock_name = sheet.getCell(1, i).getContents();
+                    account.quantity = sheet.getCell(2, i).getContents();
+                    account.buyprice = sheet.getCell(3, i).getContents();
+                    account.buytarget = sheet.getCell(4, i).getContents();
+                    account.selltarget = sheet.getCell(5, i).getContents();
+                    account.nowprice = sheet.getCell(6, i).getContents();
+                    account.memo_1 = sheet.getCell(7, i).getContents();
+                    account.memo_2 = sheet.getCell(8, i).getContents();
+                    account.memo_3 = sheet.getCell(9, i).getContents();
+                    account.memo_4 = sheet.getCell(10, i).getContents();
+                    accountlist.add(account);
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException | BiffException e) {
+            e.printStackTrace();
+        }
+        return accountlist;
     }
 
 

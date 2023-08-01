@@ -7,12 +7,19 @@ import org.knowm.xchart.XYChart;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+
+import static com.sun.java.accessibility.util.SwingEventMonitor.addListSelectionListener;
 
 public class StockBookRenderer extends JPanel implements ListCellRenderer<StockBook> {
 
@@ -35,12 +42,11 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
     StockChart schart = new StockChart();
     String STOCKDIR = "D:\\MyML\\GomuStockJ\\";;
 
-
-    public interface IFCallback {
-        public void callback(String str);
-    }
     // 콜백인터페이스를 구현한 클래스 인스턴스
     private StockBookRenderer.IFCallback _cb;
+    public interface IFCallback {
+        public void callback(int target_view, String str);
+    }
     public void setCallback(StockBookRenderer.IFCallback cb) {
         this._cb = cb;
     }
@@ -69,38 +75,28 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         add(panelText, BorderLayout.WEST);
         add(panelChart, BorderLayout.CENTER);
         add(panelFAIcon, BorderLayout.EAST);
-    }
 
+    }
 
 
     @Override
     public Component getListCellRendererComponent(JList<? extends StockBook> list,
                                                   StockBook book, int index, boolean isSelected, boolean cellHasFocus) {
 
-        //System.out.println("index = " + index);
+        //renderer_setText(Integer.toString(index));
         //String icon_path = STOCKDIR+book.getIconName() + ".jpg";
-        BufferedImage img = null;
-        try {
-            img = schart.getFognimage(book.getStockcode());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+
+        BufferedImage img = schart.getFognimage(book.getStockcode());
         lbFognIcon.setIcon( new ImageIcon(img));
 
-        BufferedImage img2 = null;
-        try {
-            img2 = schart.getAgencyimage(book.getStockcode());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        BufferedImage img2  = schart.getAgencyimage(book.getStockcode());
         lbAgencyIcon.setIcon( new ImageIcon(img2));
 /*
-		BufferedImage img3 = null;
-		img3 = getLoanBuyMoneyimage(book.getStockcode());
+		BufferedImage img3 = getLoanBuyMoneyimage(book.getStockcode());
 		lbLoanBuyIcon.setIcon( new ImageIcon(img3));
 
-		BufferedImage img4 = null;
-		img4 = getLoanSellMoneyimage(book.getStockcode());
+		BufferedImage img4 = getLoanSellMoneyimage(book.getStockcode());
 		lbLoanSellIcon.setIcon( new ImageIcon(img4));
 */
         if(book.getStocktype().equals("KETF"))lbIndication.setText(book.getETFInfo());
@@ -149,18 +145,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
 
         // when select item
         if (isSelected) {
-			/*
-			lbIndication.setBackground(list.getSelectionBackground());
-			lbCompanyinfo.setBackground(list.getSelectionBackground());
-			lbfninfo.setBackground(list.getSelectionBackground());
-			lbNews.setBackground(list.getSelectionBackground());
-			lbChart.setBackground(list.getSelectionBackground());
-			lbTodayChart.setBackground(list.getSelectionBackground());
-			lbFognIcon.setBackground(list.getSelectionBackground());
-			lbAgencyIcon.setBackground(list.getSelectionBackground());
-			lbLoanBuyIcon.setBackground(list.getSelectionBackground());
-			lbLoanSellIcon.setBackground(list.getSelectionBackground());
-			*/
+            //
+
             lbIndication.setBackground(Color.lightGray);
             lbCompanyinfo.setBackground(Color.lightGray);
             lbfninfo.setBackground(Color.lightGray);
@@ -203,6 +189,12 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
 
         return this;
     }
+
+
+    public void renderer_setText(String str) {
+        _cb.callback(1,str);
+    }
+
 
     BufferedImage getLoanBuyMoneyimage(String stock_code)  {
         // 대차잔고현황. 대출받아 매수한 주식
@@ -259,7 +251,7 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
             String target = web_stockinfo.get(i).score;
             if(web_stockinfo.get(i).stock_type.equals("KETF")) target = web_stockinfo.get(i).nav.replace(",","");
             if(target.equals("")) target="1";
-            _cb.callback("loading" + "\n" + "info/chart" + "\n" + "to List" + "\n" + Integer.toString(i) + "/"+  sizestr+"\n"+ stock_code);
+            _cb.callback(0,"loading" + "\n" + "info/chart" + "\n" + "to List" + "\n" + Integer.toString(i) + "/"+  sizestr+"\n"+ stock_code);
             XYChart mychart = schart.GetPeriodChart(stock_code);
             XYChart todaychart = schart.GetTodayChart(stock_code,Float.valueOf(target));
             model.addElement(new StockBook(web_stockinfo.get(i), mychart, todaychart));

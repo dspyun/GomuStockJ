@@ -6,6 +6,8 @@ import main.java.com.gomu.gomustock.network.MyWeb;
 import main.java.com.gomu.gomustock.stockengin.CPUID;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,11 +54,15 @@ public class Main extends JFrame{
         // header panel에는 버튼과 텍스트필드를 넣는다
         JPanel HeaderPanel = new JPanel();
         HeaderPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        HeaderPanel.setBounds(20,20,1600,50);
+        //HeaderPanel.setBounds(20,20,1600,50);
         frame.add(HeaderPanel,BorderLayout.NORTH);
 
+        JButton button9 = new JButton("이름>코드");
+        button9.setPreferredSize( new Dimension( 100, 25 ) );
+        HeaderPanel.add(button9);
+
         JLabel TitleLabel = new JLabel("DLStockInfo");
-        TitleLabel.setPreferredSize( new Dimension( 200, 24 ) );
+        TitleLabel.setPreferredSize( new Dimension( 100, 25 ) );
         HeaderPanel.add(TitleLabel);
 
         JButton button2 = new JButton("보유주식");
@@ -66,21 +72,26 @@ public class Main extends JFrame{
 
         JTextField textfield = new JTextField();
         HeaderPanel.add(textfield);
-        textfield.setText("group_candi");
-        textfield.setPreferredSize( new Dimension( 200, 24 ) );
+        textfield.setText("group_new");
+        textfield.setPreferredSize( new Dimension( 150, 25 ) );
 
         JButton button4 = new JButton("퀵리뷰");
         HeaderPanel.add(button4);
         JButton button1 = new JButton("오늘차트");
         HeaderPanel.add(button1);
-        JButton button9 = new JButton("이름>코드");
-        HeaderPanel.add(button9);
+
         JButton button5 = new JButton("신규주식");
         HeaderPanel.add(button5);
         JButton button6 = new JButton("신규ETF");
         HeaderPanel.add(button6);
         JButton button7 = new JButton("업종선택");
         HeaderPanel.add(button7);
+        JTextField textfield2 = new JTextField();
+        HeaderPanel.add(textfield2);
+        textfield2.setText("stock_code");
+        textfield2.setPreferredSize( new Dimension( 100, 25 ) );
+        JButton button8 = new JButton("종목상세");
+        HeaderPanel.add(button8);
 
         JButton DebugButton = new JButton();
         DebugButton.setText("모니터버튼");
@@ -105,21 +116,27 @@ public class Main extends JFrame{
 
         renderer.setCallback(new StockBookRenderer.IFCallback() {
             @Override
-            public void callback(String str) {
-                DebugButton.setText(htmltext(str));
-                DebugButton.paint(DebugButton.getGraphics());;
+            public void callback(int target, String str) {
+                if(target==0) {
+                    DebugButton.setText(htmltext(str));
+                    DebugButton.paint(DebugButton.getGraphics());
+
+                } else {
+                    textfield2.setText(str);
+                    textfield2.paint(textfield2.getGraphics());
+                }
             }
         });
 
-        UpjongDialog test = new UpjongDialog();
+        UpjongDialog multi_sector_dlg = new UpjongDialog();
 
-        test.setCallback(new UpjongDialog.IFCallback() {
+        multi_sector_dlg.setCallback(new UpjongDialog.IFCallback() {
             @Override
             public void callback(String code, String name) {
                 textfield.setText("group_"+name);
                 textfield.paint(textfield.getGraphics());
-                myweb.getNaverUpjong(code, name);
-                JOptionPane.showConfirmDialog(popupfrm, "full down을 누르세요. ","TITTLE", JOptionPane.YES_NO_CANCEL_OPTION);
+                myweb.getNaverUpjong(code, name, 50);
+                JOptionPane.showConfirmDialog(popupfrm, "full down을 누르세요. ","TITTLE", JOptionPane.YES_OPTION);
             }
         });
 
@@ -130,6 +147,30 @@ public class Main extends JFrame{
                 DebugButton.paint(DebugButton.getGraphics());
             }
         });
+
+        ListSelectionListener listSelectionListener = new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent listSelectionEvent) {
+                System.out.println("First index: " + listSelectionEvent.getFirstIndex());
+                System.out.println(", Last index: " + listSelectionEvent.getLastIndex());
+                boolean adjust = listSelectionEvent.getValueIsAdjusting();
+                System.out.println(", Adjusting? " + adjust);
+                if (!adjust) {
+                    JList list = (JList) listSelectionEvent.getSource();
+                    int selections[] = list.getSelectedIndices();
+                    Object selectionValues[] = list.getSelectedValues();
+                    for (int i = 0, n = selections.length; i < n; i++) {
+                        if (i == 0) {
+                            System.out.println(" Selections: ");
+                        }
+                        System.out.println(selections[i] + "/" + selectionValues[i] + " ");
+                        List<String> stocklist = myexcel.readColumn(textfield.getText()+".xls",0);
+                        int index = selections[i];
+                        textfield2.setText(stocklist.get(index+1));
+                        textfield2.paint(textfield2.getGraphics());
+                    }
+                }
+            }
+        };
 
         ActionListener listener = new ActionListener() {
             @Override
@@ -159,6 +200,10 @@ public class Main extends JFrame{
                     model = renderer.loadInfoChart2List(web_stockinfo);
                     JList<StockBook> listBook = new JList<StockBook>(model); // 생성된 list data를 list에 넣어주고
                     listBook.setCellRenderer(new StockBookRenderer()); // data를 그려줄 custom render를 붙여주고
+
+                    //ListSelectionListener listSelectionListener = getListListner();
+                    listBook.addListSelectionListener(listSelectionListener);
+
 
                     // 기존의 리스트는 지우고 신규리스트를 추가한다
                     listpanel.removeAll();
@@ -194,6 +239,7 @@ public class Main extends JFrame{
                     model = renderer.loadInfoChart2List(web_stockinfo);
                     JList<StockBook> listBook = new JList<StockBook>(model); // 생성된 list data를 list에 넣어주고
                     listBook.setCellRenderer(new StockBookRenderer()); // data를 그려줄 custom render를 붙여주고
+                    listBook.addListSelectionListener(listSelectionListener);
 
                     // 기존의 리스트는 지우고 신규리스트를 추가한다
                     listpanel.removeAll();
@@ -231,6 +277,7 @@ public class Main extends JFrame{
                     model = renderer.loadInfoChart2List(web_stockinfo);
                     JList<StockBook> listBook = new JList<StockBook>(model); // 생성된 list data를 list에 넣어주고
                     listBook.setCellRenderer(new StockBookRenderer()); // data를 그려줄 custom render를 붙여주고
+                    listBook.addListSelectionListener(listSelectionListener);
 
                     // 기존의 리스트는 지우고 신규리스트를 추가한다
                     listpanel.removeAll();
@@ -263,7 +310,7 @@ public class Main extends JFrame{
                     model = renderer.loadInfoChart2List(web_stockinfo);
                     JList<StockBook> listBook = new JList<StockBook>(model); // 생성된 list data를 list에 넣어주고
                     listBook.setCellRenderer(new StockBookRenderer()); // data를 그려줄 custom render를 붙여주고
-
+                    listBook.addListSelectionListener(listSelectionListener);
 
                     // 기존의 리스트는 지우고 신규리스트를 추가한다
                     listpanel.removeAll();
@@ -293,23 +340,29 @@ public class Main extends JFrame{
                     textfield.setText(filename);
                 }
                 if(button7.equals(ae.getSource())){
-                    /*
-                    String[] upjong = {"test","test1","test2","test3","test4"};
-
-                    //int qut_data = JOptionPane.showConfirmDialog(popupfrm, "질문 알림창입니다 !! ","TITTLE", JOptionPane.YES_NO_CANCEL_OPTION);
-                    int qut_data = JOptionPane.showOptionDialog(popupfrm, "먹고싶은 과일은?", "Option"
-                            ,JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null,upjong, null );
-
-                    System.out.println("click number is " + qut_data);
-                     */
-                    test.setSize(1200, 600);
-                    test.setLocation(200,100);
-                    test.setVisible(true);
-
+                    multi_sector_dlg.setSize(1200, 600);
+                    multi_sector_dlg.setLocation(200,100);
+                    multi_sector_dlg.setVisible(true);
                 }
+                if(button8.equals(ae.getSource())){
+                    listpanel.removeAll();
 
+                    // 개별종목 UX 구현
+                    // bbchart, daily chart, 메모, sector chart,
+                    String filename = textfield.getText();
+                    String stock_code = textfield2.getText();
+                    StockOnePage onepage = new StockOnePage(filename, stock_code);
+
+                    JPanel onepanel = new JPanel(new BorderLayout());
+                    onepanel.add(onepage.getPanel());
+                    frame.add(onepanel,BorderLayout.CENTER);
+
+                    frame.pack();
+                    frame.setVisible(true);
+                }
             }
         };
+
         button1.addActionListener(listener);
         button2.addActionListener(listener);
         button3.addActionListener(listener);
@@ -317,11 +370,15 @@ public class Main extends JFrame{
         button5.addActionListener(listener);
         button6.addActionListener(listener);
         button7.addActionListener(listener);
+        button8.addActionListener(listener);
         button9.addActionListener(listener);
 
         frame.pack();
         frame.setVisible(true);
     }
+
+
+
 
     public static String htmltext(String input_str) {
         String result;

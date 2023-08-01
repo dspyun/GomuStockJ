@@ -6,14 +6,15 @@ import main.java.com.gomu.gomustock.network.PriceBox;
 import main.java.com.gomu.gomustock.stockengin.BBandTest;
 import main.java.com.gomu.gomustock.stockengin.IchimokuTest;
 import main.java.com.gomu.gomustock.stockengin.RSITest;
-import org.knowm.xchart.XYChart;
-import org.knowm.xchart.XYChartBuilder;
-import org.knowm.xchart.XYSeries;
+import main.java.com.gomu.gomustock.stockengin.StockDic;
+import org.knowm.xchart.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,20 +23,31 @@ import java.util.List;
 public class StockChart {
 
 
-    BufferedImage getFognimage(String stock_code) throws IOException {
+    BufferedImage getFognimage(String stock_code)  {
 
         String path = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/F_"+stock_code+".png";
-        URL url = new URL(path);
-        BufferedImage img = ImageIO.read(url);
+        BufferedImage img=null;
+        try {
+            URL url = new URL(path);
+            img = ImageIO.read(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return img;
     }
-    BufferedImage getAgencyimage(String stock_code) throws IOException {
+    BufferedImage getAgencyimage(String stock_code) {
 
         String path = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/I_"+stock_code+".png";
-        URL url = new URL(path);
-        BufferedImage img = ImageIO.read(url);
+        BufferedImage img=null;
+        try {
+            URL url = new URL(path);
+            img = ImageIO.read(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return img;
     }
+
 
     public XYChart GetTodayChart(String stock_code, float input_target) {
 
@@ -87,6 +99,8 @@ public class StockChart {
 
     public XYChart GetPeriodChart(String stock_code) {
 
+        float maxprice;
+        float nowprice;
         if(stock_code.equals("278240")) {
             int test = 1;
         }
@@ -102,7 +116,8 @@ public class StockChart {
         BBandTest bbtest = new BBandTest(stock_code,kbband_close,test_period);
         RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
         List<Float> rsi_line = rsitest.test_line();
-
+        maxprice = Collections.max(kbband_close);
+        nowprice = kbband_close.get(kbband_close.size()-1);
 
         // Create Chart & add first data
         float linewidth=1.5f;
@@ -137,7 +152,141 @@ public class StockChart {
         chart.getStyler().setMarkerSize(0);
         chart.getStyler().setSeriesColors(colors);
         chart.getStyler().setLegendVisible(false);
+
+
+        Float diff_percent = 100*nowprice/maxprice;
+        String anntext = String.format("%.1f",diff_percent);
+        anntext += "\n" + String.format("%.0f",nowprice);
+        //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
+        //chart.addAnnotation(maxText);
+        chart.addAnnotation(
+                new AnnotationTextPanel(anntext, Collections.max(x), nowprice*0.8, false));
+        chart.getStyler().setAnnotationTextPanelPadding(0);
+        chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
+        //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
+        //chart.getStyler().setAnnotationTextPanelBorderColor(Color.BLUE);
+        chart.getStyler().setAnnotationTextPanelFontColor(Color.BLACK);
+        chart.getStyler().setAnnotationTextPanelBorderColor(Color.WHITE);
         //chart.getStyler().setYAxisTicksVisible(true);
         return chart;
+    }
+
+    public XYChart GetPeriodChart(String stock_code, int period) {
+
+        float maxprice;
+        float nowprice;
+
+        int test_period = period;
+        Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.ORANGE,Color.BLUE};
+        MyStat mystat = new MyStat();
+        PriceBox kbbank = new PriceBox(stock_code);
+        List<Float> kbband_close = kbbank.getClose(test_period);
+        if(kbband_close.get(0)==0 || kbband_close.size() < test_period) {
+            XYChart chart  = new XYChartBuilder().width(300).height(200).build();
+            return chart;
+        }
+        BBandTest bbtest = new BBandTest(stock_code,kbband_close,test_period);
+        RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
+        List<Float> rsi_line = rsitest.test_line();
+        maxprice = Collections.max(kbband_close);
+        nowprice = kbband_close.get(kbband_close.size()-1);
+
+        // Create Chart & add first data
+        float linewidth=1.5f;
+        int size = kbband_close.size();
+        List<Float> x = new ArrayList<>();
+        for(int i =0;i<size;i++) { x.add((float)i); }
+        XYChart chart  = new XYChartBuilder().width(300).height(200).build();
+        XYSeries series = chart.addSeries("price",kbband_close);
+        series.setLineWidth(linewidth);
+        XYSeries series_u = chart.addSeries("upper_line",bbtest.getUpperLine());
+        series_u.setLineWidth(linewidth);
+        //chart.addSeries("middle_line",bbtest.getMiddleLine());
+        XYSeries series_l = chart.addSeries("low_line",bbtest.getLowLine());
+        series_l.setLineWidth(linewidth);
+        List<Float> buyscore = bbtest.scaled_percentb();
+        XYSeries series_b = chart.addSeries("buysignal",buyscore);
+        series_b.setLineWidth(linewidth);
+
+        IchimokuTest ichi = new IchimokuTest("005930", kbband_close, test_period);
+        List<Float> prospan1line = ichi.getProspan1();
+        XYSeries series_p1 = chart.addSeries("prospan1line",mystat.leveling_float(prospan1line));
+        series_p1.setLineWidth(linewidth);
+
+        List<Float> prospan2line = ichi.getProspan2();
+        XYSeries series_p2 = chart.addSeries("prospan2line",mystat.leveling_float(prospan2line));
+        series_p2.setLineWidth(linewidth);
+
+        //rsi_line = mystat.leveling_float(rsi_line,  Collections.min(bbtest.getLowLine()));
+        //XYSeries series_r = chart.addSeries("rsisignal",rsi_line);
+        //series_r.setLineWidth(linewidth);
+
+        chart.getStyler().setMarkerSize(0);
+        chart.getStyler().setSeriesColors(colors);
+        chart.getStyler().setLegendVisible(false);
+
+
+        Float diff_percent = 100*nowprice/maxprice;
+        String anntext = String.format("%.1f",diff_percent);
+        anntext += "\n" + String.format("%.0f",nowprice);
+        //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
+        //chart.addAnnotation(maxText);
+        chart.addAnnotation(
+                new AnnotationTextPanel(anntext, Collections.max(x), nowprice*0.8, false));
+        chart.getStyler().setAnnotationTextPanelPadding(0);
+        chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
+        //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
+        //chart.getStyler().setAnnotationTextPanelBorderColor(Color.BLUE);
+        chart.getStyler().setAnnotationTextPanelFontColor(Color.BLACK);
+        chart.getStyler().setAnnotationTextPanelBorderColor(Color.WHITE);
+        //chart.getStyler().setYAxisTicksVisible(true);
+        return chart;
+    }
+
+    BufferedImage getLoanBuyMoneyimage(String stock_code)  {
+        String STOCKDIR = "D:\\MyML\\GomuStockJ\\";;
+        // 대차잔고현황. 대출받아 매수한 주식
+        StockDic dict = new StockDic();
+        BufferedImage img=null;
+        try {
+            URL url;
+            if(dict.checkKRStock(stock_code) && (dict.getMarket(stock_code).equals(""))) {
+                //url = new URL(STOCKDIR+"android.jpg");
+                File imageFile = new File(STOCKDIR+"android.jpg");
+                img = ImageIO.read(imageFile);
+                return img;
+            } else{
+                String path = "https://cdn.fnguide.com/SVO2/chartImg/11_01/A" + stock_code + "_BALANCE_01.png";
+                url = new URL(path);
+                img = ImageIO.read(url);
+                return img;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return img;
+    }
+    BufferedImage getLoanSellMoneyimage(String stock_code) {
+        // 차입공매도비중. 주식빌려서 매도한 주식
+        String STOCKDIR = "D:\\MyML\\GomuStockJ\\";;
+        StockDic dict = new StockDic();
+        BufferedImage img=null;
+        try {
+            URL url;
+            if(dict.checkKRStock(stock_code) && (dict.getMarket(stock_code).equals(""))) {
+                //url = new URL(STOCKDIR+"android.jpg");
+                File imageFile = new File(STOCKDIR+"android.jpg");
+                img = ImageIO.read(imageFile);
+                return img;
+            } else{
+                String path = "https://cdn.fnguide.com/SVO2/chartImg/11_01/A"+stock_code+"_SELL_01.png";
+                url = new URL(path);
+                img = ImageIO.read(url);
+                return img;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return img;
     }
 }

@@ -4,9 +4,10 @@ public class FormatAccount {
 
     public String stock_code;
     public String stock_name;
-    public String qunatity;
+    public String quantity;
     public String buyprice;
-    public String targetprice;
+    public String buytarget;
+    public String selltarget;
     public String nowprice;
     public String memo_1;
     public String memo_2;
@@ -22,8 +23,11 @@ public class FormatAccount {
         return nowprice;
     }
 
-    public String getTargetprice() {
-        return targetprice;
+    public String getSellTargetPrice() {
+        return selltarget;
+    }
+    public String getBuyTargetPrice() {
+        return buytarget;
     }
 
     public String getMemo1() {
@@ -41,6 +45,5 @@ public class FormatAccount {
     public String getMemo4() {
         return memo_4;
     }
-
 
 }

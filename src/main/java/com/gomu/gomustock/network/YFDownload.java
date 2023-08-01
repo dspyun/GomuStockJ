@@ -59,6 +59,7 @@ public class YFDownload {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return;
         }
 
         List<FormatOHLCV> ohlcvlist = new ArrayList<>();

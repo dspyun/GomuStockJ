@@ -812,7 +812,7 @@ public class MyWeb {
         myexcel.writenaverupjong("info_"+upjong_name,upjonglist );
     }
 
-    public void getNaverUpjong(String upjong_code,String upjong_name) {
+    public void getNaverUpjong(String upjong_code,String upjong_name, int max) {
 
         StockDic mydict = new StockDic();
         final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no="+upjong_code;
@@ -847,13 +847,17 @@ public class MyWeb {
         for(int i =0;i<size;i++) {
             header.add(thlist.get(i).getText());
         }
+        header.add(0,"종목코드"); // 종목코드는 웹페이지에 없기 때문에 별도로 추가해준다
 
         List<WebElement> mytbody = driver.findElements(By.tagName("tbody"));
         List<WebElement> trlist = mytbody.get(2).findElements(By.tagName("tr"));
         List<List<String>> upjonglist = new ArrayList<List<String>>();
-        size = trlist.size();
+
+        if(max == -1 ) size = trlist.size();
+        else size = max;
+
         String sizestr = Integer.toString(size);
-        for(int i=0;i<trlist.size();i++) {
+        for(int i=0;i<size;i++) {
             List<String> one = new ArrayList<>();
             List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
             one.add(tdlist.get(0).getText().replace(" *",""));
@@ -873,6 +877,7 @@ public class MyWeb {
         myexcel.writenaverupjong2("group_"+upjong_name,upjonglist );
         myexcel.writenaverupjong2("info_"+upjong_name,upjonglist );
     }
+    
     public int cboxname(String name) {
 
         String checkname[] = {"거래량","매수호가","거래대금","시가총액","영업이익","PER",
