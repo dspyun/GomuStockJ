@@ -229,7 +229,6 @@ public class Main extends JFrame{
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-
                 // 오늘 가격 다운로드 + 정보읽어 보여주기
                 if(button1.equals(ae.getSource())){
 
