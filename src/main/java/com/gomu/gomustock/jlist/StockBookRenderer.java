@@ -104,7 +104,7 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         lbIndication.setForeground(Color.blue);
         lbIndication.setPreferredSize(new Dimension(100,200));
         lbIndication.setAutoscrolls(true);
-        lbIndication.setFont(new Font("TextArea.font", Font.BOLD, 12));
+        lbIndication.setFont(new Font("TextArea.font", Font.BOLD, 14));
 
         lbNews.setText(book.getNews());
         //lbNews.setForeground(Color.blue);
@@ -115,7 +115,7 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         //lbfninfo.setForeground(Color.blue);
         lbfninfo.setPreferredSize(new Dimension(300,200));
         lbfninfo.setLineWrap(true);
-        lbfninfo.setFont(new Font("TextArea.font", Font.BOLD, 12));
+        lbfninfo.setFont(new Font("TextArea.font", Font.BOLD, 14));
 
         lbCompanyinfo.setText(book.getCompanyInfo());
         //lbCompanyinfo.setForeground(Color.blue);

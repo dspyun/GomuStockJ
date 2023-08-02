@@ -76,7 +76,7 @@ public class FormatStockInfo {
         return desc;
     }
 
-    @Override
+
     public String toString() {
         String stock_info="";
         stock_info += stock_name + " " + stock_code + "\n";

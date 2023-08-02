@@ -88,7 +88,7 @@ public class StockOnePage {
         else lbstatic.setText(statinfo);
         lbstatic.setForeground(Color.blue);
         lbstatic.setAutoscrolls(true);
-        lbstatic.setFont(new Font("TextArea.font", Font.BOLD, 12));
+        lbstatic.setFont(new Font("TextArea.font", Font.BOLD, 14));
         lbstatic.setPreferredSize(new Dimension(width,height));
 
         lbNews.setText(news);
@@ -99,7 +99,7 @@ public class StockOnePage {
         lbfinan.setText(finaninfo);
         lbfinan.setForeground(Color.blue);
         lbfinan.setLineWrap(true);
-        lbfinan.setFont(new Font("TextArea.font", Font.BOLD, 12));
+        lbfinan.setFont(new Font("TextArea.font", Font.BOLD, 14));
         lbfinan.setPreferredSize(new Dimension(width,height));
 
         lbCompanyinfo.setText(company_info);
@@ -184,6 +184,7 @@ public class StockOnePage {
     Color getBackground() {
         return Color.lightGray;
     }
+
     void addPanel() {
         int height1 = 600;
         int width1 = 1800;

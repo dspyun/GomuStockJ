@@ -55,69 +55,7 @@ public class MyWeb {
         boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
         return isNumeric;
     }
-    public FormatStockInfo getStockinfo(String stock_code) {
-        FormatStockInfo result = new FormatStockInfo();
 
-        if(!checkKRStock(stock_code)) {
-            // 외국주식이면 빈칸으로 채우고 건너뜀
-            result.init();
-            return result;
-        }
-        try {
-
-            String URL = "https://comp.fnguide.com/SVO2/ASP/SVD_main.asp?gicode=A"+stock_code;
-            Document doc;
-            doc = Jsoup.connect(URL).get();
-            Elements classinfo0 = doc.select(".corp_group1");
-            if(classinfo0.text().isEmpty()) {
-                result.init();
-                return result;
-            }
-            Element giname = classinfo0.select("#giName").get(0);
-            result.stock_name = giname.text();
-
-            Elements classinfo1 = doc.select("#corp_group2");
-            Elements dd_list = classinfo1.select("dd");
-
-            result.per = dd_list.get(1).text();
-            result.per12 = dd_list.get(3).text();
-            result.area_per = dd_list.get(5).text();
-            result.pbr = dd_list.get(7).text();
-            result.div_rate = dd_list.get(9).text();
-
-            Elements classinfo2 = doc.select("#svdMainGrid1");
-            Elements tbody_list = classinfo2.select("tbody");
-            Elements tr_list = tbody_list.select("tr");;
-            Elements td_list = tr_list.get(2).select("td");;
-            Element th1 = td_list.get(1);;
-            result.fogn_rate = th1.text();;
-
-            Elements td2_list = tr_list.get(3).select("td");;
-            Element th2 = td2_list.get(1);;
-            result.beta = th2.text();
-
-            Elements classinfo3 = doc.select("#svdMainGrid2");
-            Elements tbody1_list = classinfo3.select("tbody");
-            Elements td1_list = tbody1_list.select("td");;
-            if(!td1_list.get(0).text().equals("관련 데이터가 없습니다.")) {
-                result.op_profit = td1_list.get(3).text();
-            }
-/*
-            System.out.println("per = " + result.per+"\n");
-            System.out.println("per12 = " + result.per12+"\n");
-            System.out.println("area_per = " + result.area_per+"\n");
-            System.out.println("pbr = " + result.pbr+"\n");
-            System.out.println("div_rate = " +result.div_rate+"\n");
-            System.out.println("fogn_rate = " + result.fogn_rate+"\n");
-            System.out.println("beta = " + result.beta+"\n");
-            System.out.println("op_profit = " + result.op_profit+"\n");
-*/
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return result;
-    }
 
     public FormatStockInfo getNaverStockinfo(String stock_code) {
         FormatStockInfo result = new FormatStockInfo();

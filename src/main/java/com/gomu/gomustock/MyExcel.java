@@ -12,6 +12,7 @@ import main.java.com.gomu.gomustock.format.*;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static java.lang.Boolean.TRUE;
@@ -865,49 +866,34 @@ public class MyExcel extends MyStat {
         return mArrayBuffer;
     }
 
-    public List<FormatMyStock> readSectorinfo(boolean header) {
+    public HashMap readSectorinfo(boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = INFODIR+"index_sector"+".xls";;
+        String PathFile = INFODIR+"group_sector"+".xls";;
         List<FormatMyStock> mArrayBuffer = new ArrayList<FormatMyStock>();
+        HashMap<String,String> map = new HashMap<String,String>();
 
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            int size=0, start = 0;
-            if(header != TRUE) start = 1;
-
+            int size=0;
             Sheet sheet = wb.getSheet(0);   // 시트 불러오기
             if(sheet != null) {
                 // line1, col1에서 contents를 읽는다.
                 size = sheet.getColumn(0).length;
-                for(int i=start;i<size;i++) {
-                    FormatMyStock temp = new FormatMyStock();
-                    temp.stock_code = sheet.getCell(0, i).getContents();
-                    temp.stock_name = sheet.getCell(1, i).getContents();
-                    mArrayBuffer.add(temp);
+                for(int i=1;i<size;i++) {
+                    map.put(sheet.getCell(0, i).getContents(),sheet.getCell(1, i).getContents());
                 }
             }
 
-            Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
-            if(sheet != null) {
-                // line1, col1에서 contents를 읽는다.
-                size = sheet1.getColumn(0).length;
-                for(int i=start;i<size;i++) {
-                    FormatMyStock temp = new FormatMyStock();
-                    temp.stock_code = sheet1.getCell(0, i).getContents();
-                    temp.stock_name = sheet1.getCell(1, i).getContents();
-                    mArrayBuffer.add(temp);
-                }
-            }
             wb.close();
             is.close();
         } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
-        return mArrayBuffer;
+        return map;
     }
 
     public List<String> readFogninfo(String stock_code, String group, boolean header) {
