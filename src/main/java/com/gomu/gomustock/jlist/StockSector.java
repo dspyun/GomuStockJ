@@ -51,8 +51,11 @@ public class StockSector {
     public JPanel getPanel() {
         return toppanel;
     }
+    public JList<JPanel> getRenderList() {
+        return mylist;
+    }
 
-    public void render() {
+    public void Render() {
         setPaneldata();
         addPanel();
     }
@@ -113,13 +116,5 @@ public class StockSector {
         model.addElement(panelChart);
         mylist = new JList<JPanel>(model);
         mylist.setCellRenderer(new StockSector.PanelRenderer());
-
-        JPanel onepanel = new JPanel(new GridLayout(1, 1));
-        onepanel.setPreferredSize(new Dimension(width1,height1*row));
-        onepanel.add(new JScrollPane(mylist), BorderLayout.CENTER);
-
-        toppanel.removeAll();
-        toppanel.setLayout(new GridLayout(1, 1));
-        toppanel.add(onepanel);
     }
 }

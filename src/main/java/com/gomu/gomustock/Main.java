@@ -106,7 +106,7 @@ public class Main extends JFrame{
         button9.setMargin(new Insets(1,1,1,1));
         HeaderPanel.add(button9);
 
-        String[] stcokgroup = {"group_hold", "group_manual", "group_newstock", "group_newetf"};
+        String[] stcokgroup = {"group_manual", "group_hold",  "group_newstock", "group_newetf"};
         JComboBox combo = new JComboBox(stcokgroup);
         HeaderPanel.add(combo);
 
@@ -374,7 +374,7 @@ public class Main extends JFrame{
                     onepanel.add(onepage.getPanel());
                     frame.add(onepanel,BorderLayout.CENTER);
 
-                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     frame.pack();
                     frame.setVisible(true);
                 }
@@ -388,14 +388,21 @@ public class Main extends JFrame{
                         DebugButton.paint(DebugButton.getGraphics());
                         //new YFDownload(codelist.get(i));
                     }
-                    sector.render();
+                    sector.Render();
 
-                    frame.add(sector.getPanel(),BorderLayout.CENTER);
-                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    JList<JPanel> renderlist = new JList<JPanel>();
+                    renderlist = sector.getRenderList();
+                    listpanel.removeAll();
+                    listpanel.setPreferredSize(dim);
+                    listpanel.add(new JScrollPane(renderlist), BorderLayout.CENTER);
+
+                    frame.add(listpanel,BorderLayout.CENTER);
+                    //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     frame.pack();
                     frame.setVisible(true);
                 }
             }
+
         };
 
         button1.addActionListener(listener);
