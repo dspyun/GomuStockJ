@@ -18,8 +18,6 @@ public class StockOnePage {
     String finaninfo,etfinfo;
     String stock_code, stock_name,stock_type;
 
-    private JPanel toppanel = new JPanel();
-
     private JPanel panelText;
     private JPanel panelFAIcon;
     private JPanel panelChart;
@@ -40,6 +38,8 @@ public class StockOnePage {
     private JLabel lbLoanBuyIcon = new JLabel();
     private JLabel lbLoanSellIcon = new JLabel();
 
+    JPanel toppanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    JList<JPanel> mylist;
 
 
     public StockOnePage() {
@@ -67,12 +67,26 @@ public class StockOnePage {
 
         setPaneldata();
         //toppanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
-        toppanel.setLayout(new GridLayout(1, 1));
+
         //toppanel.setPreferredSize(new Dimension(1500,1200));
         addPanel();
     }
+
+    class PanelRenderer implements ListCellRenderer {
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JPanel renderer = (JPanel) value;
+            renderer.setBackground(isSelected ? Color.lightGray : list.getBackground());
+            return renderer;
+        }
+    }
+
     public JPanel getPanel() {
         return toppanel;
+    }
+    public JList<JPanel> getRenderList() {
+        return mylist;
     }
 
     public void setPaneldata() {
@@ -188,7 +202,7 @@ public class StockOnePage {
     void addPanel() {
         int height1 = 600;
         int width1 = 1800;
-        JPanel upperpanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
         //upperpanel.setPreferredSize(new Dimension(1600,300));
 
         panelText = new JPanel(new GridLayout(3, 2));
@@ -216,11 +230,14 @@ public class StockOnePage {
 
         // flowlayout이라서 왼쪽에서 오른쪽으로 차례대로 보여준다
         toppanel.removeAll();
-        upperpanel.removeAll();
-        upperpanel.add(panelText);
-        upperpanel.add(panelChart);
-        upperpanel.add(panelFAIcon);
-        toppanel.add(upperpanel);
+        toppanel.add(panelText);
+        toppanel.add(panelChart);
+        toppanel.add(panelFAIcon);
+
+        DefaultListModel<JPanel> model = new DefaultListModel<>();
+        model.addElement(toppanel);
+        mylist = new JList<JPanel>(model);
+        mylist.setCellRenderer(new StockOnePage.PanelRenderer());
 
     }
 }

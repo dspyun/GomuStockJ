@@ -2,7 +2,6 @@ package main.java.com.gomu.gomustock.jlist;
 
 import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.format.FormatETFInfo;
-import main.java.com.gomu.gomustock.format.FormatOHLCV;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.network.MyWeb;
 import main.java.com.gomu.gomustock.network.YFDownload;
@@ -12,7 +11,6 @@ import main.java.com.gomu.gomustock.stockengin.StockDic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class InfoDownload {
 
@@ -37,11 +35,13 @@ public class InfoDownload {
     public void downloadStockInfoCustom(String filename) {
 
         List<String> stock_list = new ArrayList<>();
+        List<String> name_list = new ArrayList<>();
         List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
         web_stockinfo = myexcel.readStockinfoCustom(filename,false);
         int size = web_stockinfo.size();
         for(int i =0;i<size;i++) {
             stock_list.add(web_stockinfo.get(i).stock_code);
+            name_list.add(web_stockinfo.get(i).stock_name);
         }
         web_stockinfo.clear();
         size = stock_list.size();
@@ -53,7 +53,13 @@ public class InfoDownload {
             String news;
 
             if(stock_code.equals("") || stockdic.getMarket(stock_code)=="KONEX") continue;
-            if(stockdic.checkKRStock(stock_code) && (stockdic.getMarket(stock_code)!="")) {
+            if(!stockdic.checkKRStock(stock_code)) {
+                stockinfo.stock_code = stock_list.get(i);
+                stockinfo.stock_name = name_list.get(i);
+                stockinfo.stock_type = "GLOBAL";
+                web_stockinfo.add(stockinfo);
+            }
+            else if(stockdic.checkKRStock(stock_code) && (stockdic.getMarket(stock_code)!="")) {
                 // stock_cdoe정보를 포함하고 있는
                 // 네이버 정보를 가장 먼저 가져오고 그 다음에 다른 정보를 추가해야 한다
                 _cb.callback("info" + "\n"+"download" + "\n" + stock_code);

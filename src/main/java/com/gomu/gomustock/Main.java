@@ -3,6 +3,7 @@ package main.java.com.gomu.gomustock;
 import jxl.biff.drawing.ComboBox;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.jlist.*;
+import main.java.com.gomu.gomustock.network.Ebest;
 import main.java.com.gomu.gomustock.network.MyWeb;
 import main.java.com.gomu.gomustock.network.YFDownload;
 import main.java.com.gomu.gomustock.stockengin.CPUID;
@@ -24,78 +25,43 @@ import java.util.List;
 public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
-        //testjson();
+
+       Ebest ebest = new Ebest();
+       //ebest.testmain();
         mytest();
     }
-
-    public static void testjson() {
-
-        try{
-            StringBuilder urlBuilder = new StringBuilder("/stock/market-data");
-            URL url = new URL(urlBuilder.toString());
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-
-            byte[] body = "".getBytes();
-            conn.setFixedLengthStreamingMode(body.length);
-            conn.setDoOutput(true);
-
-            OutputStream out = conn.getOutputStream();
-            out.write(body);
-            System.out.println("Response code: " + conn.getResponseCode());
-            BufferedReader rd;
-            if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            } else {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-            }
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
-            }
-            rd.close();
-            conn.disconnect();
-            System.out.println(sb.toString());
-        } catch(IOException e) {
-            e.printStackTrace();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
 
     public static void mytest() throws IOException{
         MyWeb myweb = new MyWeb();
         MyExcel myexcel = new MyExcel();
-        StockChart schart = new StockChart();
         InfoDownload idown = new InfoDownload();
         InfoRead iread = new InfoRead();
         StockBookRenderer renderer = new StockBookRenderer();
-        String monitor_text="";
-        int index = 0;
+        JPanel listpanel = new JPanel(new BorderLayout());
 
-
+        // hdd id를 읽고 등록되어 있으면 실행한다
         CPUID cpuid = new CPUID("c");
         if(cpuid.checkID()==false) {
             System.out.println("permission invalid");
             return;
         }
+        // 팝업창 셋업
         JFrame popupfrm = new JFrame("팝업창 및 알림창 호출");
         setpopup(popupfrm);
 
+        // main frame을 center에 setup
         Dimension dim = new Dimension(1700,800);
         JFrame frame = new JFrame("XChart Swing Demo");
         frame.setPreferredSize(dim);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        // debug 버튼은 좌측헤 setup
+        JButton DebugButton = new JButton();
+        DebugButton.setText("모니터버튼");
+        DebugButton.setPreferredSize( new Dimension( 100, 600 ) );
+        frame.add(DebugButton,BorderLayout.WEST);
 
-        JPanel listpanel = new JPanel(new BorderLayout());
-        frame.add(listpanel,BorderLayout.CENTER);
-
-        // header panel에는 버튼과 텍스트필드를 넣는다
+        // 컨트롤 버튼과 텍스트필드는 윗쪽에 셋업
         JPanel HeaderPanel = new JPanel();
         HeaderPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         //HeaderPanel.setBounds(20,20,1600,50);
@@ -107,8 +73,8 @@ public class Main extends JFrame{
         HeaderPanel.add(button9);
 
         String[] stcokgroup = {"group_manual", "group_hold",  "group_newstock", "group_newetf"};
-        JComboBox combo = new JComboBox(stcokgroup);
-        HeaderPanel.add(combo);
+        JComboBox namecombo = new JComboBox(stcokgroup);
+        HeaderPanel.add(namecombo);
 
         JTextField textfield = new JTextField();
         HeaderPanel.add(textfield);
@@ -121,14 +87,9 @@ public class Main extends JFrame{
         HeaderPanel.add(button1);
         JButton button3 = new JButton("Full다운");
         HeaderPanel.add(button3);
-        JButton button5 = new JButton("신규종목");
-        HeaderPanel.add(button5);
-        JButton button6 = new JButton("신규ETF");
-        HeaderPanel.add(button6);
-        JButton button7 = new JButton("업종선택");
-        HeaderPanel.add(button6);
-        JButton button10 = new JButton("섹터현황");
-        HeaderPanel.add(button10);
+        String[] sectors = {"sector240", "sector120",  "sector60", "sector30"};
+        JComboBox sectorcombo = new JComboBox(sectors);
+        HeaderPanel.add(sectorcombo);
         JTextField textfield2 = new JTextField();
         HeaderPanel.add(textfield2);
         textfield2.setText("stock_code");
@@ -136,12 +97,15 @@ public class Main extends JFrame{
         JButton button8 = new JButton("종목상세");
         HeaderPanel.add(button8);
 
-        JButton DebugButton = new JButton();
-        DebugButton.setText("모니터버튼");
-        DebugButton.setPreferredSize( new Dimension( 100, 600 ) );
-        frame.add(DebugButton,BorderLayout.WEST);
+        // 신규종목 발굴
+        JButton button5 = new JButton("신규종목");
+        HeaderPanel.add(button5);
+        JButton button6 = new JButton("신규ETF");
+        HeaderPanel.add(button6);
+        JButton button7 = new JButton("업종선택");
+        HeaderPanel.add(button7);
 
-        combo.addActionListener(new ActionListener() {
+        namecombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JComboBox<String> cb=(JComboBox<String>)e.getSource();
                 int index=cb.getSelectedIndex();
@@ -201,13 +165,12 @@ public class Main extends JFrame{
             }
         });
 
-
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                System.out.println("First index: " + listSelectionEvent.getFirstIndex());
-                System.out.println(", Last index: " + listSelectionEvent.getLastIndex());
+                //System.out.println("First index: " + listSelectionEvent.getFirstIndex());
+                //System.out.println(", Last index: " + listSelectionEvent.getLastIndex());
                 boolean adjust = listSelectionEvent.getValueIsAdjusting();
-                System.out.println(", Adjusting? " + adjust);
+                //System.out.println(", Adjusting? " + adjust);
                 if (!adjust) {
                     JList list = (JList) listSelectionEvent.getSource();
                     int selections[] = list.getSelectedIndices();
@@ -225,6 +188,42 @@ public class Main extends JFrame{
                 }
             }
         };
+
+        sectorcombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox<String> cb=(JComboBox<String>)e.getSource();
+                int index=cb.getSelectedIndex();
+                int period;
+                if(index==0) period = 240;
+                else if(index == 1) period = 120;
+                else if(index == 2) period = 60;
+                else {
+                    period = 30;
+                }
+
+                JPanel temppanel = new JPanel(new BorderLayout());
+                StockSector sector = new StockSector(period);
+                List<String> codelist = sector.getSectorCodelist();
+                int size = codelist.size();
+                for(int i =0;i<size;i++) {
+                    DebugButton.setText(htmltext("1년치 "+"\n" + "다운로드" + "\n" + codelist.get(i)));
+                    DebugButton.paint(DebugButton.getGraphics());
+                    //new YFDownload(codelist.get(i));
+                }
+
+                JList<JPanel> renderlist = new JList<JPanel>();
+                renderlist = sector.getRenderList();
+                listpanel.removeAll();
+                listpanel.setPreferredSize(dim);
+                listpanel.add(new JScrollPane(renderlist), BorderLayout.CENTER);
+
+                frame.add(listpanel,BorderLayout.CENTER);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.pack();
+                frame.setVisible(true);
+            }
+        });
+
 
         ActionListener listener = new ActionListener() {
             @Override
@@ -246,7 +245,7 @@ public class Main extends JFrame{
                     }
 
                     // 하루 가격 다운로드
-                    idown.downloadNowPrice(stock_list, 3);
+                    idown.downloadNowPrice(stock_list, 6);
 
                     // 다운로드 완료하고 지금부터는 파일데이터를 리스트에 로딩한다
                     web_stockinfo = iread.getStockInfoCustom(filename);
@@ -264,6 +263,7 @@ public class Main extends JFrame{
                     listpanel.add(new JScrollPane(listBook), BorderLayout.CENTER);
 
                     textfield.setText(filename);
+                    frame.add(listpanel,BorderLayout.CENTER);
                     frame.pack();
                     frame.setVisible(true);
                 }
@@ -301,6 +301,7 @@ public class Main extends JFrame{
                     listpanel.add(new JScrollPane(listBook), BorderLayout.CENTER);
 
                     textfield.setText(filename);
+                    frame.add(listpanel,BorderLayout.CENTER);
                     frame.pack();
                     frame.setVisible(true);
                 }
@@ -334,6 +335,7 @@ public class Main extends JFrame{
                     listpanel.add(new JScrollPane(listBook), BorderLayout.CENTER);
 
                     textfield.setText(filename);
+                    frame.add(listpanel,BorderLayout.CENTER);
                     frame.pack();
                     frame.setVisible(true);
                 }
@@ -361,48 +363,29 @@ public class Main extends JFrame{
                     multi_sector_dlg.setVisible(true);
 
                 }
-                if(button8.equals(ae.getSource())){
-                    listpanel.removeAll();
 
+                // 개별종목 상세내용 보여주기
+                if(button8.equals(ae.getSource())){
+                    JPanel temppanel = new JPanel(new BorderLayout());
                     // 개별종목 UX 구현
                     // bbchart, daily chart, 메모, sector chart,
                     String filename = textfield.getText();
                     String stock_code = textfield2.getText();
                     StockOnePage onepage = new StockOnePage(filename, stock_code);
 
-                    JPanel onepanel = new JPanel(new BorderLayout());
-                    onepanel.add(onepage.getPanel());
-                    frame.add(onepanel,BorderLayout.CENTER);
-
-                    //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    frame.pack();
-                    frame.setVisible(true);
-                }
-
-                if(button10.equals(ae.getSource())){
-                    StockSector sector = new StockSector();
-                    List<String> codelist = sector.getSectorCodelist();
-                    int size = codelist.size();
-                    for(int i =0;i<size;i++) {
-                        DebugButton.setText(htmltext("1년치 "+"\n" + "다운로드" + "\n" + codelist.get(i)));
-                        DebugButton.paint(DebugButton.getGraphics());
-                        //new YFDownload(codelist.get(i));
-                    }
-                    sector.Render();
-
                     JList<JPanel> renderlist = new JList<JPanel>();
-                    renderlist = sector.getRenderList();
-                    listpanel.removeAll();
-                    listpanel.setPreferredSize(dim);
-                    listpanel.add(new JScrollPane(renderlist), BorderLayout.CENTER);
+                    renderlist = onepage.getRenderList();
+                    temppanel.removeAll();
+                    temppanel.setPreferredSize(dim);
+                    temppanel.add(new JScrollPane(renderlist), BorderLayout.CENTER);
 
-                    frame.add(listpanel,BorderLayout.CENTER);
-                    //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    //temppanel.paint(temppanel.getGraphics());
+                    frame.add(temppanel,BorderLayout.CENTER);
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     frame.pack();
                     frame.setVisible(true);
                 }
             }
-
         };
 
         button1.addActionListener(listener);
@@ -413,13 +396,10 @@ public class Main extends JFrame{
         button7.addActionListener(listener);
         button8.addActionListener(listener);
         button9.addActionListener(listener);
-        button10.addActionListener(listener);
 
         frame.pack();
         frame.setVisible(true);
     }
-
-
 
 
     public static String htmltext(String input_str) {

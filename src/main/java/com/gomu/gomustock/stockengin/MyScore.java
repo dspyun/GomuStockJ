@@ -4,7 +4,6 @@ import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.MyStat;
 import main.java.com.gomu.gomustock.network.MyWeb;
 import main.java.com.gomu.gomustock.format.FormatScore;
-import main.java.com.gomu.gomustock.network.PriceBox;
 
 
 import java.util.ArrayList;

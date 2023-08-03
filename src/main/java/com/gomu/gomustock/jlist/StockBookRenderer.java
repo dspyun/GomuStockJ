@@ -86,12 +86,13 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         //renderer_setText(Integer.toString(index));
         //String icon_path = STOCKDIR+book.getIconName() + ".jpg";
 
+        if(book.getStocktype().equals("KSTOCK")) {
+            BufferedImage img = schart.getFognimage(book.getStockcode());
+            lbFognIcon.setIcon(new ImageIcon(img));
 
-        BufferedImage img = schart.getFognimage(book.getStockcode());
-        lbFognIcon.setIcon( new ImageIcon(img));
-
-        BufferedImage img2  = schart.getAgencyimage(book.getStockcode());
-        lbAgencyIcon.setIcon( new ImageIcon(img2));
+            BufferedImage img2 = schart.getAgencyimage(book.getStockcode());
+            lbAgencyIcon.setIcon(new ImageIcon(img2));
+        }
 /*
 		BufferedImage img3 = getLoanBuyMoneyimage(book.getStockcode());
 		lbLoanBuyIcon.setIcon( new ImageIcon(img3));

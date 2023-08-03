@@ -280,6 +280,26 @@ public class MyStat {
         return temp;
     }
 
+    Float findNotZero_f(List<Float> input) {
+        Float result=0f;
+        int size = input.size();
+        for(int i =0;i<size;i++) {
+            if(!input.get(i).equals("0") && !input.get(i).equals("")) {
+                result = input.get(i);
+                break;
+            }
+        }
+        return result;
+    }
+    Float average(List<Float> input) {
+        Float result=0f;
+        int size = input.size();
+        for(int i =0;i<size;i++) {
+            result += input.get(i);
+        }
+        return result/size;
+    }
+
     // 누적치를 스케일링하는 함수
     public List<Float> scaling_float2(List<Float> input, float min) {
         int size = input.size();
@@ -290,12 +310,15 @@ public class MyStat {
         for(int i =0;i<size-1;i++) {
             temp.add(input.get(i+1)-input.get(i));
         }
-
+        //float fill_value = findNotZero_f(temp);
+        float fill_value = average(temp);
         // 변동량으로 바뀐 숫자를 스케일링한다
         float inputmax = Collections.max(temp);
         size = temp.size();
         for(int i =0;i<size;i++) {
-            temp.set(i,temp.get(i)/inputmax);
+            float value =temp.get(i);
+            if(value <= 0) value = fill_value;
+            temp.set(i,value/inputmax);
         }
         for(int i =0;i<size;i++) {
             temp.set(i,min+diff*temp.get(i)*0.1f);
@@ -307,10 +330,10 @@ public class MyStat {
         return temp;
     }
 
-    public List<Float> leveling_float(List<Float> input) {
+    public List<Float> leveling_float(List<Float> input, float level) {
         List<Float> temp = new ArrayList<>();
         int size = input.size();
-        float lev = (float) (Collections.min(input)*0.2);
+        float lev = (float) (Collections.min(input)*level);
         for(int i =0;i<size;i++) {
             temp.add(input.get(i)-lev);
         }

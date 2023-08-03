@@ -1,4 +1,4 @@
-package main.java.com.gomu.gomustock.network;
+package main.java.com.gomu.gomustock.stockengin;
 
 import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.MyStat;
@@ -12,6 +12,7 @@ public class PriceBox {
 
     String STOCK_CODE;
     int ONEYEAR = -1;
+    int MINSIZE = 30;
     List<Float> CLOSEPRICE = new ArrayList<>();
     List<Float> CLOSESTDPRICE = new ArrayList<>();
     List<Float> HIGHPRICE = new ArrayList<>();
@@ -55,12 +56,12 @@ public class PriceBox {
     }
     public List<Float> getClose(int days) {
         List<Float>closeprice=new ArrayList<>();
-        if(CLOSEPRICE.size()>50 && CLOSEPRICE.size() >= days) {
+        if(CLOSEPRICE.size()>=MINSIZE && CLOSEPRICE.size() >= days) {
             int size = CLOSEPRICE.size();
             for (int i = 0; i < days; i++) {
                 closeprice.add(CLOSEPRICE.get(size - days + i));
             }
-        } else if(CLOSEPRICE.size()> 50 && days > CLOSEPRICE.size()) {
+        } else if(CLOSEPRICE.size()>= MINSIZE && days > CLOSEPRICE.size()) {
             closeprice = CLOSEPRICE;
         } else  {
             for(int i =0;i<days;i++) {

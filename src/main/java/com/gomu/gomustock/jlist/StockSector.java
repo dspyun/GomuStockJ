@@ -15,7 +15,7 @@ import java.util.List;
 public class StockSector {
 
     String stock_code, stock_name,stock_type;
-
+    int PERIOD;
     private JPanel toppanel = new JPanel();
     private JPanel panelChart;
     private List<JPanel> lbChartlist = new ArrayList<>();
@@ -24,9 +24,9 @@ public class StockSector {
     JList<JPanel> listChart = new JList<JPanel>(); //
     JList<JPanel> mylist;
 
-    public StockSector() {
+    public StockSector(int period) {
         MyExcel myexcel = new MyExcel();
-
+        PERIOD = period;
         /*
         HashMap<String,String> sectormap = myexcel.readSectorinfo( false);
         // 차례는 지켜지지 않는다. name과 key 싱크는 된다
@@ -41,7 +41,8 @@ public class StockSector {
         codelist.remove(0); // 헤더는 제거해준다.
         namelist = myexcel.readColumn( "group_sector.xls",1);
         namelist.remove(0); // 헤더는 제거해준다
-
+        setPaneldata();
+        addPanel();
     }
 
     public List<String> getSectorCodelist() {
@@ -53,11 +54,6 @@ public class StockSector {
     }
     public JList<JPanel> getRenderList() {
         return mylist;
-    }
-
-    public void Render() {
-        setPaneldata();
-        addPanel();
     }
 
     public void setPaneldata() {
@@ -72,17 +68,16 @@ public class StockSector {
         int size = codelist.size();
         for(int i =0;i<size;i++) {
             JPanel onepanel = new JPanel();
-            JButton onebutton = new JButton(namelist.get(i));
+            JButton onebutton = new JButton("6M " + namelist.get(i) + "("+codelist.get(i)+")");
             onebutton.setPreferredSize(new Dimension(300,20));
             onepanel.add(onebutton);
-            onepanel.add(new XChartPanel(schart.GetPeriodChart(codelist.get(i),240)));
+            onepanel.add(new XChartPanel(schart.GetPeriodChart(codelist.get(i),PERIOD)));
             onepanel.setPreferredSize(new Dimension(300,230));
             onepanel.setOpaque(true);
             onepanel.setBackground(getBackground());
             onepanel.setForeground(getBackground());
             lbChartlist.add(onepanel);
         }
-
     }
 
     Color getBackground() {

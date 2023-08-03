@@ -1,14 +1,7 @@
 package main.java.com.gomu.gomustock.stockengin;
 
 import main.java.com.gomu.gomustock.MyExcel;
-import main.java.com.gomu.gomustock.MyStat;
-import main.java.com.gomu.gomustock.network.PriceBox;
-import org.knowm.xchart.QuickChart;
-import org.knowm.xchart.XChartPanel;
-import org.knowm.xchart.XYChart;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

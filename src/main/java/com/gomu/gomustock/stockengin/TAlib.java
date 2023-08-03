@@ -343,9 +343,11 @@ public class TAlib {
         float average=0f;
         for(int i = start;i<end - start;i++) {
             average += input.get(i);
+            resultlist.add(average);
         }
         average = average/(size-start);
 
+        /*
         int i;
         float month1_ave=0f, month2_ave=0, month3_ave=0, month4_ave=0;
         for(i=50;i<60;i++) month1_ave += input.get(i);
@@ -365,6 +367,7 @@ public class TAlib {
         for(i =30;i<40;i++) resultlist.add(month3_ave);
         for(i =40;i<50;i++) resultlist.add(month2_ave);
         for(i =50;i<60;i++) resultlist.add(month1_ave);
+        */
 
         return resultlist;
     }

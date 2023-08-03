@@ -2,7 +2,7 @@ package main.java.com.gomu.gomustock;
 
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.network.MyWeb;
-import main.java.com.gomu.gomustock.network.PriceBox;
+import main.java.com.gomu.gomustock.stockengin.PriceBox;
 import main.java.com.gomu.gomustock.network.YFDownload;
 import main.java.com.gomu.gomustock.stockengin.BBandTest;
 import main.java.com.gomu.gomustock.stockengin.Balance;
@@ -16,9 +16,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Example {
