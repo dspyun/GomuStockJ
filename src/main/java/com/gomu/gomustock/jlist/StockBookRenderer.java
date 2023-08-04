@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import static com.sun.java.accessibility.util.SwingEventMonitor.addListSelectionListener;
-
 public class StockBookRenderer extends JPanel implements ListCellRenderer<StockBook> {
 
     private JLabel lbFognIcon = new JLabel();
@@ -219,6 +217,7 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         }
         return img;
     }
+
     BufferedImage getLoanSellMoneyimage(String stock_code) {
         // 차입공매도비중. 주식빌려서 매도한 주식
 

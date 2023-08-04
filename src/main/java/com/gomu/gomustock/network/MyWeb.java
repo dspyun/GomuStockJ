@@ -18,7 +18,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -411,16 +410,7 @@ public class MyWeb {
             }
 
             int j = 0;
-            ;/*
-            System.out.println("per = " + result.per+"\n");
-            System.out.println("per12 = " + result.per12+"\n");
-            System.out.println("area_per = " + result.area_per+"\n");
-            System.out.println("pbr = " + result.pbr+"\n");
-            System.out.println("div_rate = " +result.div_rate+"\n");
-            System.out.println("fogn_rate = " + result.fogn_rate+"\n");
-            System.out.println("beta = " + result.beta+"\n");
-            System.out.println("op_profit = " + result.op_profit+"\n");
-*/
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

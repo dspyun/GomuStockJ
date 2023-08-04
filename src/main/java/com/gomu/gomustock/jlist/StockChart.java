@@ -175,7 +175,6 @@ public class StockChart {
         chart.getStyler().setSeriesColors(colors);
         chart.getStyler().setLegendVisible(false);
 
-
         Float diff_percent = 100*nowprice/maxprice;
         String anntext = String.format("%.1f",diff_percent);
         anntext += "\n" + String.format("%.0f",nowprice);

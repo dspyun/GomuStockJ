@@ -4,11 +4,13 @@ import com.intellij.ui.components.JBScrollPane;
 import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.network.YFDownload;
+import org.jsoup.Connection;
 import org.knowm.xchart.XChartPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.beans.Statement;
 import java.util.*;
 import java.util.List;
 
@@ -23,6 +25,10 @@ public class StockSector {
     List<String> namelist = new ArrayList<>();
     JList<JPanel> listChart = new JList<JPanel>(); //
     JList<JPanel> mylist;
+
+    public StockSector() {
+    }
+
 
     public StockSector(int period) {
         MyExcel myexcel = new MyExcel();
@@ -112,4 +118,36 @@ public class StockSector {
         mylist = new JList<JPanel>(model);
         mylist.setCellRenderer(new StockSector.PanelRenderer());
     }
+
+
+    public JPanel simpleChart() {
+        JButton[] buttons = new JButton[35];
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(0, 5));
+
+        // Adding buttons to the project
+        try {
+            StockChart schart = new StockChart();
+
+            // 6개월 차트 : set이 아니고 add를 쓰기 때문에 이전 데이터를 지워줘야 한다
+            int size = codelist.size();
+            for(int i =0;i<size;i++) {
+                JPanel onepanel = new JPanel();
+                JButton onebutton = new JButton("6M " + namelist.get(i) + "("+codelist.get(i)+")");
+                onebutton.setPreferredSize(new Dimension(300,20));
+                onepanel.add(onebutton);
+                onepanel.add(new XChartPanel(schart.GetPeriodChart(codelist.get(i),PERIOD)));
+                onepanel.setPreferredSize(new Dimension(300,230));
+                onepanel.setOpaque(true);
+                onepanel.setBackground(getBackground());
+                onepanel.setForeground(getBackground());
+                panel.add(onepanel);
+            }
+        } catch (Exception e2) {
+            JOptionPane.showMessageDialog(null, e2);
+        }
+        return panel;
+    }
+
 }
+

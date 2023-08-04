@@ -1,5 +1,6 @@
 package main.java.com.gomu.gomustock;
 
+import com.intellij.ui.components.JBScrollPane;
 import jxl.biff.drawing.ComboBox;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.jlist.*;
@@ -188,7 +189,7 @@ public class Main extends JFrame{
                 }
             }
         };
-
+        /*
         sectorcombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JComboBox<String> cb=(JComboBox<String>)e.getSource();
@@ -223,7 +224,28 @@ public class Main extends JFrame{
                 frame.setVisible(true);
             }
         });
-
+        */
+        sectorcombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox<String> cb=(JComboBox<String>)e.getSource();
+                int index=cb.getSelectedIndex();
+                int period;
+                if(index==0) period = 240;
+                else if(index == 1) period = 120;
+                else if(index == 2) period = 60;
+                else {
+                    period = 30;
+                }
+                StockSector sector = new StockSector(period);
+                JPanel panel = sector.simpleChart();
+                JScrollPane scroller = new JScrollPane(panel);
+                scroller.getVerticalScrollBar().setUnitIncrement(25);	//스크롤 속도
+                frame.add(scroller, BorderLayout.CENTER);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.pack();
+                frame.setVisible(true);
+            }
+        });
 
         ActionListener listener = new ActionListener() {
             @Override
