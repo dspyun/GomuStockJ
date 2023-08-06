@@ -31,9 +31,9 @@ public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
 
-       //Ebest ebest = new Ebest();
-       //ebest.testmain();
-        mytest();
+       Ebest ebest = new Ebest();
+       ebest.testmain();
+       // mytest();
     }
 
     public static void mytest() throws IOException{
@@ -384,30 +384,6 @@ public class Main extends JFrame{
                     frame.pack();
                     frame.setVisible(true);
                 }
-                /*
-                if(sectorcombo.equals(ae.getSource())) {
-                    JComboBox<String> cb = (JComboBox<String>) ae.getSource();
-                    int index = cb.getSelectedIndex();
-                    int period;
-                    if (index == 0) period = 240;
-                    else if (index == 1) period = 120;
-                    else if (index == 2) period = 60;
-                    else {
-                        period = 30;
-                    }
-
-                    StockSector sector = new StockSector(period);
-                    JPanel chartpanel = sector.simpleChart();
-                    JScrollPane scrollpanel =new JScrollPane(chartpanel);
-                    scrollpanel.getVerticalScrollBar().setUnitIncrement(25);    //스크롤 속도
-
-                    frame.add(scrollpanel, BorderLayout.CENTER);
-                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    frame.pack();
-                    frame.setVisible(true);
-                }
-
-                 */
             }
         };
 

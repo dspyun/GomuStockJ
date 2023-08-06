@@ -2,11 +2,18 @@ package main.java.com.gomu.gomustock.network;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.intellij.openapi.util.text.StringUtil;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import nonapi.io.github.classgraph.json.JSONSerializer;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -16,8 +23,11 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
+import org.json.JSONObject;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -25,7 +35,9 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,278 +59,98 @@ public class Ebest {
     public void testmain() throws IOException {
         //String msgMap = sendREST("http:localhost", json);
         //testauth2();
-        testauth();
+        //testauth();
+        testauth2();
     }
 
-    static void testauth2() {
+
+    public void testauth2() {
+        final String AUTH_HOST = "https://openapi.ebestsec.co.kr:8080/";
+        final String tokenRequestUrl = AUTH_HOST + "oauth2/token";
+
+        String GRANT_TYPE = "client_credentials";
         String APP_KEY = "PSypDQNAvmgk7V8KIZQnBySi1B6yTGqx6RnL";
         String APP_SECRET = "4oOpWK4V200GtRMvbRf0eqrXalZL2wQw";
+        String SCOPE = "oob";
+        String ContentsType="application/x-www-form-urlencoded";
 
-        String url = "https://openapi.ebestsec.co.kr:8080/oauth2/token/";
-        HashMap map = new HashMap<String,String>();
-        //map.put("Accept-Charset","UTF-8");
-        map.put("Content-Type","application/x-www-form-urlencoded");
-        map.put("grant_type","client_credentials");
-        map.put("appkey",APP_KEY);
-        map.put("appsecretkey",APP_SECRET);
-        map.put("scope","oob");
+        HttpsURLConnection conn = null;
+        OutputStreamWriter writer = null;
+        BufferedReader reader = null;
+        InputStreamReader isr= null;
 
-        String result = sendPost(url, map,null);
+        try {
+            final String params = String.format(
+                    "grant_type=%s" +
+                    "&appkey=%s" +
+                    "&appsecretkey=%s" +
+                    "&scope=%s"+
+                    "&Contents-Type=%s",
+                    GRANT_TYPE, APP_KEY, APP_SECRET, SCOPE, ContentsType);
 
-        String accessToken = (String) new Gson().fromJson(result, HashMap.class).get("access_token");
-    }
+            final URL url = new URL(tokenRequestUrl);
 
-    static String APP_KEY = "PSypDQNAvmgk7V8KIZQnBySi1B6yTGqx6RnL";
-    static String APP_SECRET = "4oOpWK4V200GtRMvbRf0eqrXalZL2wQw";
-
-    static void testauth() throws IOException {
-
-        String BASE_URL = "https://openapi.ebestsec.co.kr:8080/";
-        String PATH = "oauth2/token/";
-        String URLSTR = BASE_URL + PATH;
-
-        StringBuilder urlBuilder = new StringBuilder(URLSTR);
-        URL url = new URL(urlBuilder.toString());
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Accept-Charset", "UTF-8"); // 관리자 권고
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // 관리자 권고
-        conn.setRequestProperty("grant_type", "client_credentials"); // grant type : 가이드 권고
-        conn.setRequestProperty("appkey", APP_KEY);
-        conn.setRequestProperty("appsecretkey", APP_SECRET);
-        conn.setRequestProperty("scope", "oob"); // Access Token 권한 범위
-
-        byte[] body = "".getBytes();
-        conn.setFixedLengthStreamingMode(body.length);
-        conn.setDoOutput(true);
-
-        OutputStream out = conn.getOutputStream();
-        out.write(body);
-        System.out.println("Response code: " + conn.getResponseCode());
-        BufferedReader rd;
-        if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } else {
-            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-        }
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = rd.readLine()) != null) {
-            sb.append(line);
-        }
-        rd.close();
-        conn.disconnect();
-        System.out.println(sb.toString());
-    }
-
-    static void testauth3() throws IOException {
-
-        String BASE_URL = "https://openapi.ebestsec.co.kr:8080/";
-        String PATH = "oauth2/token/";
-        String URLSTR = BASE_URL + PATH;
-
-        StringBuilder urlBuilder = new StringBuilder(URLSTR);
-        URL url = new URL(urlBuilder.toString());
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Accept-Charset", "UTF-8"); // 관리자 권고
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // 관리자 권고
-
-        conn.setRequestProperty("grant_type", "client_credentials"); // grant type : 가이드 권고
-        conn.setRequestProperty("appkey", APP_KEY);
-        conn.setRequestProperty("appsecretkey", APP_SECRET);
-        conn.setRequestProperty("scope", "oob"); // Access Token 권한 범위
-        //conn.setRequestProperty("token_type", "Bearer"); // Access Token 권한 범위
-        //conn.setRequestProperty("Authorization", "bearer " + accessToken);
-
-        /*
-        String param = "grant_type=" + "client_credentials";
-        param += "appkey=" + APP_KEY;
-        param += "appsecretkey=" + APP_SECRET;
-        param += "scope=" + "oob";
-        */
-
-        byte[] body = "".getBytes();
-        conn.setFixedLengthStreamingMode(body.length);
-        conn.setDoOutput(true);
-
-        OutputStream out = conn.getOutputStream();
-        out.write(body);
-        System.out.println("Response code: " + conn.getResponseCode());
-        BufferedReader rd;
-        if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } else {
-            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-        }
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = rd.readLine()) != null) {
-            sb.append(line);
-        }
-        rd.close();
-        conn.disconnect();
-        System.out.println(sb.toString());
-    }
-
-
-    public static void testjson() {
-        try{
-            StringBuilder urlBuilder = new StringBuilder("/stock/market-data");
-            URL url = new URL(urlBuilder.toString());
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpsURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
-
-            byte[] body = "".getBytes();
-            conn.setFixedLengthStreamingMode(body.length);
             conn.setDoOutput(true);
 
-            OutputStream out = conn.getOutputStream();
-            out.write(body);
-            System.out.println("Response code: " + conn.getResponseCode());
-            BufferedReader rd;
-            if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            } else {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-            }
-            StringBuilder sb = new StringBuilder();
+            writer = new OutputStreamWriter(conn.getOutputStream());
+            writer.write(params);
+            writer.flush();
+
+            final int responseCode = conn.getResponseCode();
+            System.out.println("\nSending 'POST' request to URL : " + tokenRequestUrl);
+            System.out.println("Post parameters : " + params);
+            System.out.println("Response Code : " + responseCode);
+
+            isr = new InputStreamReader(conn.getInputStream());
+            reader = new BufferedReader(isr);
+            final StringBuffer buffer = new StringBuffer();
             String line;
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
             }
-            rd.close();
-            conn.disconnect();
-            System.out.println(sb.toString());
-        } catch(IOException e) {
+            strSplit(buffer);
+
+            //System.out.println(buffer.toString());
+
+        } catch (IOException e) {
             e.printStackTrace();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static String sendREST(String sendUrl, String jsonValue) throws IllegalStateException {
-
-        String inputLine = null;
-        StringBuffer outResult = new StringBuffer();
-
-        try{
-            //logger.debug("REST API Start");
-            URL url = new URL(sendUrl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-            //conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept-Charset", "UTF-8");
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
-
-            OutputStream os = conn.getOutputStream();
-            os.write(jsonValue.getBytes("UTF-8"));
-            os.flush();
-
-            // 리턴된 결과 읽기
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-            while ((inputLine = in.readLine()) != null) {
-                outResult.append(inputLine);
-            }
-
-            conn.disconnect();
-            //logger.debug("REST API End");
-        }catch(Exception e){
-            //logger.error(e.getMessage(), e);
-            e.printStackTrace();
-        }
-
-        return outResult.toString();
-    }
-
-
-    private static final int timeout = 30 * 1000;
-
-    public static String sendPost(String url, Map parameterMap, String accessToken)
-    {
-        Map paramMap = parameterMap;
-        CloseableHttpClient httpClient = null;
-        CloseableHttpResponse httpResponse = null;
-        String result = null;
-
-        try
-        {
-            HttpPost post = new HttpPost(url);
-            RequestConfig config = RequestConfig.custom()
-                    .setConnectTimeout(timeout)
-                    .setConnectionRequestTimeout(timeout)
-                    .setSocketTimeout(timeout)
-                    .build();
-
-            HttpClientBuilder builder = HttpClientBuilder.create().setDefaultRequestConfig(config);
-            httpClient = builder.setSSLSocketFactory(getSSLSocketFactory()).
-                    disableCookieManagement().build();
-
-            String jsonString = new GsonBuilder().disableHtmlEscaping().create().toJson(parameterMap);
-            HttpEntity stringEntity = new StringEntity(jsonString, ContentType.APPLICATION_JSON);
-            post.setEntity(stringEntity);
-
-            if ( StringUtil.isNotEmpty(accessToken))
-            {
-                post.setHeader("Authorization","Bearer " + accessToken);
-            }
-
-            // Execute the method.
-            httpResponse = httpClient.execute(post);
-
-            result = getResultContent(httpResponse);
-            System.out.println("result : " + result);
-
-        }
-        catch (IOException e)
-        {
-            System.out.println("sendPost - IOException ... : " + url);
-        }
-        catch(Exception e)
-        {
-            System.out.println("sendPost - Exception ... : " + url);
-        }
-        finally
-        {
-            try
-            {
-                if (httpClient != null) {
-                    httpClient.close();
-                }
-
-                if (httpResponse != null) {
-                    httpResponse.close();
+        } finally {
+            // clear resources
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch(Exception ignore) {
                 }
             }
-            catch (IOException e)
-            {
-                System.out.println( e);
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch(Exception ignore) {
+                }
+            }
+            if (isr != null) {
+                try {
+                    isr.close();
+                } catch(Exception ignore) {
+                }
             }
         }
-
-        return result;
     }
 
-    private static String getResultContent(CloseableHttpResponse httpResponse) throws IOException
-    {
-        InputStream in = httpResponse.getEntity().getContent();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null)
-        {
-            stringBuilder.append(line);
-        }
-        return stringBuilder.toString();
+    public void strSplit(StringBuffer sb) {
+        // json으로 파싱해야 한다. 웹크롤링하듯이 파싱하면 된다
+        String temp=sb.toString();
+
+        JsonObject keys = (JsonObject) JsonParser.parseString(temp);
+
+        System.out.println(keys.get("access_token")); // apple
+        System.out.println(keys.get("scope")); // 1
+        System.out.println(keys.get("token_type")); // 1000
+        System.out.println(keys.get("expires_in")); // 1000
+        //jsonObject = (JSONObject) parser.parse(temp);
     }
 
-    private static SSLConnectionSocketFactory getSSLSocketFactory() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException
-    {
-        SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
-        SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, new AllowAllHostnameVerifier());
 
-        return connectionFactory;
-    }
 }
