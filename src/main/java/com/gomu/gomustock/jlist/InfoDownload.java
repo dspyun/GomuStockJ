@@ -62,7 +62,7 @@ public class InfoDownload {
             else if(stockdic.checkKRStock(stock_code) && (stockdic.getMarket(stock_code)!="")) {
                 // stock_cdoe정보를 포함하고 있는
                 // 네이버 정보를 가장 먼저 가져오고 그 다음에 다른 정보를 추가해야 한다
-                _cb.callback("info" + "\n"+"download" + "\n" + stock_code);
+                _cb.callback("stock info" + "\n"+"download" + "\n" + stock_code);
 
                 stockinfo = myweb.getNaverStockinfo(stock_code);
                 stockinfo.stock_code = stock_code;
@@ -76,7 +76,7 @@ public class InfoDownload {
 
                 web_stockinfo.add(stockinfo);
             } else {
-                _cb.callback("info" + "\n"+"download" + "\n" + stock_code);
+                _cb.callback("etf info" + "\n"+"download" + "\n" + stock_code);
 
                 etfinfo = myweb.getNaverETFinfo(stock_code);
                 stockinfo.stock_type="KETF";
@@ -85,6 +85,7 @@ public class InfoDownload {
                 stockinfo.stock_name = etfinfo.stock_name;
                 stockinfo.desc = etfinfo.desc;
                 stockinfo.nav = etfinfo.nav;
+                stockinfo.etfcompanies = etfinfo.companies;
 
                 news = myweb.getNaverStockNews(stock_code);
                 stockinfo.news = news;

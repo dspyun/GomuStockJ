@@ -24,6 +24,7 @@ public class FormatStockInfo {
     public String fninfo;
     public String etfinfo;
     public String nav;
+    public String etfcompanies;
 
     public FormatStockInfo() {
         init();
@@ -49,6 +50,7 @@ public class FormatStockInfo {
         fninfo="";
         etfinfo="";
         nav="";
+        etfcompanies="";
     }
 
     public void fill_empty() {
@@ -70,6 +72,7 @@ public class FormatStockInfo {
         fninfo="수익테이블";
         etfinfo="etf정보";
         nav="nav";
+        etfcompanies="etfcompanies";
     }
 
     public String getDSC() {
@@ -109,6 +112,7 @@ public class FormatStockInfo {
         fninfo="fn정보";
         etfinfo="ETF정보";
         nav="nav";
+        etfcompanies="etfcompanies";
     }
 
     public void addStockcode(String stockcode) {

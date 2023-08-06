@@ -14,6 +14,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,12 +23,27 @@ import java.util.List;
 
 public class StockChart {
 
+    MyStat mystat = new MyStat();
+
+
+
+    public boolean isValidURL(String url) {
+
+        try {
+            new URL(url).toURI();
+        } catch (MalformedURLException | URISyntaxException e) {
+            return false;
+        }
+
+        return true;
+    }
 
     BufferedImage getFognimage(String stock_code)  {
-
+        System.out.println("foreign image " + stock_code);
         String path = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/F_"+stock_code+".png";
         BufferedImage img=null;
         try {
+            if(!mystat.checkKRStock(stock_code)) path = "https://ssl.pstatic.net/imgfinance/chart/main/KOSPI.png?sidcode=1691291760228";
             URL url = new URL(path);
             img = ImageIO.read(url);
         } catch (IOException e) {
@@ -34,11 +51,14 @@ public class StockChart {
         }
         return img;
     }
+    
     BufferedImage getAgencyimage(String stock_code) {
 
         String path = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/I_"+stock_code+".png";
+
         BufferedImage img=null;
         try {
+            if(!mystat.checkKRStock(stock_code)) path = "https://ssl.pstatic.net/imgfinance/chart/main/KOSPI.png?sidcode=1691291760228";
             URL url = new URL(path);
             img = ImageIO.read(url);
         } catch (IOException e) {
@@ -51,7 +71,6 @@ public class StockChart {
     public XYChart GetTodayChart(String stock_code, float input_target) {
 
         Color[] colors = {Color.RED, Color.BLUE,Color.BLACK, Color.GRAY, Color.LIGHT_GRAY,Color.BLUE};
-
 
         int hour = 60*4;
         float startprice;
@@ -289,6 +308,7 @@ public class StockChart {
                 return img;
             } else{
                 String path = "https://cdn.fnguide.com/SVO2/chartImg/11_01/A" + stock_code + "_BALANCE_01.png";
+                if(!isValidURL(path) || mystat.checkKRStock(stock_code)) path ="D:\\gomustockj\\android.jpg";
                 url = new URL(path);
                 img = ImageIO.read(url);
                 return img;
@@ -312,6 +332,7 @@ public class StockChart {
                 return img;
             } else{
                 String path = "https://cdn.fnguide.com/SVO2/chartImg/11_01/A"+stock_code+"_SELL_01.png";
+                if(!isValidURL(path) || mystat.checkKRStock(stock_code)) path ="D:\\gomustockj\\android.jpg";
                 url = new URL(path);
                 img = ImageIO.read(url);
                 return img;

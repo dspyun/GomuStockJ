@@ -13,6 +13,7 @@ public class StockBook {
     private String news;
     private String stock_type;
     private String etfinfo;
+    private String etfcompanies;
     private FormatStockInfo stock_info;
 
     public StockBook(FormatStockInfo stockinfo, XYChart chart, XYChart todaychart) {
@@ -27,6 +28,7 @@ public class StockBook {
         this.todaychart = todaychart;
         this.stock_type= stock_info.stock_type;
         this.etfinfo = stock_info.etfinfo;
+        this.etfcompanies = stock_info.etfcompanies;
     }
 
     public String getNews() {
@@ -51,5 +53,8 @@ public class StockBook {
     }
     public String getETFInfo() {
         return etfinfo;
+    }
+    public String getETFCompanies() {
+        return etfcompanies;
     }
 }

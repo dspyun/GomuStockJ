@@ -33,8 +33,10 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
 
     private JPanel lbChart = new JPanel();
     private JPanel lbTodayChart = new JPanel();
+
     private JPanel panelText;
     private JPanel panelFAIcon;
+    private JPanel panelBSIcon;
     private JPanel panelChart;
 
     StockChart schart = new StockChart();
@@ -50,7 +52,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
     }
 
     public StockBookRenderer() {
-        setLayout(new BorderLayout(5, 5));
+        //setLayout(new GridLayout(1, 4));
+        setLayout(new GridBagLayout());
         // panelText는 xml 역할을 하고
         // Renderercomponent는 ID역할을 한다
         panelText = new JPanel(new GridLayout(2, 2));
@@ -59,21 +62,23 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         panelText.add(lbfninfo);
         panelText.add(lbNews);
 
-        panelFAIcon = new JPanel(new GridLayout(2, 2));
+        panelFAIcon = new JPanel(new GridLayout(2, 1));
         panelFAIcon.add(lbFognIcon);
         panelFAIcon.add(lbAgencyIcon);
-        panelFAIcon.add(lbLoanBuyIcon);
-        panelFAIcon.add(lbLoanSellIcon);
+
+        panelBSIcon = new JPanel(new GridLayout(2, 1));
+        panelBSIcon.add(lbLoanBuyIcon);
+        panelBSIcon.add(lbLoanSellIcon);
 
         panelChart = new JPanel(new GridLayout(2, 1));
         //panelChart.setBorder(new EmptyBorder(5, 5, 5, 5));
         panelChart.add(lbChart);
         panelChart.add(lbTodayChart);
 
-        add(panelText, BorderLayout.WEST);
-        add(panelChart, BorderLayout.CENTER);
-        add(panelFAIcon, BorderLayout.EAST);
-
+        add(panelText);
+        add(panelChart);
+        add(panelFAIcon);
+        add(panelBSIcon);
     }
 
 
@@ -90,18 +95,32 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
 
             BufferedImage img2 = schart.getAgencyimage(book.getStockcode());
             lbAgencyIcon.setIcon(new ImageIcon(img2));
-        }
-/*
-		BufferedImage img3 = getLoanBuyMoneyimage(book.getStockcode());
-		lbLoanBuyIcon.setIcon( new ImageIcon(img3));
 
-		BufferedImage img4 = getLoanSellMoneyimage(book.getStockcode());
-		lbLoanSellIcon.setIcon( new ImageIcon(img4));
-*/
+            /*
+            BufferedImage img3 = getLoanBuyMoneyimage(book.getStockcode());
+            lbLoanBuyIcon.setIcon( new ImageIcon(img3));
+            BufferedImage img4 = getLoanSellMoneyimage(book.getStockcode());
+            lbLoanSellIcon.setIcon( new ImageIcon(img4));
+            */
+            lbLoanBuyIcon.setText(" ");
+            lbLoanSellIcon.setText(" ");
+        }
+        else {
+
+            BufferedImage img = schart.getFognimage(book.getStockcode());
+            lbFognIcon.setIcon(new ImageIcon(img));
+
+            BufferedImage img2 = schart.getAgencyimage(book.getStockcode());
+            lbAgencyIcon.setIcon(new ImageIcon(img2));
+
+            lbLoanBuyIcon.setText(book.getETFCompanies());
+            lbLoanSellIcon.setText(" ");
+        }
+
         if(book.getStocktype().equals("KETF"))lbIndication.setText(book.getETFInfo());
         else lbIndication.setText(book.getStockInfo());
         lbIndication.setForeground(Color.blue);
-        lbIndication.setPreferredSize(new Dimension(100,200));
+        lbIndication.setPreferredSize(new Dimension(300,200));
         lbIndication.setAutoscrolls(true);
         lbIndication.setFont(new Font("TextArea.font", Font.BOLD, 14));
 
@@ -110,7 +129,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         lbNews.setPreferredSize(new Dimension(300,200));
         lbNews.setAutoscrolls(true);
 
-        lbfninfo.setText(book.getfninfo());
+        if(book.getStocktype().equals("KETF")) lbfninfo.setText(book.getfninfo() + "\n" + book.getETFCompanies());
+        else lbfninfo.setText(book.getfninfo());
         //lbfninfo.setForeground(Color.blue);
         lbfninfo.setPreferredSize(new Dimension(300,200));
         lbfninfo.setLineWrap(true);
@@ -133,6 +153,10 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         lbTodayChart.add(new XChartPanel(book.getTodayChart()));
         lbTodayChart.setPreferredSize(new Dimension(300,200));
         //lbTodayChart.setForeground(Color.blue);
+
+        panelFAIcon.setPreferredSize(new Dimension(300,400));
+        panelBSIcon.setPreferredSize(new Dimension(300,400));
+
 
         // set Opaque to change background color of JLabel
         lbIndication.setOpaque(true);
@@ -170,7 +194,6 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
 				lbAgencyIcon.setBackground(Color.lightGray);
 				lbLoanBuyIcon.setBackground(Color.lightGray);
 				lbLoanSellIcon.setBackground(Color.lightGray);
-
 				 */
             } else {
                 lbIndication.setBackground(list.getBackground());

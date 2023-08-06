@@ -1,5 +1,8 @@
 package main.java.com.gomu.gomustock.format;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FormatETFInfo {
     public String stock_name;
     public String stock_code;
@@ -13,6 +16,7 @@ public class FormatETFInfo {
     public String y1_profit_rate; // etf 정보
     public String news;
     public String fninfo;
+    public String companies;
 
     public void init() {
         fund_fee=""; // etf 정보
@@ -22,7 +26,7 @@ public class FormatETFInfo {
         m6_profit_rate=""; // etf 정보
         y1_profit_rate=""; // etf 정보
     }
-    @Override
+
     public String toString() {
         String result="";
         result += stock_name + "("+stock_code+")"+ "\n";
@@ -34,5 +38,9 @@ public class FormatETFInfo {
         result += "6개월 수익률 " + m6_profit_rate +"\n";
         result += "1년 수익률 " + y1_profit_rate +"\n";
         return result;
+    }
+
+    public String getCompanies() {
+        return companies;
     }
 }

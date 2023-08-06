@@ -12,11 +12,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -27,7 +31,7 @@ public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
 
-       Ebest ebest = new Ebest();
+       //Ebest ebest = new Ebest();
        //ebest.testmain();
         mytest();
     }
@@ -73,7 +77,7 @@ public class Main extends JFrame{
         button9.setMargin(new Insets(1,1,1,1));
         HeaderPanel.add(button9);
 
-        String[] stcokgroup = {"group_manual", "group_hold",  "group_newstock", "group_newetf"};
+        String[] stcokgroup = {"group_manual", "group_hold",  "group_newstock", "group_newetf", "group_sector"};
         JComboBox namecombo = new JComboBox(stcokgroup);
         HeaderPanel.add(namecombo);
 
@@ -166,6 +170,7 @@ public class Main extends JFrame{
             }
         });
 
+
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent listSelectionEvent) {
                 //System.out.println("First index: " + listSelectionEvent.getFirstIndex());
@@ -189,63 +194,34 @@ public class Main extends JFrame{
                 }
             }
         };
-        /*
+
         sectorcombo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JComboBox<String> cb=(JComboBox<String>)e.getSource();
-                int index=cb.getSelectedIndex();
-                int period;
-                if(index==0) period = 240;
-                else if(index == 1) period = 120;
-                else if(index == 2) period = 60;
-                else {
-                    period = 30;
+            public void actionPerformed(ActionEvent ae) {
+                if (sectorcombo.equals(ae.getSource())) {
+                    JComboBox<String> cb = (JComboBox<String>) ae.getSource();
+                    int index = cb.getSelectedIndex();
+                    int period;
+                    if (index == 0) period = 240;
+                    else if (index == 1) period = 120;
+                    else if (index == 2) period = 60;
+                    else {
+                        period = 30;
+                    }
+                    StockSector sector = new StockSector(period);
+                    JPanel panel = sector.simpleChart();
+
+                    listpanel.removeAll();
+                    listpanel.setPreferredSize(dim);
+                    listpanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+
+                    frame.add(listpanel, BorderLayout.CENTER);
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.pack();
+                    frame.setVisible(true);
                 }
-
-                JPanel temppanel = new JPanel(new BorderLayout());
-                StockSector sector = new StockSector(period);
-                List<String> codelist = sector.getSectorCodelist();
-                int size = codelist.size();
-                for(int i =0;i<size;i++) {
-                    DebugButton.setText(htmltext("1년치 "+"\n" + "다운로드" + "\n" + codelist.get(i)));
-                    DebugButton.paint(DebugButton.getGraphics());
-                    //new YFDownload(codelist.get(i));
-                }
-
-                JList<JPanel> renderlist = new JList<JPanel>();
-                renderlist = sector.getRenderList();
-                listpanel.removeAll();
-                listpanel.setPreferredSize(dim);
-                listpanel.add(new JScrollPane(renderlist), BorderLayout.CENTER);
-
-                frame.add(listpanel,BorderLayout.CENTER);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.pack();
-                frame.setVisible(true);
             }
         });
-        */
-        sectorcombo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JComboBox<String> cb=(JComboBox<String>)e.getSource();
-                int index=cb.getSelectedIndex();
-                int period;
-                if(index==0) period = 240;
-                else if(index == 1) period = 120;
-                else if(index == 2) period = 60;
-                else {
-                    period = 30;
-                }
-                StockSector sector = new StockSector(period);
-                JPanel panel = sector.simpleChart();
-                JScrollPane scroller = new JScrollPane(panel);
-                scroller.getVerticalScrollBar().setUnitIncrement(25);	//스크롤 속도
-                frame.add(scroller, BorderLayout.CENTER);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.pack();
-                frame.setVisible(true);
-            }
-        });
+
 
         ActionListener listener = new ActionListener() {
             @Override
@@ -277,7 +253,6 @@ public class Main extends JFrame{
 
                     //ListSelectionListener listSelectionListener = getListListner();
                     listBook.addListSelectionListener(listSelectionListener);
-
 
                     // 기존의 리스트는 지우고 신규리스트를 추가한다
                     listpanel.removeAll();
@@ -374,11 +349,13 @@ public class Main extends JFrame{
                     idown.pickupNewStock(filename);
                     textfield.setText(filename);
                 }
+
                 if(button6.equals(ae.getSource())){
                     String filename = "group_newetf";
                     idown.pickupNewEtf(filename);
                     textfield.setText(filename);
                 }
+
                 if(button7.equals(ae.getSource())){
                     multi_sector_dlg.setSize(1200, 600);
                     multi_sector_dlg.setLocation(200,100);
@@ -407,6 +384,30 @@ public class Main extends JFrame{
                     frame.pack();
                     frame.setVisible(true);
                 }
+                /*
+                if(sectorcombo.equals(ae.getSource())) {
+                    JComboBox<String> cb = (JComboBox<String>) ae.getSource();
+                    int index = cb.getSelectedIndex();
+                    int period;
+                    if (index == 0) period = 240;
+                    else if (index == 1) period = 120;
+                    else if (index == 2) period = 60;
+                    else {
+                        period = 30;
+                    }
+
+                    StockSector sector = new StockSector(period);
+                    JPanel chartpanel = sector.simpleChart();
+                    JScrollPane scrollpanel =new JScrollPane(chartpanel);
+                    scrollpanel.getVerticalScrollBar().setUnitIncrement(25);    //스크롤 속도
+
+                    frame.add(scrollpanel, BorderLayout.CENTER);
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.pack();
+                    frame.setVisible(true);
+                }
+
+                 */
             }
         };
 
@@ -418,6 +419,7 @@ public class Main extends JFrame{
         button7.addActionListener(listener);
         button8.addActionListener(listener);
         button9.addActionListener(listener);
+
 
         frame.pack();
         frame.setVisible(true);

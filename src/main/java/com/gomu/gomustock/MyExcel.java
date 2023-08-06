@@ -679,6 +679,7 @@ public class MyExcel extends MyStat {
                     writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
                     writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
                     writablesheet.addCell(new Label(17, row, information.get(row).nav));
+                    writablesheet.addCell(new Label(18, row, information.get(row).etfcompanies));
                 }
             }
             workbook.write();
@@ -741,7 +742,7 @@ public class MyExcel extends MyStat {
                     writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
                     writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
                     writablesheet.addCell(new Label(17, row, information.get(row).nav));
-                    writablesheet.addCell(new Label(18, row, "-"));
+                    writablesheet.addCell(new Label(18, row, information.get(row).etfcompanies));
                     writablesheet.addCell(new Label(19, row, "-"));
                     writablesheet.addCell(new Label(20, row, "-"));
                     writablesheet.addCell(new Label(21, row, "-"));
@@ -799,6 +800,7 @@ public class MyExcel extends MyStat {
                     temp.fninfo = sheet.getCell(15, i).getContents();
                     temp.etfinfo = sheet.getCell(16, i).getContents();
                     temp.nav = sheet.getCell(17, i).getContents();
+                    temp.etfcompanies = sheet.getCell(18, i).getContents();
                     mArrayBuffer.add(temp);
                 }
             }
@@ -855,6 +857,7 @@ public class MyExcel extends MyStat {
                     temp.fninfo = sheet.getCell(15, i).getContents();
                     temp.etfinfo = sheet.getCell(16, i).getContents();
                     temp.nav = sheet.getCell(17, i).getContents();
+                    temp.etfcompanies = sheet.getCell(18, i).getContents();
                     mArrayBuffer.add(temp);
                 }
             }

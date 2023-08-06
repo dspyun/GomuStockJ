@@ -101,6 +101,7 @@ public class MyWeb {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
         return result;
     }
 
@@ -115,8 +116,8 @@ public class MyWeb {
             return result;
         }
         try {
-
-            String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            String URL = "https://finance.naver.com/item/main.naver?code="+stock_code;
+            //String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
@@ -142,10 +143,24 @@ public class MyWeb {
             result.stock_code = stock_code;
             //result.op_profit = td1_list.get(3).text();
 
+            Elements tableinfo = doc.getElementsByClass("section etf_asset"); // class 가져오기
+            //Elements classlinfo = doc.getElementsByClass("ETF 주요 구성자산");
+            //Elements tableinfo = classinfo2.select("table"); // class 가져오기
+            //Elements tbodyinfo = tableinfo.select("tbody"); // class 가져오기
+            Elements tdlist = tableinfo.select("td"); // class 가져오기
+            Elements linklist = tdlist.select("a");
+            result.companies="";// class 가져오기
+            int size1 = linklist.size();
+            for(int i =0;i<size1;i++) {
+                String name = linklist.get(i).text();
+                if(!name.equals("") && !name.equals("null")) result.companies += name +" ";
+            }
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
         return result;
     }
 

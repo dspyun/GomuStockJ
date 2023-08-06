@@ -339,4 +339,11 @@ public class MyStat {
         }
         return temp;
     }
+
+    public boolean checkKRStock(String stock_code) {
+        // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
+        // 즉 한국주식이면 true, 외국주식이면 false 반환
+        boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
+        return isNumeric;
+    }
 }
