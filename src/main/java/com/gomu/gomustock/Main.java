@@ -30,7 +30,6 @@ import java.util.List;
 public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
-
        Ebest ebest = new Ebest();
        ebest.testmain();
        // mytest();
