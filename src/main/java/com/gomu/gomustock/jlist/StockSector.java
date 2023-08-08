@@ -1,34 +1,24 @@
 package main.java.com.gomu.gomustock.jlist;
 
-import com.intellij.ui.components.JBScrollPane;
 import main.java.com.gomu.gomustock.MyExcel;
-import main.java.com.gomu.gomustock.format.FormatStockInfo;
-import main.java.com.gomu.gomustock.network.YFDownload;
-import org.jsoup.Connection;
 import org.knowm.xchart.XChartPanel;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.beans.Statement;
 import java.util.*;
 import java.util.List;
 
 public class StockSector {
 
-    String stock_code, stock_name,stock_type;
     int PERIOD;
     private JPanel toppanel = new JPanel();
     private JPanel panelChart;
     private List<JPanel> lbChartlist = new ArrayList<>();
     List<String> codelist = new ArrayList<>();
     List<String> namelist = new ArrayList<>();
-    JList<JPanel> listChart = new JList<JPanel>(); //
     JList<JPanel> mylist;
 
     public StockSector() {
     }
-
 
     public StockSector(int period) {
         MyExcel myexcel = new MyExcel();
@@ -66,8 +56,6 @@ public class StockSector {
         //renderer_setText(Integer.toString(index));
         //String icon_path = STOCKDIR+book.getIconName() + ".jpg";
 
-        int height = 200;
-        int width = 300;
         StockChart schart = new StockChart();
 
         // 6개월 차트 : set이 아니고 add를 쓰기 때문에 이전 데이터를 지워줘야 한다
@@ -121,7 +109,7 @@ public class StockSector {
 
 
     public JPanel simpleChart() {
-        JButton[] buttons = new JButton[35];
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0, 5));
 

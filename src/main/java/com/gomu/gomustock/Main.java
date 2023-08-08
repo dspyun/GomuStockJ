@@ -7,7 +7,9 @@ import main.java.com.gomu.gomustock.jlist.*;
 import main.java.com.gomu.gomustock.network.Ebest;
 import main.java.com.gomu.gomustock.network.MyWeb;
 import main.java.com.gomu.gomustock.network.YFDownload;
+import main.java.com.gomu.gomustock.network.fnGuide;
 import main.java.com.gomu.gomustock.stockengin.CPUID;
+import main.java.com.gomu.gomustock.stockengin.ETFSECT;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,7 +34,8 @@ public class Main extends JFrame{
     public static void main(String[] args) throws IOException {
        Ebest ebest = new Ebest();
        ebest.testmain();
-       // mytest();
+       //mytest();
+
     }
 
     public static void mytest() throws IOException{
@@ -76,6 +79,10 @@ public class Main extends JFrame{
         button9.setMargin(new Insets(1,1,1,1));
         HeaderPanel.add(button9);
 
+        String[] krxsector = getKRXSectorName();
+        JComboBox krxcombo = new JComboBox(krxsector);
+        HeaderPanel.add(krxcombo);
+
         String[] stcokgroup = {"group_manual", "group_hold",  "group_newstock", "group_newetf", "group_sector"};
         JComboBox namecombo = new JComboBox(stcokgroup);
         HeaderPanel.add(namecombo);
@@ -106,8 +113,12 @@ public class Main extends JFrame{
         HeaderPanel.add(button5);
         JButton button6 = new JButton("신규ETF");
         HeaderPanel.add(button6);
-        JButton button7 = new JButton("업종선택");
+        JButton button7 = new JButton("네이버섹터");
         HeaderPanel.add(button7);
+        JButton button10 = new JButton("KRX섹터");
+        HeaderPanel.add(button10);
+
+
 
         namecombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -117,7 +128,14 @@ public class Main extends JFrame{
                 textfield.paint(textfield.getGraphics());
             }
         });
-
+        krxcombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox<String> cb=(JComboBox<String>)e.getSource();
+                int index=cb.getSelectedIndex();
+                textfield.setText(krxsector[index]);
+                textfield.paint(textfield.getGraphics());
+            }
+        });
 
         iread.setCallback(new InfoRead.IFCallback() {
             @Override
@@ -383,6 +401,43 @@ public class Main extends JFrame{
                     frame.pack();
                     frame.setVisible(true);
                 }
+                if(button10.equals(ae.getSource())){
+                    ETFSECT etfstock = new ETFSECT();
+                    List<String> filelist = etfstock.getFileList();
+                    int size = filelist.size();
+                    /*
+                    for(int i =0;i<size;i++) {
+                        idown.trans(filelist.get(i));
+                    }
+                    */
+                    fnGuide myfnguide = new fnGuide();
+                    for(int i =0;i<size;i++){
+                        String filename = filelist.get(i);
+                        DebugButton.setText(htmltext(filename));
+                        DebugButton.paint(DebugButton.getGraphics());
+                        List<FormatStockInfo> sector_stocklist = new ArrayList<>();
+                        List<FormatStockInfo> stocklist = myexcel.readStockinfoCustom(filename,false);
+                        int size2 = stocklist.size();
+                        for(int j =0;j<size2;j++) {
+                            FormatStockInfo onestock = new  FormatStockInfo();
+                            String stock_code = stocklist.get(j).stock_code;
+                            if(stock_code.equals("")) continue;
+                            onestock = myweb.getNaverStockinfo(stock_code);
+                            onestock.stock_code = stock_code;
+                            /*
+                            String news = myweb.getNaverStockNews(stock_code);
+                            onestock.news = news;
+
+                            // fnguide정보를 가져온다
+                            onestock.fninfo = myfnguide.getFnguideInfo(stock_code);
+                            */
+                            sector_stocklist.add(onestock);
+                        }
+                        myexcel.writestockinfoCustom(filename,sector_stocklist);
+                    }
+                    int k = 0;
+                }
+
             }
         };
 
@@ -394,7 +449,7 @@ public class Main extends JFrame{
         button7.addActionListener(listener);
         button8.addActionListener(listener);
         button9.addActionListener(listener);
-
+        button10.addActionListener(listener);
 
         frame.pack();
         frame.setVisible(true);
@@ -424,4 +479,16 @@ public class Main extends JFrame{
         frm.getContentPane().setLayout(null);
     }
 
+
+    public static String[] getKRXSectorName() {
+        MyExcel myexcel = new MyExcel();
+        List<String> result = new ArrayList<>();
+        List<FormatStockInfo> stocklist = myexcel.readStockinfoCustom("group_sector",false);
+        int size = stocklist.size();
+        for(int i=0;i<size;i++) {
+            if(stocklist.get(i).stock_type.equals("KETF"))
+            result.add(stocklist.get(i).stock_name.replaceAll(" ","_"));
+        }
+        return result.toArray(new String[result.size()]);
+    }
 }

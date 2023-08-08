@@ -760,6 +760,55 @@ public class MyExcel extends MyStat {
 
     }
 
+
+    public List<FormatStockInfo> readSectorETFinfo() {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile="";
+        PathFile = INFODIR+"group_sector"+".xls";
+        List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                for(int i=1;i<size;i++) {
+                    FormatStockInfo temp = new FormatStockInfo();
+                    temp.stock_code = sheet.getCell(0, i).getContents();
+                    temp.stock_name = sheet.getCell(1, i).getContents();
+                    temp.stock_type = sheet.getCell(2, i).getContents();
+                    temp.ranking = sheet.getCell(3, i).getContents();
+                    temp.per = sheet.getCell(4, i).getContents();
+                    temp.expect_per = sheet.getCell(5, i).getContents();
+                    temp.area_per = sheet.getCell(6, i).getContents();
+                    temp.pbr = sheet.getCell(7, i).getContents();
+                    temp.div_rate = sheet.getCell(8, i).getContents();
+                    temp.fogn_rate = sheet.getCell(9, i).getContents();
+                    temp.recommend = sheet.getCell(10, i).getContents();
+                    temp.cur_price = sheet.getCell(11, i).getContents();
+                    temp.score = sheet.getCell(12, i).getContents();
+                    temp.desc = sheet.getCell(13, i).getContents();
+                    temp.news = sheet.getCell(14, i).getContents();
+                    temp.fninfo = sheet.getCell(15, i).getContents();
+                    temp.etfinfo = sheet.getCell(16, i).getContents();
+                    temp.nav = sheet.getCell(17, i).getContents();
+                    temp.etfcompanies = sheet.getCell(18, i).getContents();
+                    mArrayBuffer.add(temp);
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException | BiffException e) {
+            e.printStackTrace();
+        }
+        return mArrayBuffer;
+    }
+
     public List<FormatStockInfo> readStockinfo(int index, boolean header) {
         InputStream is=null;
         Workbook wb=null;

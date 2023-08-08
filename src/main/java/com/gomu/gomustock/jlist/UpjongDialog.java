@@ -11,20 +11,19 @@ import java.util.List;
 
 public class UpjongDialog extends Frame implements ActionListener {
     Panel p;
-    Button b1, b2;
     String code, name;
     MyExcel myexcel = new MyExcel();
     java.util.List<String> codelist = myexcel.readColumn("table_group.xls",0);
     java.util.List<String> namelist = myexcel.readColumn("table_group.xls",1);
 
 
-
    public UpjongDialog() {
+
         //JFrame frame = input_frame;
         p = new Panel();
         p.setLayout(new GridLayout(8,10));
 
-        List<JButton> btnlist = new ArrayList<JButton>();
+        List<JButton> btnlist = new ArrayList<>();
         int size = namelist.size();
         for(int i =1;i<size;i++) {
             JButton onebtn = new JButton(namelist.get(i));
@@ -36,6 +35,7 @@ public class UpjongDialog extends Frame implements ActionListener {
             btnlist.get(i).addActionListener(this);
         }
         add(p);
+
     }
 
     @Override
@@ -55,7 +55,7 @@ public class UpjongDialog extends Frame implements ActionListener {
     }
 
     public interface IFCallback {
-        public void callback(String str1, String str2);
+        void callback(String str1, String str2);
     }
     // 콜백인터페이스를 구현한 클래스 인스턴스
     private UpjongDialog.IFCallback _cb;
