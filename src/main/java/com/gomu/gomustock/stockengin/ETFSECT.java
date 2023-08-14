@@ -13,7 +13,7 @@ public class ETFSECT {
     List<String> filelist = new ArrayList<>();
 
     public ETFSECT() {
-        loadETFinfo();
+
     }
 
     public void loadETFinfo() {
@@ -48,6 +48,18 @@ public class ETFSECT {
 
     public List<String> getFileList() {
         return filelist;
+    }
+
+    public static String[] getKRXSectorName() {
+        MyExcel myexcel = new MyExcel();
+        List<String> result = new ArrayList<>();
+        List<FormatStockInfo> stocklist = myexcel.readStockinfoCustom("group_sector",false);
+        int size = stocklist.size();
+        for(int i=0;i<size;i++) {
+            if(stocklist.get(i).stock_type.equals("KETF"))
+                result.add(stocklist.get(i).stock_name.replaceAll(" ","_"));
+        }
+        return result.toArray(new String[result.size()]);
     }
 
 }

@@ -63,10 +63,10 @@ public class StockSector {
         for(int i =0;i<size;i++) {
             JPanel onepanel = new JPanel();
             JButton onebutton = new JButton("6M " + namelist.get(i) + "("+codelist.get(i)+")");
-            onebutton.setPreferredSize(new Dimension(300,20));
+            onebutton.setPreferredSize(new Dimension(280,20));
             onepanel.add(onebutton);
             onepanel.add(new XChartPanel(schart.GetPeriodChart(codelist.get(i),PERIOD)));
-            onepanel.setPreferredSize(new Dimension(300,230));
+            onepanel.setPreferredSize(new Dimension(280,230));
             onepanel.setOpaque(true);
             onepanel.setBackground(getBackground());
             onepanel.setForeground(getBackground());
@@ -122,10 +122,10 @@ public class StockSector {
             for(int i =0;i<size;i++) {
                 JPanel onepanel = new JPanel();
                 JButton onebutton = new JButton("6M " + namelist.get(i) + "("+codelist.get(i)+")");
-                onebutton.setPreferredSize(new Dimension(300,20));
+                onebutton.setPreferredSize(new Dimension(280,20));
                 onepanel.add(onebutton);
                 onepanel.add(new XChartPanel(schart.GetPeriodChart(codelist.get(i),PERIOD)));
-                onepanel.setPreferredSize(new Dimension(300,230));
+                onepanel.setPreferredSize(new Dimension(280,230));
                 onepanel.setOpaque(true);
                 onepanel.setBackground(getBackground());
                 onepanel.setForeground(getBackground());
@@ -136,6 +136,5 @@ public class StockSector {
         }
         return panel;
     }
-
 }
 

@@ -29,13 +29,35 @@ import java.net.URL;
 import java.util.*;
 import java.util.List;
 
+import static com.intellij.ui.content.ContentManagerEvent.ContentOperation.add;
+
 public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
-       Ebest ebest = new Ebest();
-       ebest.testmain();
-       //mytest();
+       //Ebest ebest = new Ebest();
+       //ebest.testmain();
+       mytest();
+       // TabFrame();
+    }
 
+
+    public static void TabFrame() {
+        JFrame frame = new JFrame();
+        frame.setLayout(new BorderLayout());
+        frame.setPreferredSize(new Dimension( 1800, 600 ));
+
+        JTabbedPane jtpane = new JTabbedPane();
+        jtpane.addTab("Custom",new JPanel());
+        jtpane.addTab("KRX",new JPanel());
+        jtpane.addTab("Naver",new JPanel());
+        jtpane.addTab("eBest",new JPanel());
+
+        //frame.add(jtpane,new BorderLayout());
+        frame.add(jtpane);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
     }
 
     public static void mytest() throws IOException{
@@ -43,6 +65,7 @@ public class Main extends JFrame{
         MyExcel myexcel = new MyExcel();
         InfoDownload idown = new InfoDownload();
         InfoRead iread = new InfoRead();
+        ETFSECT etfstock = new ETFSECT();
         StockBookRenderer renderer = new StockBookRenderer();
         JPanel listpanel = new JPanel(new BorderLayout());
 
@@ -79,7 +102,7 @@ public class Main extends JFrame{
         button9.setMargin(new Insets(1,1,1,1));
         HeaderPanel.add(button9);
 
-        String[] krxsector = getKRXSectorName();
+        String[] krxsector = etfstock.getKRXSectorName();
         JComboBox krxcombo = new JComboBox(krxsector);
         HeaderPanel.add(krxcombo);
 
@@ -119,7 +142,6 @@ public class Main extends JFrame{
         HeaderPanel.add(button10);
 
 
-
         namecombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JComboBox<String> cb=(JComboBox<String>)e.getSource();
@@ -128,6 +150,7 @@ public class Main extends JFrame{
                 textfield.paint(textfield.getGraphics());
             }
         });
+
         krxcombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JComboBox<String> cb=(JComboBox<String>)e.getSource();
@@ -186,7 +209,6 @@ public class Main extends JFrame{
                 DebugButton.paint(DebugButton.getGraphics());
             }
         });
-
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent listSelectionEvent) {
@@ -402,7 +424,8 @@ public class Main extends JFrame{
                     frame.setVisible(true);
                 }
                 if(button10.equals(ae.getSource())){
-                    ETFSECT etfstock = new ETFSECT();
+
+                    etfstock.loadETFinfo();
                     List<String> filelist = etfstock.getFileList();
                     int size = filelist.size();
                     /*
@@ -480,15 +503,5 @@ public class Main extends JFrame{
     }
 
 
-    public static String[] getKRXSectorName() {
-        MyExcel myexcel = new MyExcel();
-        List<String> result = new ArrayList<>();
-        List<FormatStockInfo> stocklist = myexcel.readStockinfoCustom("group_sector",false);
-        int size = stocklist.size();
-        for(int i=0;i<size;i++) {
-            if(stocklist.get(i).stock_type.equals("KETF"))
-            result.add(stocklist.get(i).stock_name.replaceAll(" ","_"));
-        }
-        return result.toArray(new String[result.size()]);
-    }
+
 }

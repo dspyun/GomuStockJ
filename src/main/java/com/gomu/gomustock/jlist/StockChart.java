@@ -143,7 +143,7 @@ public class StockChart {
         if(stock_code.equals("278240")) {
             int test = 1;
         }
-        int test_period = 120;
+        int test_period = 180;
         Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.ORANGE,Color.BLUE};
         MyStat mystat = new MyStat();
         PriceBox kbbank = new PriceBox(stock_code);
@@ -162,8 +162,8 @@ public class StockChart {
         float linewidth=1.5f;
         int size = kbband_close.size();
 
-        List<Float> x = new ArrayList<>();
-        for(int i =0;i<size;i++) { x.add((float)i); }
+        //List<Float> x = new ArrayList<>();
+        //for(int i =0;i<size;i++) { x.add((float)i); }
 
         XYChart chart  = new XYChartBuilder().width(300).height(200).build();
         XYSeries series = chart.addSeries("price",kbband_close);
@@ -179,10 +179,14 @@ public class StockChart {
 
         IchimokuTest ichi = new IchimokuTest("005930", kbband_close, test_period);
         List<Float> prospan1line = ichi.getProspan1();
+        float extval = prospan1line.get(0);
+        for(int j=0;j<26;j++) prospan1line.add(0,extval);
         XYSeries series_p1 = chart.addSeries("prospan1line",mystat.leveling_float(prospan1line,0.1f));
         series_p1.setLineWidth(linewidth);
 
         List<Float> prospan2line = ichi.getProspan2();
+        extval = prospan2line.get(0);
+        for(int j=0;j<26;j++) prospan2line.add(0,extval);
         XYSeries series_p2 = chart.addSeries("prospan2line",mystat.leveling_float(prospan2line,0.1f));
         series_p2.setLineWidth(linewidth);
 
@@ -200,7 +204,7 @@ public class StockChart {
         //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
         //chart.addAnnotation(maxText);
         chart.addAnnotation(
-                new AnnotationTextPanel(anntext, Collections.max(x), nowprice*0.8, false)); // Collections.max(x)
+                new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*0.8, false)); // Collections.max(x)
         chart.getStyler().setAnnotationTextPanelPadding(0);
         chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
         //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
@@ -245,8 +249,8 @@ public class StockChart {
         // Create Chart & add first data
         float linewidth=1.5f;
         int size = kbband_close.size();
-        List<Float> x = new ArrayList<>();
-        for(int i =0;i<size;i++) { x.add((float)i); }
+        //List<Float> x = new ArrayList<>();
+        //for(int i =0;i<size;i++) { x.add((float)i); }
         XYChart chart  = new XYChartBuilder().width(300).height(200).build();
         XYSeries series = chart.addSeries("price",kbband_close);
         series.setLineWidth(linewidth);
@@ -261,10 +265,14 @@ public class StockChart {
 
         IchimokuTest ichi = new IchimokuTest("005930", kbband_close, test_period);
         List<Float> prospan1line = ichi.getProspan1();
+        float extval = prospan1line.get(0);
+        for(int j=0;j<26;j++) prospan1line.add(0,extval);
         XYSeries series_p1 = chart.addSeries("prospan1line",mystat.leveling_float(prospan1line,scalelevel));
         series_p1.setLineWidth(linewidth);
 
         List<Float> prospan2line = ichi.getProspan2();
+        extval = prospan2line.get(0);
+        for(int j=0;j<26;j++) prospan2line.add(0,extval);
         XYSeries series_p2 = chart.addSeries("prospan2line",mystat.leveling_float(prospan2line,scalelevel));
         series_p2.setLineWidth(linewidth);
 
@@ -283,7 +291,7 @@ public class StockChart {
         //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
         //chart.addAnnotation(maxText);
         chart.addAnnotation(
-                new AnnotationTextPanel(anntext, Collections.max(x), nowprice*position, false));
+                new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*position, false));
         chart.getStyler().setAnnotationTextPanelPadding(0);
         chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
         //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
@@ -291,6 +299,8 @@ public class StockChart {
         chart.getStyler().setAnnotationTextPanelFontColor(Color.BLACK);
         chart.getStyler().setAnnotationTextPanelBorderColor(Color.WHITE);
         //chart.getStyler().setYAxisTicksVisible(true);
+
+
         return chart;
     }
 

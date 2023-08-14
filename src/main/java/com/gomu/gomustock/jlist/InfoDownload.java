@@ -157,6 +157,7 @@ public class InfoDownload {
             new YFDownload(stock_code);
         }
     }
+
     public void downloadTotalInformation(String filename, List<String> stock_list) {
         // 통계재무정보 다운로드
         downloadStockInfoCustom(filename);
@@ -306,7 +307,7 @@ public class InfoDownload {
         int size = name.size();
         for(int i =1;i<size;i++) {
             FormatStockInfo oneinfo = new FormatStockInfo();
-            String stock_code = mydict.getStockcode(name.get(i));
+            String stock_code = mydict.getStockcode(name.get(i).replaceAll(" ",""));
             System.out.println("trans " + name.get(i) + " " + stock_code);
             if(stock_code.equals("") || mydict.getMarket(stock_code).equals("") ||
                     !mydict.getStocktype(stock_code).equals("주권") ||
