@@ -1,5 +1,6 @@
 package main.java.com.gomu.gomustock.jlist;
 
+import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.knowm.xchart.XChartPanel;
@@ -17,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 public class StockBookRenderer extends JPanel implements ListCellRenderer<StockBook> {
@@ -30,13 +32,15 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
     private JTextArea lbfninfo = new JTextArea();
     private JTextArea lbCompanyinfo = new JTextArea();
     private JTextArea lbNews = new JTextArea();
+    private JTextArea lbMemo01 = new JTextArea();
+    private JTextArea lbMemo02 = new JTextArea();
 
     private JPanel lbChart = new JPanel();
     private JPanel lbTodayChart = new JPanel();
 
     private JPanel panelText;
     private JPanel panelFAIcon;
-    private JPanel panelBSIcon;
+    private JPanel panelMemo;
     private JPanel panelChart;
 
     StockChart schart = new StockChart();
@@ -66,9 +70,9 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         panelFAIcon.add(lbFognIcon);
         panelFAIcon.add(lbAgencyIcon);
 
-        panelBSIcon = new JPanel(new GridLayout(2, 1));
-        panelBSIcon.add(lbLoanBuyIcon);
-        panelBSIcon.add(lbLoanSellIcon);
+        panelMemo = new JPanel(new GridLayout(2, 1));
+        panelMemo.add(lbMemo01);
+        panelMemo.add(lbMemo02);
 
         panelChart = new JPanel(new GridLayout(2, 1));
         //panelChart.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -78,9 +82,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         add(panelText);
         add(panelChart);
         add(panelFAIcon);
-        add(panelBSIcon);
+        add(panelMemo);
     }
-
 
     @Override
     public Component getListCellRendererComponent(JList<? extends StockBook> list,
@@ -102,8 +105,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
             BufferedImage img4 = getLoanSellMoneyimage(book.getStockcode());
             lbLoanSellIcon.setIcon( new ImageIcon(img4));
             */
-            lbLoanBuyIcon.setText(" ");
-            lbLoanSellIcon.setText(" ");
+            lbMemo01.setText(book.getMemo());
+            lbMemo02.setText(" ");
         }
         else {
 
@@ -113,8 +116,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
             BufferedImage img2 = schart.getAgencyimage(book.getStockcode());
             lbAgencyIcon.setIcon(new ImageIcon(img2));
 
-            lbLoanBuyIcon.setText(book.getETFCompanies());
-            lbLoanSellIcon.setText(" ");
+            lbMemo01.setText(book.getETFCompanies());
+            lbMemo02.setText(" ");
         }
 
         if(book.getStocktype().equals("KETF"))lbIndication.setText(book.getETFInfo());
@@ -155,7 +158,7 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         //lbTodayChart.setForeground(Color.blue);
 
         panelFAIcon.setPreferredSize(new Dimension(300,400));
-        panelBSIcon.setPreferredSize(new Dimension(300,400));
+        panelMemo.setPreferredSize(new Dimension(300,400));
 
 
         // set Opaque to change background color of JLabel
@@ -169,7 +172,6 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
         // when select item
         if (isSelected) {
             //
-
             lbIndication.setBackground(Color.lightGray);
             lbCompanyinfo.setBackground(Color.lightGray);
             lbfninfo.setBackground(Color.lightGray);
@@ -178,8 +180,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
             lbTodayChart.setBackground(Color.lightGray);
             lbFognIcon.setBackground(Color.lightGray);
             lbAgencyIcon.setBackground(Color.lightGray);
-            lbLoanBuyIcon.setBackground(Color.lightGray);
-            lbLoanSellIcon.setBackground(Color.lightGray);
+            lbMemo01.setBackground(Color.lightGray);
+            lbMemo02.setBackground(Color.lightGray);
 
         } else { // when don't select
             if(index%2==1) {
@@ -204,8 +206,8 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
                 lbTodayChart.setBackground(list.getBackground());
                 lbFognIcon.setBackground(list.getBackground());
                 lbAgencyIcon.setBackground(list.getBackground());
-                lbLoanBuyIcon.setBackground(list.getBackground());
-                lbLoanSellIcon.setBackground(list.getBackground());
+                lbMemo01.setBackground(list.getBackground());
+                lbMemo02.setBackground(list.getBackground());
             }
         }
 
@@ -266,6 +268,9 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
     }
 
     public DefaultListModel<StockBook> loadInfoChart2List(List<FormatStockInfo> web_stockinfo) {
+
+        HashMap<String,String> memoentry = getMemoFromMemoExcel();
+
         DefaultListModel<StockBook> model = new DefaultListModel<>();
         int size = web_stockinfo.size();
         String sizestr = Integer.toString(size);
@@ -277,8 +282,22 @@ public class StockBookRenderer extends JPanel implements ListCellRenderer<StockB
             _cb.callback(0,"loading" + "\n" + "info/chart" + "\n" + "to List" + "\n" + Integer.toString(i) + "/"+  sizestr+"\n"+ stock_code);
             XYChart mychart = schart.GetPeriodChart(stock_code);
             XYChart todaychart = schart.GetTodayChart(stock_code,Float.valueOf(target));
-            model.addElement(new StockBook(web_stockinfo.get(i), mychart, todaychart));
+            String mymemo = memoentry.get(stock_code);
+            model.addElement(new StockBook(web_stockinfo.get(i), mychart, todaychart,mymemo));
         }
         return model;
     }
+
+    MyExcel myexcel = new MyExcel();
+    public HashMap<String,String> getMemoFromMemoExcel() {
+        HashMap<String,String> memomap = new HashMap<>();
+        List<String> memolist = myexcel.readColumn("mymemo",7);
+        List<String> codelist = myexcel.readColumn("mymemo",0);
+        int size = memolist.size();
+        for(int i =0;i<size;i++) {
+            memomap.put(codelist.get(i),memolist.get(i));
+        }
+        return memomap;
+    }
+
 }

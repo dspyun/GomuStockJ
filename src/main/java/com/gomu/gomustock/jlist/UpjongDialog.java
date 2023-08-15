@@ -13,8 +13,8 @@ public class UpjongDialog extends Frame implements ActionListener {
     Panel p;
     String code, name;
     MyExcel myexcel = new MyExcel();
-    java.util.List<String> codelist = myexcel.readColumn("table_group.xls",0);
-    java.util.List<String> namelist = myexcel.readColumn("table_group.xls",1);
+    java.util.List<String> codelist = myexcel.readColumn("table_group",0);
+    java.util.List<String> namelist = myexcel.readColumn("table_group",1);
 
 
    public UpjongDialog() {

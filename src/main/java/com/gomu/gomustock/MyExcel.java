@@ -35,7 +35,7 @@ public class MyExcel extends MyStat {
 
     public List<String> readColumn(String excelfile, int col) {
 
-        String PathFile = INFODIR+excelfile;
+        String PathFile = INFODIR+excelfile+".xls";
         List<String> mArrayBuffer = new ArrayList<String>();
 
         try {

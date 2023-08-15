@@ -218,9 +218,9 @@ public class InfoDownload {
         int profit_level = 40;
 
         MyExcel myexcel = new MyExcel();
-        List<String> name = myexcel.readColumn(filename+".xls",1);
-        List<String> profit_ratio = myexcel.readColumn(filename +".xls",11);
-        List<String> revenue_ratio = myexcel.readColumn(filename+".xls",10);
+        List<String> name = myexcel.readColumn(filename,1);
+        List<String> profit_ratio = myexcel.readColumn(filename,11);
+        List<String> revenue_ratio = myexcel.readColumn(filename,10);
         List<Float> profitratio_f = new ArrayList<>();
         List<Float> revenueratio_f = new ArrayList<>();
 
@@ -275,8 +275,8 @@ public class InfoDownload {
         int profit_level = 10;
 
         MyExcel myexcel = new MyExcel();
-        List<String> name = myexcel.readColumn(filename+".xls",0);
-        List<String> profit_ratio_3m = myexcel.readColumn(filename +".xls",5);
+        List<String> name = myexcel.readColumn(filename,0);
+        List<String> profit_ratio_3m = myexcel.readColumn(filename,5);
 
         List<Float> profitratio_f = new ArrayList<>();
 
@@ -300,7 +300,7 @@ public class InfoDownload {
 
     public static void trans(String filename) {
         MyExcel myexcel = new MyExcel();
-        List<String> name = myexcel.readColumn(filename+".xls",1);
+        List<String> name = myexcel.readColumn(filename,1);
         StockDic mydict = new StockDic();
         List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
 
@@ -320,7 +320,7 @@ public class InfoDownload {
 
     public static void trans_etf(String filename) {
         MyExcel myexcel = new MyExcel();
-        List<String> name = myexcel.readColumn(filename+".xls",1);
+        List<String> name = myexcel.readColumn(filename,1);
         EtfDict mydict = new EtfDict();
         List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
 
@@ -338,7 +338,7 @@ public class InfoDownload {
 
     public static void checkspac(String filename) {
         MyExcel myexcel = new MyExcel();
-        List<String> stocklist = myexcel.readColumn(filename+".xls",0);
+        List<String> stocklist = myexcel.readColumn(filename,0);
         StockDic mydict = new StockDic();
         int size = stocklist.size();
         for(int i =1;i<size;i++) {

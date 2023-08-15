@@ -15,8 +15,9 @@ public class StockBook {
     private String etfinfo;
     private String etfcompanies;
     private FormatStockInfo stock_info;
+    private String memo;
 
-    public StockBook(FormatStockInfo stockinfo, XYChart chart, XYChart todaychart) {
+    public StockBook(FormatStockInfo stockinfo, XYChart chart, XYChart todaychart, String memo) {
         super();
         this.stock_info = stockinfo;
         this.chart = chart;
@@ -29,6 +30,7 @@ public class StockBook {
         this.stock_type= stock_info.stock_type;
         this.etfinfo = stock_info.etfinfo;
         this.etfcompanies = stock_info.etfcompanies;
+        this.memo = memo;
     }
 
     public String getNews() {
@@ -57,4 +59,8 @@ public class StockBook {
     public String getETFCompanies() {
         return etfcompanies;
     }
+    public String getMemo() {
+        return memo;
+    }
+
 }

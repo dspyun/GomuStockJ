@@ -1,59 +1,28 @@
 package main.java.com.gomu.gomustock.network;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.net.MediaType;
-import com.google.gson.*;
-import com.intellij.openapi.util.text.StringUtil;
-import main.java.com.gomu.gomustock.MyDate;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
-import nonapi.io.github.classgraph.json.JSONSerializer;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.ssl.SSLContexts;
-import org.json.JSONArray;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.*;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
-import static com.amazon.ion.impl._Private_IonConstants.False;
-import static jxl.biff.FormatRecord.logger;
 
 public class Ebest {
 
@@ -64,11 +33,13 @@ public class Ebest {
 
     }
 
-    public void testmain() throws IOException {
+    public void testmain()  {
         getToken();
         //getHOGA();
         //getNEWS();
-        getNEWSList();
+        //newslit();
+        //getNEWSList();
+        getNEWSList_websocket_example();
     }
 
     public void strSplit(StringBuffer sb) {
@@ -81,7 +52,7 @@ public class Ebest {
     }
 
     // String jsonMessage
-    public void getToken() throws UnsupportedEncodingException {
+    public void getToken() {
         // 주식 token 발급 예제
 
         final String tokenRequestUrl = HOST + "oauth2/token";
@@ -99,10 +70,7 @@ public class Ebest {
         param.put("appsecretkey",APP_SECRET);
         param.put("scope",SCOPE);
         StringBuffer data = new StringBuffer();
-        for (String key : param.keySet()) {
-            data.append(URLEncoder.encode(key, "UTF-8") + "=");
-            data.append(URLEncoder.encode((String) param.get(key), "UTF-8") + "&");
-        }
+
 
         HttpsURLConnection conn = null;
         OutputStreamWriter writer = null;
@@ -110,6 +78,11 @@ public class Ebest {
         InputStreamReader isr= null;
 
         try {
+
+            for (String key : param.keySet()) {
+                data.append(URLEncoder.encode(key, "UTF-8") + "=");
+                data.append(URLEncoder.encode((String) param.get(key), "UTF-8") + "&");
+            }
 
             final URL url = new URL(tokenRequestUrl);
 
@@ -195,98 +168,35 @@ public class Ebest {
         }
     }
 
-        public void getNEWS() {
-            /*
-            NWS 실시간 등록 이후 뉴스가 실시간으로 수신되면,
-            NWS TR의 outblock 필드중 realkey 필드의 데이터를 가져와
-            t3102 의 sNewsno 에 넣고 조회하시면 됩니다
-            news조회 단독으로 사용하지 못함
-            일단 NWS조회로 제목을 가져오면 sNewsno도 읽을 수 있음
-            제목의 상세내용을 보고 싶으면 sNewsno로 뉴스읽기를 하면 됨됨
-             NWS는 개발자콘솔 > 기타 > 실시간시세 > 실시간뉴스제목패킷(NWS)에 사용법이 있음
-             */
-
-            // 주식 호가 죄회 예제
-            String ContentsType="application/json; utf-8";
-            String tokenRequestUrl = HOST + "stock/investinfo";
-
-            try {
-
-                JSONObject innerdata = new JSONObject();
-                innerdata.put("sNewsno","2023051510383935PL7HQ87D"); //192820
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("t3102InBlock", innerdata);
-
-                HttpClient client = HttpClientBuilder.create().build();
-                HttpPost post = new HttpPost(tokenRequestUrl);
-                post.setHeader("Contents-Type",ContentsType);
-                post.setHeader("authorization","Bearer " + ACCESS_TOKEN);
-                post.setHeader("tr_cd","t3102"); // body에 쓰인 숫자와 동일해야 한다
-                post.setHeader("tr_cont","N");
-                post.setHeader("tr_cont_key","");
-                URI uri = new URIBuilder(post.getURI()).build();
-                post.setURI(uri);
-                post.setEntity(new StringEntity(jsonObject.toString(),ContentType.APPLICATION_JSON));
-                HttpResponse response = client.execute(post);
-                if (response.getStatusLine().getStatusCode() != 200) {
-
-                }
-
-                System.out.println("Request body " + jsonObject.toString());
-
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader((response.getEntity().getContent())));
-
-                String output;
-                System.out.println("Output  .... ");
-                String respStr = "";
-                while ((output = br.readLine()) != null) {
-                    respStr = respStr + output;
-                    System.out.println(output);
-                }
-
-                JSONObject jobj = new JSONObject(respStr);
-                JSONObject bodyobj = jobj.getJSONObject("t3102InBlock");
-                /*
-                String stock_name = bodyobj.getString("hname");
-                int hoga = bodyobj.getInt("offerho1");
-                System.out.println(stock_name + " 1단계호가 " + hoga);
-                */
-            } catch (IOException | URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-    public void getNEWSList() {
-            /*
-            NWS 실시간 등록 이후 뉴스가 실시간으로 수신되면,
-            NWS TR의 outblock 필드중 realkey 필드의 데이터를 가져와
-            t3102 의 sNewsno 에 넣고 조회하시면 됩니다
-            news조회 단독으로 사용하지 못함
-            일단 NWS조회로 제목을 가져오면 sNewsno도 읽을 수 있음
-            제목의 상세내용을 보고 싶으면 sNewsno로 뉴스읽기를 하면 됨됨
-             NWS는 개발자콘솔 > 기타 > 실시간시세 > 실시간뉴스제목패킷(NWS)에 사용법이 있음
-             */
+    public void getNEWS() {
+        /*
+        NWS 실시간 등록 이후 뉴스가 실시간으로 수신되면,
+        NWS TR의 outblock 필드중 realkey 필드의 데이터를 가져와
+        t3102 의 sNewsno 에 넣고 조회하시면 됩니다
+        news조회 단독으로 사용하지 못함
+        일단 NWS조회로 제목을 가져오면 sNewsno도 읽을 수 있음
+        제목의 상세내용을 보고 싶으면 sNewsno로 뉴스읽기를 하면 됨됨
+         NWS는 개발자콘솔 > 기타 > 실시간시세 > 실시간뉴스제목패킷(NWS)에 사용법이 있음
+         */
 
         // 주식 호가 죄회 예제
         String ContentsType="application/json; utf-8";
-        String tokenRequestUrl = "https://openapi.ebestsec.co.kr:9443/" + "websocket/etc";
+        String tokenRequestUrl = HOST + "stock/investinfo";
 
         try {
 
+            JSONObject innerdata = new JSONObject();
+            innerdata.put("sNewsno","2023051510383935PL7HQ87D"); //192820
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("tr_cd", "NWS");
-            jsonObject.put("tr_key", "NWS001");
+            jsonObject.put("t3102InBlock", innerdata);
 
             HttpClient client = HttpClientBuilder.create().build();
             HttpPost post = new HttpPost(tokenRequestUrl);
             post.setHeader("Contents-Type",ContentsType);
-            post.setHeader("token",ACCESS_TOKEN);
-            post.setHeader("tr_type","3"); // body에 쓰인 숫자와 동일해야 한다
-            Header[] myhead = post.getAllHeaders();
-            int size = myhead.length;
-            for(int i=0;i<size;i++) System.out.println(myhead[i].toString());
+            post.setHeader("authorization","Bearer " + ACCESS_TOKEN);
+            post.setHeader("tr_cd","t3102"); // body에 쓰인 숫자와 동일해야 한다
+            post.setHeader("tr_cont","N");
+            post.setHeader("tr_cont_key","");
             URI uri = new URIBuilder(post.getURI()).build();
             post.setURI(uri);
             post.setEntity(new StringEntity(jsonObject.toString(),ContentType.APPLICATION_JSON));
@@ -308,6 +218,180 @@ public class Ebest {
                 System.out.println(output);
             }
 
+            JSONObject jobj = new JSONObject(respStr);
+            JSONObject bodyobj = jobj.getJSONObject("t3102InBlock");
+            /*
+            String stock_name = bodyobj.getString("hname");
+            int hoga = bodyobj.getInt("offerho1");
+            System.out.println(stock_name + " 1단계호가 " + hoga);
+            */
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void getNEWSList()  {
+        /*
+        NWS 실시간 등록 이후 뉴스가 실시간으로 수신되면,
+        NWS TR의 outblock 필드중 realkey 필드의 데이터를 가져와
+        t3102 의 sNewsno 에 넣고 조회하시면 됩니다
+        news조회 단독으로 사용하지 못함
+        일단 NWS조회로 제목을 가져오면 sNewsno도 읽을 수 있음
+        제목의 상세내용을 보고 싶으면 sNewsno로 뉴스읽기를 하면 됨됨
+         NWS는 개발자콘솔 > 기타 > 실시간시세 > 실시간뉴스제목패킷(NWS)에 사용법이 있음
+         */
+
+        // 주식 호가 죄회 예제
+        String ContentsType="application/json; utf-8";
+        String tokenRequestUrl = "wss://openapi.ebestsec.co.kr:9443/" + "websocket/";
+        //String tokenRequestUrl = "https://openapi.ebestsec.co.kr:29443/" + "websocket/etc";
+        //String tokenRequestUrl = HOST + "websocket/etc";
+        System.out.println("get newslist ------------------------\n");
+        try {
+
+            JSONObject jsonObject = new JSONObject();
+            JSONObject inner1 = new JSONObject();
+            jsonObject.put("tr_cd", "NWS");
+            jsonObject.put("tr_key", "NWS001");
+            //jsonObject.put("body",inner1);
+            /*
+            JSONObject inner2 = new JSONObject();
+            inner2.put("tr_type", "3");
+            inner2.put("token", ACCESS_TOKEN);
+            jsonObject.put("body",inner2);
+            */
+
+            // post에 header설정하고
+            HttpPost post = new HttpPost(tokenRequestUrl);
+            post.setHeader("Contents-Type",ContentsType);
+            post.setHeader("token",ACCESS_TOKEN);
+            post.setHeader("tr_type","3"); // body에 쓰인 숫자와 동일해야 한다
+
+            URI uri = new URIBuilder(post.getURI()).build();
+            post.setURI(uri);
+            post.setEntity(new StringEntity(jsonObject.toString(),ContentType.APPLICATION_JSON));
+
+            System.out.println("\nSending 'POST' request to URL : " + tokenRequestUrl);
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpResponse response = client.execute(post);
+            if (response.getStatusLine().getStatusCode() != 200) {
+
+            }
+            System.out.println("Request body " + jsonObject.toString());
+
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader((response.getEntity().getContent())));
+
+            String output;
+            System.out.println("Output  .... ");
+            String respStr = "";
+            while ((output = br.readLine()) != null) {
+                respStr = respStr + output;
+                System.out.println(output);
+            }
+
+
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void newslit() {
+        try {
+            String ContentsType="application/json; utf-8";
+            String tokenRequestUrl = "wss://openapi.ebestsec.co.kr:9443/" + "websocket/etc";
+
+            StringBuilder urlBuilder = new StringBuilder(tokenRequestUrl);
+            URL url = new URL(urlBuilder.toString());
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+
+            JSONObject jsonObject = new JSONObject();
+            JSONObject inner1 = new JSONObject();
+            inner1.put("tr_cd", "NWS");
+            inner1.put("tr_key", "NWS001");
+            jsonObject.put("body",inner1);
+
+            JSONObject inner2 = new JSONObject();
+            inner2.put("Contents-Type", ContentsType);
+            inner2.put("tr_type", "3");
+            inner2.put("token", ACCESS_TOKEN);
+            jsonObject.put("header",inner2);
+
+            byte[] body = jsonObject.toString().getBytes();
+            conn.setFixedLengthStreamingMode(body.length);
+            conn.setDoOutput(true);
+
+            OutputStream out = conn.getOutputStream();
+            out.write(body);
+            System.out.println("Response code: " + conn.getResponseCode());
+            BufferedReader rd;
+            if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            } else {
+                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            }
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+            rd.close();
+            conn.disconnect();
+            System.out.println(sb.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void getNEWSList_websocket_example()  {
+        /*
+        NWS 실시간 등록 이후 뉴스가 실시간으로 수신되면,
+        NWS TR의 outblock 필드중 realkey 필드의 데이터를 가져와
+        t3102 의 sNewsno 에 넣고 조회하시면 됩니다
+        news조회 단독으로 사용하지 못함
+        일단 NWS조회로 제목을 가져오면 sNewsno도 읽을 수 있음
+        제목의 상세내용을 보고 싶으면 sNewsno로 뉴스읽기를 하면 됨됨
+         NWS는 개발자콘솔 > 기타 > 실시간시세 > 실시간뉴스제목패킷(NWS)에 사용법이 있음
+         */
+
+        // 주식 호가 죄회 예제
+        String ContentsType="application/json; utf-8";
+        String tokenRequestUrl = "wss://openapi.ebestsec.co.kr:9443/" + "websocket/etc";
+
+        System.out.println("get newslist ------------------------\n");
+        try {
+
+            JSONObject jsonObject = new JSONObject();
+            JSONObject inner1 = new JSONObject();
+            inner1.put("tr_cd", "NWS");
+            inner1.put("tr_key", "NWS001");
+            jsonObject.put("body",inner1);
+
+            JSONObject inner2 = new JSONObject();
+            inner2.put("Contents-Type", ContentsType);
+            inner2.put("tr_type", "3");
+            inner2.put("token", ACCESS_TOKEN);
+            jsonObject.put("header",inner2);
+
+            System.out.println("sending  .... " + jsonObject.toString());
+
+            URI uri = new URI(tokenRequestUrl);
+            WebSocketUtil webSocketUtil = new WebSocketUtil(uri, new Draft_6455());
+            webSocketUtil.connectBlocking();
+            //웹소켓 메세지 보내기
+            webSocketUtil.send(jsonObject.toString());
+
+            JSONObject result = webSocketUtil.getResult();
+            webSocketUtil.close();
+
+            String output = result.toString();
+            System.out.println("Output  .... " + output);
+
+
             //JSONObject jobj = new JSONObject(respStr);
             //JSONObject bodyobj = jobj.getJSONObject("t3102InBlock");
                 /*
@@ -315,8 +399,46 @@ public class Ebest {
                 int hoga = bodyobj.getInt("offerho1");
                 System.out.println(stock_name + " 1단계호가 " + hoga);
                 */
-        } catch (IOException | URISyntaxException e) {
+        } catch (InterruptedException  | URISyntaxException e) {
             e.printStackTrace();
         }
+
     }
+
+    public class WebSocketUtil extends WebSocketClient {
+
+        private JSONObject obj;
+
+        public WebSocketUtil(URI serverUri, Draft protocolDraft) {
+            super(serverUri, protocolDraft);
+        }
+
+        @Override
+        public void onMessage( String message ) {
+            obj = new JSONObject(message);
+            System.out.println("receive data");
+        }
+
+        @Override
+        public void onOpen( ServerHandshake handshake ) {
+            //System.out.println( "opened connection" );
+        }
+
+        @Override
+        public void onClose( int code, String reason, boolean remote ) {
+            //System.out.println( "closed connection" );
+        }
+
+        @Override
+        public void onError( Exception ex ) {
+            ex.printStackTrace();
+        }
+
+        public JSONObject getResult() {
+            return this.obj;
+        }
+
+    }
+
+
 }

@@ -57,8 +57,8 @@ public class Example {
         MyExcel myexcel = new MyExcel();
         List<String> beta = new ArrayList<>();
         List<String> kospi200 = new ArrayList<>();
-        beta = myexcel.readColumn("BETA.xls",1);
-        kospi200 = myexcel.readColumn("BETA.xls",3);
+        beta = myexcel.readColumn("BETA",1);
+        kospi200 = myexcel.readColumn("BETA",3);
         beta.remove(0);
         kospi200.remove(0);
         int kospisize = kospi200.size();

@@ -18,8 +18,8 @@ public class StockDic {
         STOCK_CODE = result.get(0);
         STOCK_NAME = result.get(1);
         MARKET = result.get(2);
-        STOCK_BELONG = myexcel.readColumn("table_stock.xls",8);
-        STOCK_TYPE = myexcel.readColumn("table_stock.xls",7);
+        STOCK_BELONG = myexcel.readColumn("table_stock",8);
+        STOCK_TYPE = myexcel.readColumn("table_stock",7);
     }
     public String getMarket(String stock_code) {
         int index = STOCK_CODE.indexOf(stock_code);

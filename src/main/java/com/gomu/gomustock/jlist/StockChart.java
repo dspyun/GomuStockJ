@@ -39,7 +39,7 @@ public class StockChart {
     }
 
     BufferedImage getFognimage(String stock_code)  {
-        System.out.println("foreign image " + stock_code);
+        //System.out.println("foreign image " + stock_code);
         String path = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/F_"+stock_code+".png";
         BufferedImage img=null;
         try {

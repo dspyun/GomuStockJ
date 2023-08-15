@@ -34,6 +34,8 @@ import static com.intellij.ui.content.ContentManagerEvent.ContentOperation.add;
 public class Main extends JFrame{
 
     public static void main(String[] args) throws IOException {
+
+
        //Ebest ebest = new Ebest();
        //ebest.testmain();
        mytest();
@@ -221,11 +223,9 @@ public class Main extends JFrame{
                     int selections[] = list.getSelectedIndices();
                     Object selectionValues[] = list.getSelectedValues();
                     for (int i = 0, n = selections.length; i < n; i++) {
-                        if (i == 0) {
-                            System.out.println(" Selections: ");
-                        }
-                        System.out.println(selections[i] + "/" + selectionValues[i] + " ");
-                        List<String> stocklist = myexcel.readColumn(textfield.getText()+".xls",0);
+
+                       //System.out.println(selections[i] + "/" + selectionValues[i] + " ");
+                        List<String> stocklist = myexcel.readColumn(textfield.getText(),0);
                         int index = selections[i];
                         textfield2.setText(stocklist.get(index+1));
                         textfield2.paint(textfield2.getGraphics());
@@ -311,7 +311,7 @@ public class Main extends JFrame{
                     DefaultListModel<StockBook> model = new DefaultListModel<>();
 
                     List<String> stock_list = new ArrayList<>();
-                    stock_list = myexcel.readColumn(filename+".xls",0);
+                    stock_list = myexcel.readColumn(filename,0);
                     stock_list.remove(0);
                     int size = stock_list.size();
                     if(stock_list.size()==0) {

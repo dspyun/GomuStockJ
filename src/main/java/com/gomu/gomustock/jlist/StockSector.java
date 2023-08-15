@@ -33,9 +33,9 @@ public class StockSector {
             namelist.add(entry.getValue());
         }
         */
-        codelist = myexcel.readColumn( "group_sector.xls",0);
+        codelist = myexcel.readColumn( "group_sector",0);
         codelist.remove(0); // 헤더는 제거해준다.
-        namelist = myexcel.readColumn( "group_sector.xls",1);
+        namelist = myexcel.readColumn( "group_sector",1);
         namelist.remove(0); // 헤더는 제거해준다
         setPaneldata();
         addPanel();
