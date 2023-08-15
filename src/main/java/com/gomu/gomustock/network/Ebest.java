@@ -3,7 +3,6 @@ package main.java.com.gomu.gomustock.network;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -15,6 +14,7 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -39,7 +39,8 @@ public class Ebest {
         //getNEWS();
         //newslit();
         //getNEWSList();
-        getNEWSList_websocket_example();
+        //getNEWSList_websocket_example();
+        getGIGANJUGA();
     }
 
     public void strSplit(StringBuffer sb) {
@@ -162,6 +163,65 @@ public class Ebest {
             String stock_name = bodyobj.getString("hname");
             int hoga = bodyobj.getInt("offerho1");
             System.out.println(stock_name + " 1단계호가 " + hoga);
+
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getGIGANJUGA() {
+
+        // 230815 주식 기간주가 조회 예제. 회신 결과를 파싱하고 open가격만 보여주도록 예제구현.
+        // 이 후 시가, 고가, 저가, 종가, vol을 엑셀에 저장하는 기능 추가 필요
+        String ContentsType="application/json; utf-8";
+        String tokenRequestUrl = HOST + "stock/market-data";
+
+        try {
+
+            JSONObject innerdata = new JSONObject();
+            innerdata.put("shcode","005930");
+            innerdata.put("dwmcode",1); // 1:일, 2:주, 3:월
+            innerdata.put("data","");
+            innerdata.put("idx",0);
+            innerdata.put("cnt",5); // 일수 1이상, 3년 250*3=750도 가능
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("t1305InBlock", innerdata);
+
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpPost post = new HttpPost(tokenRequestUrl);
+            post.setHeader("Contents-Type",ContentsType);
+            post.setHeader("authorization","Bearer " + ACCESS_TOKEN);
+            post.setHeader("tr_cd","t1305");
+            post.setHeader("tr_cont","N");
+            post.setHeader("tr_cont_key","");
+            URI uri = new URIBuilder(post.getURI()).build();
+            post.setURI(uri);
+            post.setEntity(new StringEntity(jsonObject.toString(),ContentType.APPLICATION_JSON));
+            HttpResponse response = client.execute(post);
+            if (response.getStatusLine().getStatusCode() != 200) {
+
+            }
+
+            System.out.println("Request body " + jsonObject.toString());
+
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader((response.getEntity().getContent())));
+
+            String output;
+            System.out.println("Output  .... ");
+            String respStr = "";
+            while ((output = br.readLine()) != null) {
+                respStr = respStr + output;
+                System.out.println(output);
+            }
+
+            JSONObject jobj = new JSONObject(respStr);
+            JSONArray bodyarry = jobj.getJSONArray("t1305OutBlock1");// []로 둘러쌓인 것은 array로 받아야 한다
+            int size = bodyarry.length();
+            for(int i =0;i<size;i++) {
+                JSONObject jobj1 = (JSONObject) bodyarry.get(i);
+                System.out.println("open " + jobj1.get("open"));
+            }
 
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();

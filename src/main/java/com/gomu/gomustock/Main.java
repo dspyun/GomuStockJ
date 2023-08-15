@@ -36,9 +36,9 @@ public class Main extends JFrame{
     public static void main(String[] args) throws IOException {
 
 
-       //Ebest ebest = new Ebest();
-       //ebest.testmain();
-       mytest();
+       Ebest ebest = new Ebest();
+       ebest.testmain();
+       //mytest();
        // TabFrame();
     }
 
