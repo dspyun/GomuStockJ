@@ -4,10 +4,7 @@ import com.intellij.ui.components.JBScrollPane;
 import jxl.biff.drawing.ComboBox;
 import main.java.com.gomu.gomustock.format.FormatStockInfo;
 import main.java.com.gomu.gomustock.jlist.*;
-import main.java.com.gomu.gomustock.network.Ebest;
-import main.java.com.gomu.gomustock.network.MyWeb;
-import main.java.com.gomu.gomustock.network.YFDownload;
-import main.java.com.gomu.gomustock.network.fnGuide;
+import main.java.com.gomu.gomustock.network.*;
 import main.java.com.gomu.gomustock.stockengin.CPUID;
 import main.java.com.gomu.gomustock.stockengin.ETFSECT;
 import org.json.JSONArray;
@@ -36,10 +33,12 @@ public class Main extends JFrame{
     public static void main(String[] args) throws IOException {
 
 
-       Ebest ebest = new Ebest();
-       ebest.testmain();
+       //Ebest ebest = new Ebest();
+       //ebest.testmain();
        //mytest();
        // TabFrame();
+        NPS myweb = new NPS();
+        myweb.getNPSlist();
     }
 
 

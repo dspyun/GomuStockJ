@@ -3,10 +3,7 @@ package main.java.com.gomu.gomustock.network;
 import main.java.com.gomu.gomustock.MyDate;
 import main.java.com.gomu.gomustock.MyExcel;
 import main.java.com.gomu.gomustock.MyStat;
-
-
 import main.java.com.gomu.gomustock.format.*;
-import main.java.com.gomu.gomustock.jlist.InfoDownload;
 import main.java.com.gomu.gomustock.stockengin.StockDic;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,21 +15,33 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.*;
+import java.io.StringReader;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class MyWeb {
 
 
-    String target_stock ="";
-    public String result ="";
+    String target_stock = "";
+    public String result = "";
 
     public MyWeb() {
 
     }
+
     public MyWeb(String stock_no) {
         target_stock = stock_no;
         target_stock = "005930";
@@ -41,8 +50,10 @@ public class MyWeb {
     public interface IFCallback {
         public void callback(String str);
     }
+
     // 콜백인터페이스를 구현한 클래스 인스턴스
     private MyWeb.IFCallback _cb;
+
     public void setCallback(MyWeb.IFCallback cb) {
         this._cb = cb;
     }
@@ -51,7 +62,7 @@ public class MyWeb {
     public boolean checkKRStock(String stock_code) {
         // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
         // 즉 한국주식이면 true, 외국주식이면 false 반환
-        boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
+        boolean isNumeric = stock_code.matches("[+-]?\\d*(\\.\\d+)?");
         return isNumeric;
     }
 
@@ -59,15 +70,15 @@ public class MyWeb {
     public FormatStockInfo getNaverStockinfo(String stock_code) {
         FormatStockInfo result = new FormatStockInfo();
 
-        System.out.println("stock_code = " + stock_code+"\n");
-        if(!checkKRStock(stock_code)) {
+        System.out.println("stock_code = " + stock_code + "\n");
+        if (!checkKRStock(stock_code)) {
             // 외국주식이면 빈칸으로 채우고 건너뜀
             result.init();
             return result;
         }
         try {
 
-            String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            String URL = "https://finance.naver.com/item/coinfo.naver?code=" + stock_code;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
@@ -76,7 +87,7 @@ public class MyWeb {
 
             Elements plist = classinfo0.select(".summary_info");
             int size = plist.size();
-            for(int i =0;i<size;i++) {
+            for (int i = 0; i < size; i++) {
                 result.desc = plist.get(i).text() + "\n";
             }
 
@@ -90,7 +101,7 @@ public class MyWeb {
 
             result.per = trlist.get(9).select("td").get(0).text();
             result.expect_per = trlist.get(10).select("td").get(0).text();
-            String temp_pbr =  trlist.get(11).select("td").get(0).text();
+            String temp_pbr = trlist.get(11).select("td").get(0).text();
             result.pbr = temp_pbr.replaceAll("\\.", "");
             result.div_rate = trlist.get(12).select("td").get(0).text();
             result.area_per = trlist.get(13).select("td").get(0).text();
@@ -109,14 +120,14 @@ public class MyWeb {
     public FormatETFInfo getNaverETFinfo(String stock_code) {
         FormatETFInfo result = new FormatETFInfo();
 
-        System.out.println("stock_code = " + stock_code+"\n");
-        if(!checkKRStock(stock_code)) {
+        System.out.println("stock_code = " + stock_code + "\n");
+        if (!checkKRStock(stock_code)) {
             // 외국주식이면 빈칸으로 채우고 건너뜀
             result.init();
             return result;
         }
         try {
-            String URL = "https://finance.naver.com/item/main.naver?code="+stock_code;
+            String URL = "https://finance.naver.com/item/main.naver?code=" + stock_code;
             //String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
             Document doc;
             doc = Jsoup.connect(URL).get();
@@ -126,7 +137,7 @@ public class MyWeb {
 
             Elements plist = classinfo0.select(".summary_info");
             int size = plist.size();
-            for(int i =0;i<size;i++) {
+            for (int i = 0; i < size; i++) {
                 result.desc = plist.get(i).text() + "\n";
             }
 
@@ -134,7 +145,7 @@ public class MyWeb {
             Elements trlist = classinfo1.select("tr");
 
             result.market_sum = trlist.get(0).select("td").get(0).text();
-            result.fund_fee =  trlist.get(6).select("td").get(0).text();
+            result.fund_fee = trlist.get(6).select("td").get(0).text();
             result.nav = trlist.get(8).select("td").get(0).text();
             result.m1_profit_rate = trlist.get(9).select("td").get(0).text();
             result.m3_profit_rate = trlist.get(10).select("td").get(0).text();
@@ -149,11 +160,11 @@ public class MyWeb {
             //Elements tbodyinfo = tableinfo.select("tbody"); // class 가져오기
             Elements tdlist = tableinfo.select("td"); // class 가져오기
             Elements linklist = tdlist.select("a");
-            result.companies="";// class 가져오기
+            result.companies = "";// class 가져오기
             int size1 = linklist.size();
-            for(int i =0;i<size1;i++) {
+            for (int i = 0; i < size1; i++) {
                 String name = linklist.get(i).text();
-                if(!name.equals("") && !name.equals("null")) result.companies += name +" ";
+                if (!name.equals("") && !name.equals("null")) result.companies += name + " ";
             }
 
         } catch (IOException e) {
@@ -170,9 +181,9 @@ public class MyWeb {
         List<String> agent = new ArrayList<>();
         List<String> fogn = new ArrayList<>();
 
-        if(!checkKRStock(stock_code)) {
+        if (!checkKRStock(stock_code)) {
             // 외국주식이면 빈칸으로 채우고 건너뜀
-            for(int i =0;i<20;i++) {
+            for (int i = 0; i < 20; i++) {
                 agent.add("");
                 fogn.add("");
             }
@@ -183,35 +194,35 @@ public class MyWeb {
 
         try {
             String pagenumber;
-            if(pageno.equals("0")) pagenumber="";
-            else pagenumber = "&page="+pageno;
+            if (pageno.equals("0")) pagenumber = "";
+            else pagenumber = "&page=" + pageno;
 
-            String URL = "https://finance.naver.com/item/frgn.naver?code="+stock_code+pagenumber;
+            String URL = "https://finance.naver.com/item/frgn.naver?code=" + stock_code + pagenumber;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements classinfo = doc.select(".inner_sub");
             Element table1 = classinfo.select("table").get(1);
             Elements trlist = table1.select("tr");
 
-            for(int i = 3;i<8;i++) {
+            for (int i = 3; i < 8; i++) {
                 Element tr3 = trlist.get(i);
                 Elements tdlist = tr3.select("td");
                 agent.add(tdlist.get(5).text());
                 fogn.add(tdlist.get(6).text());
             }
-            for(int i = 11;i<16;i++) {
+            for (int i = 11; i < 16; i++) {
                 Element tr3 = trlist.get(i);
                 Elements tdlist = tr3.select("td");
                 agent.add(tdlist.get(5).text());
                 fogn.add(tdlist.get(6).text());
             }
-            for(int i = 19;i<24;i++) {
+            for (int i = 19; i < 24; i++) {
                 Element tr3 = trlist.get(i);
                 Elements tdlist = tr3.select("td");
                 agent.add(tdlist.get(5).text());
                 fogn.add(tdlist.get(6).text());
             }
-            for(int i = 27;i<32;i++) {
+            for (int i = 27; i < 32; i++) {
                 Element tr3 = trlist.get(i);
                 Elements tdlist = tr3.select("td");
                 agent.add(tdlist.get(5).text());
@@ -241,19 +252,19 @@ public class MyWeb {
     public String getCurrentStockPrice(String stockcode) {
 
         //https://jul-liet.tistory.com/209
-        String stockprice="";
+        String stockprice = "";
         //https://finance.naver.com/sise/sise_index.naver?code=KPI200
         String URL = "https://finance.naver.com/item/main.nhn?code=" + stockcode;
         Document doc;
-        if(!checkKRStock(stockcode)) {
+        if (!checkKRStock(stockcode)) {
             // 외국주식이면 빈칸으로 채우고 건너뜀
-            return stockprice="0";
+            return stockprice = "0";
         }
         try {
             doc = Jsoup.connect(URL).get();
             Elements elem = doc.select(".date");
             String[] str = elem.text().split(" ");
-            Elements todaylist =doc.select(".new_totalinfo dl>dd");
+            Elements todaylist = doc.select(".new_totalinfo dl>dd");
             String juga = todaylist.get(3).text().split(" ")[1];
             /*
             String DungRakrate = todaylist.get(3).text().split(" ")[6];
@@ -265,7 +276,7 @@ public class MyWeb {
             String vsyesterday = todaylist.get(3).text().split(" ")[4];
             */
             stockprice = juga;
-            System.out.println(stockcode + " 주가 : "+juga);
+            System.out.println(stockcode + " 주가 : " + juga);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -278,58 +289,58 @@ public class MyWeb {
     public String checkOpenday() {
 
         //https://jul-liet.tistory.com/209
-        String stockprice="";
+        String stockprice = "";
         String URL = "https://finance.naver.com/";
         Document doc;
 
         try {
             doc = Jsoup.connect(URL).get();
 
-            Elements timeinfo =doc.select(".ly_realtime");
+            Elements timeinfo = doc.select(".ly_realtime");
             Element marketday = timeinfo.select("#time").get(0);
-            String day = marketday.text().replaceAll("\\.", "").substring(0,8);
+            String day = marketday.text().replaceAll("\\.", "").substring(0, 8);
             return day;
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("반환값 "+stockprice);
+        System.out.println("반환값 " + stockprice);
 
         return stockprice;
     }
 
     public void dl_fogninfo(List<String> buylist) {
 
-        for(int i =0;i<buylist.size();i++) {
+        for (int i = 0; i < buylist.size(); i++) {
             MyExcel myexcel = new MyExcel();
             List<List<String>> value = new ArrayList<List<String>>();
             List<String> agency = new ArrayList<>();
             List<String> fogn = new ArrayList<>();
 
             String stock_code = buylist.get(i);
-            value = getAgencyFogn(stock_code,"0");
+            value = getAgencyFogn(stock_code, "0");
             agency.addAll(value.get(0));
             fogn.addAll(value.get(1));
 
-            value = getAgencyFogn(stock_code,"2");
+            value = getAgencyFogn(stock_code, "2");
             agency.addAll(value.get(0));
             fogn.addAll(value.get(1));
 
-            value = getAgencyFogn(stock_code,"3");
+            value = getAgencyFogn(stock_code, "3");
             agency.addAll(value.get(0));
             fogn.addAll(value.get(1));
 
-            value = getAgencyFogn(stock_code,"4");
+            value = getAgencyFogn(stock_code, "4");
             agency.addAll(value.get(0));
             fogn.addAll(value.get(1));
 
-            value = getAgencyFogn(stock_code,"5");
+            value = getAgencyFogn(stock_code, "5");
             agency.addAll(value.get(0));
             fogn.addAll(value.get(1));
 
-            agency.add(0,"AGENCY");
-            fogn.add(0,"FOREIgN");
+            agency.add(0, "AGENCY");
+            fogn.add(0, "FOREIgN");
             myexcel.writefogninfo(stock_code, fogn, agency);
         }
     }
@@ -341,39 +352,39 @@ public class MyWeb {
         List<String> agency = new ArrayList<>();
         List<String> fogn = new ArrayList<>();
 
-        value = getAgencyFogn(stock_code,"0");
+        value = getAgencyFogn(stock_code, "0");
         agency.addAll(value.get(0));
         fogn.addAll(value.get(1));
 
-        value = getAgencyFogn(stock_code,"2");
+        value = getAgencyFogn(stock_code, "2");
         agency.addAll(value.get(0));
         fogn.addAll(value.get(1));
 
-        value = getAgencyFogn(stock_code,"3");
+        value = getAgencyFogn(stock_code, "3");
         agency.addAll(value.get(0));
         fogn.addAll(value.get(1));
 
-        value = getAgencyFogn(stock_code,"4");
+        value = getAgencyFogn(stock_code, "4");
         agency.addAll(value.get(0));
         fogn.addAll(value.get(1));
 
-        value = getAgencyFogn(stock_code,"5");
+        value = getAgencyFogn(stock_code, "5");
         agency.addAll(value.get(0));
         fogn.addAll(value.get(1));
 
-        agency.add(0,"AGENCY");
-        fogn.add(0,"FOREIgN");
+        agency.add(0, "AGENCY");
+        fogn.add(0, "FOREIgN");
         myexcel.writefogninfo(stock_code, fogn, agency);
 
     }
 
     public void getNaverpriceByday(String stock_code, int day) {
         List<FormatOHLCV> naverpricelist = new ArrayList<>();
-        String page="";
-        int index = day/10;
-        for(int i =1;i<=index;i++) {
+        String page = "";
+        int index = day / 10;
+        for (int i = 1; i <= index; i++) {
             page = Integer.toString(i);
-            naverpricelist.addAll(getPrice10(stock_code,page));
+            naverpricelist.addAll(getPrice10(stock_code, page));
         }
         FormatOHLCV naverheader = new FormatOHLCV();
         naverheader.date = "date";
@@ -382,9 +393,9 @@ public class MyWeb {
         naverheader.high = "high";
         naverheader.low = "low";
         naverheader.volume = "volume";
-        naverpricelist.add(0,naverheader);
+        naverpricelist.add(0, naverheader);
         MyExcel myexcel = new MyExcel();
-        myexcel.writeprice(stock_code,naverpricelist);
+        myexcel.writeprice(stock_code, naverpricelist);
     }
 
     public List<FormatOHLCV> getPrice10(String stock_code, String pageno) {
@@ -395,16 +406,16 @@ public class MyWeb {
 
         try {
             String pagenumber;
-            if(pageno.equals("0")) pagenumber="";
-            else pagenumber = "&page="+pageno;
-            String URL = "https://finance.naver.com/item/sise_day.naver?code="+stock_code+pagenumber;
+            if (pageno.equals("0")) pagenumber = "";
+            else pagenumber = "&page=" + pageno;
+            String URL = "https://finance.naver.com/item/sise_day.naver?code=" + stock_code + pagenumber;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements trlist = doc.select("tr");
-            for(int i =2;i<7;i++ ){
+            for (int i = 2; i < 7; i++) {
                 FormatOHLCV naverprice = new FormatOHLCV();
                 Elements tdlist = trlist.get(i).select("td");
-                naverprice.date = tdlist.get(0).text().replaceAll("\\.","");
+                naverprice.date = tdlist.get(0).text().replaceAll("\\.", "");
                 naverprice.close = tdlist.get(1).text().replaceAll(",", "");
                 naverprice.open = tdlist.get(3).text().replaceAll(",", "");
                 naverprice.high = tdlist.get(4).text().replaceAll(",", "");
@@ -412,10 +423,10 @@ public class MyWeb {
                 naverprice.volume = tdlist.get(6).text().replaceAll(",", "");
                 naverpricelist.add(naverprice);
             }
-            for(int i =10;i<15;i++ ){
+            for (int i = 10; i < 15; i++) {
                 FormatOHLCV naverprice = new FormatOHLCV();
                 Elements tdlist = trlist.get(i).select("td");
-                naverprice.date = tdlist.get(0).text().replaceAll("\\.","");
+                naverprice.date = tdlist.get(0).text().replaceAll("\\.", "");
                 naverprice.close = tdlist.get(1).text().replaceAll(",", "");
                 naverprice.open = tdlist.get(3).text().replaceAll(",", "");
                 naverprice.high = tdlist.get(4).text().replaceAll(",", "");
@@ -429,7 +440,8 @@ public class MyWeb {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        };
+        }
+        ;
         return naverpricelist;
     }
 
@@ -437,11 +449,11 @@ public class MyWeb {
     public void getNaverpriceByToday(String stock_code, int minute) {
         // 1page는 10분 데이터. 30분은 3페이지, 1시간은 6페이지
         List<FormatOHLCV> naverpricelist = new ArrayList<>();
-        String page="";
+        String page = "";
 
-        for(int i =1;i<=minute;i++) {
+        for (int i = 1; i <= minute; i++) {
             page = Integer.toString(i);
-            naverpricelist.addAll(getTodayPrice10(stock_code,page));
+            naverpricelist.addAll(getTodayPrice10(stock_code, page));
         }
         FormatOHLCV naverheader = new FormatOHLCV();
         naverheader.date = "date";
@@ -450,9 +462,9 @@ public class MyWeb {
         naverheader.high = "high";
         naverheader.low = "low";
         naverheader.volume = "volume";
-        naverpricelist.add(0,naverheader);
+        naverpricelist.add(0, naverheader);
         MyExcel myexcel = new MyExcel();
-        myexcel.writetodayprice(stock_code+"today",naverpricelist);
+        myexcel.writetodayprice(stock_code + "today", naverpricelist);
     }
 
     public List<FormatOHLCV> getTodayPrice10(String stock_code, String pageno) {
@@ -464,13 +476,13 @@ public class MyWeb {
 
         try {
             String pagenumber;
-            if(pageno.equals("0")) pagenumber="";
-            else pagenumber = "&page="+pageno;
-            String time="";
-            if(mydate.getTodayDayofWeek() == 6) {
+            if (pageno.equals("0")) pagenumber = "";
+            else pagenumber = "&page=" + pageno;
+            String time = "";
+            if (mydate.getTodayDayofWeek() == 6) {
                 time = mydate.getBeforeday(1);
                 time += 153000;
-            } else if (mydate.getTodayDayofWeek() == 7){
+            } else if (mydate.getTodayDayofWeek() == 7) {
                 time = mydate.getBeforeday(2);
                 time += 153000;
             } else {
@@ -478,24 +490,24 @@ public class MyWeb {
             }
             // /item/sise_time.naver?code=005490&thistime=20230721113906
             //time = "20230728153000";
-            String URL = "https://finance.naver.com/item/sise_time.naver?code="+stock_code+"&thistime="+time+pagenumber;
+            String URL = "https://finance.naver.com/item/sise_time.naver?code=" + stock_code + "&thistime=" + time + pagenumber;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements trlist = doc.select("tr");
-            for(int i =2;i<7;i++ ){
+            for (int i = 2; i < 7; i++) {
                 FormatOHLCV naverprice = new FormatOHLCV();
                 Elements tdlist = trlist.get(i).select("td");
-                naverprice.date = tdlist.get(0).text().replaceAll("\\.",""); // 시간
+                naverprice.date = tdlist.get(0).text().replaceAll("\\.", ""); // 시간
                 naverprice.close = tdlist.get(1).text().replaceAll(",", ""); // 체결가 close
                 naverprice.open = tdlist.get(3).text().replaceAll(",", ""); // 매도 open
                 naverprice.high = tdlist.get(4).text().replaceAll(",", ""); // 매수 high
                 naverprice.volume = tdlist.get(5).text().replaceAll(",", ""); // 거래량
                 naverpricelist.add(naverprice);
             }
-            for(int i =10;i<15;i++ ){
+            for (int i = 10; i < 15; i++) {
                 FormatOHLCV naverprice = new FormatOHLCV();
                 Elements tdlist = trlist.get(i).select("td");
-                naverprice.date = tdlist.get(0).text().replaceAll("\\.","");
+                naverprice.date = tdlist.get(0).text().replaceAll("\\.", "");
                 naverprice.close = tdlist.get(1).text().replaceAll(",", "");
                 naverprice.open = tdlist.get(3).text().replaceAll(",", "");
                 naverprice.high = tdlist.get(4).text().replaceAll(",", "");
@@ -517,7 +529,8 @@ public class MyWeb {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        };
+        }
+        ;
         return naverpricelist;
     }
 
@@ -532,7 +545,7 @@ public class MyWeb {
                 // 신규 종목을 가장 먼저 다운로드 하기 위해
                 // 리스트를 역순으로 해준다.
                 List<String> stock_code_rev = mystat.arrangeRev_string(stock_code);
-                for(int i=0;i<stock_code_rev.size();i++) {
+                for (int i = 0; i < stock_code_rev.size(); i++) {
                     getNaverpriceByday(stock_code_rev.get(i), day);
                 }
                 getNaverpriceByday("069500", day); // kodex 200 상품
@@ -552,7 +565,7 @@ public class MyWeb {
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements tbody = doc.select("div.pne tbody");
-            for(int i =0;i<3;i++ ){
+            for (int i = 0; i < 3; i++) {
                 FormatSector oneinfo = new FormatSector();
                 Elements trlist = tbody.get(i).select("tr");
                 Elements tdlist = trlist.select("td");
@@ -578,14 +591,15 @@ public class MyWeb {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        };
+        }
+        ;
         return sectorlist;
     }
 
 
     public String getNaverNews() {
 
-        String news_string="";
+        String news_string = "";
 
         try {
             String URL = "https://finance.naver.com/";
@@ -593,7 +607,7 @@ public class MyWeb {
             doc = Jsoup.connect(URL).get();
             Elements newsclass = doc.select(".section_strategy");
             Elements lilist = newsclass.select("li");
-            for(int i=0;i<6;i++)  {
+            for (int i = 0; i < 6; i++) {
                 news_string += lilist.get(i).text() + "\n";
             }
         } catch (IOException e) {
@@ -605,16 +619,16 @@ public class MyWeb {
 
     public String getNaverStockNews(String stock_code) {
 
-        String news_string="";
+        String news_string = "";
 
         try {
-            String URL = "https://finance.naver.com/item/main.naver?code="+stock_code;
+            String URL = "https://finance.naver.com/item/main.naver?code=" + stock_code;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements newsclass = doc.select(".news_section");
             Elements alist = newsclass.select("a");
             int size = alist.size();
-            for(int i=0;i<size;i++)  {
+            for (int i = 0; i < size; i++) {
                 news_string += alist.get(i).text() + "\n";
             }
         } catch (IOException e) {
@@ -623,23 +637,24 @@ public class MyWeb {
         }
         return news_string;
     }
+
     public String getNaverCompanyInfo(String stock_code) {
 
-        String company_string="";
-        String ranking="";
+        String company_string = "";
+        String ranking = "";
         try {
-            String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            String URL = "https://finance.naver.com/item/coinfo.naver?code=" + stock_code;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements compinfo = doc.select(".tab_con1");
             Elements trlist = compinfo.select("tr");
             ranking = trlist.get(0).select("td").text() + " ";
-            ranking += trlist.get(1).select("td").text()+"\n";
+            ranking += trlist.get(1).select("td").text() + "\n";
 
             Elements newsclass = doc.select(".summary_info");
             Elements plist = newsclass.select("p");
             int size = plist.size();
-            for(int i=0;i<size;i++)  {
+            for (int i = 0; i < size; i++) {
                 company_string += plist.get(i).text() + "\n";
             }
         } catch (IOException e) {
@@ -666,12 +681,12 @@ public class MyWeb {
             postData.put(selectField.attr("name"), selectField.attr("value"));
         }
          */
-        for(Element selectField:allSelections){
+        for (Element selectField : allSelections) {
             String nameField = selectField.attr("name");
             String valueField = "";
             Elements allOptions = selectField.getElementsByTag("option");
-            for(Element opt:allOptions){
-                if(opt.attr("selected").equalsIgnoreCase("selected")){
+            for (Element opt : allOptions) {
+                if (opt.attr("selected").equalsIgnoreCase("selected")) {
                     valueField = opt.attr("value");
                     break;
                 }
@@ -679,13 +694,13 @@ public class MyWeb {
             postData.put(nameField, valueField);
         }
 
-        for(Element inputField:allInputFields) {
+        for (Element inputField : allInputFields) {
             postData.put(inputField.attr("value"), "0");
         }
 
-        for(Element inputField:allInputFields) {
+        for (Element inputField : allInputFields) {
             if (inputField.attr("type").equalsIgnoreCase("checkbox")) {
-                if(inputField.attr("id").equalsIgnoreCase("option5")) {
+                if (inputField.attr("id").equalsIgnoreCase("option5")) {
                     postData.put(inputField.attr("value"), inputField.attr("checked").equalsIgnoreCase("checked") ? "0" : "1");
                 } else {
                     //postData.put(inputField.attr("value"), inputField.attr("value"));
@@ -704,9 +719,9 @@ public class MyWeb {
 
     }
 
-    public void checkbox_test(String upjong_code,String upjong_name) throws IOException {
+    public void checkbox_test(String upjong_code, String upjong_name) throws IOException {
 
-        final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no="+upjong_code;
+        final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no=" + upjong_code;
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
         System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
 
@@ -717,27 +732,33 @@ public class MyWeb {
         WebDriver driver = new ChromeDriver(options);
         driver.get(urlPost);
 
-        for(int i=1;i<=27;i++) {
-            WebElement option = driver.findElement(By.id("option"+Integer.toString(i)));
-            if(option.isSelected()) option.click();
+        for (int i = 1; i <= 27; i++) {
+            WebElement option = driver.findElement(By.id("option" + Integer.toString(i)));
+            if (option.isSelected()) option.click();
         }
         int index;
-        index = cboxname("시가총액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("영업이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("영업이익증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("당기순이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("매출액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("매출액증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("시가총액");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("영업이익");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("영업이익증가율");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("당기순이익");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("매출액");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("매출액증가율");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
         driver.findElement(By.xpath("//a[@href='javascript:fieldSubmit()']")).click();
 
         List<WebElement> mytbody = driver.findElements(By.tagName("tbody"));
         List<WebElement> trlist = mytbody.get(2).findElements(By.tagName("tr"));
         List<FormatUpjongInfo> upjonglist = new ArrayList<>();
         int size = trlist.size();
-        for(int i=0;i<trlist.size()-10;i++) {
+        for (int i = 0; i < trlist.size() - 10; i++) {
             FormatUpjongInfo one = new FormatUpjongInfo();
             List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
-            one.stock_name = tdlist.get(0).getText().replace(" *","");
+            one.stock_name = tdlist.get(0).getText().replace(" *", "");
             one.cur_price = tdlist.get(1).getText();
             one.compare_yester = tdlist.get(2).getText();
             one.updown_ratio = tdlist.get(3).getText();
@@ -752,13 +773,13 @@ public class MyWeb {
             System.out.println(i + " " + one.stock_name);
         }
         MyExcel myexcel = new MyExcel();
-        myexcel.writenaverupjong("info_"+upjong_name,upjonglist );
+        myexcel.writenaverupjong("info_" + upjong_name, upjonglist);
     }
 
-    public void getNaverUpjong(String upjong_code,String upjong_name, int max) {
+    public void getNaverUpjong(String upjong_code, String upjong_name, int max) {
 
         StockDic mydict = new StockDic();
-        final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no="+upjong_code;
+        final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no=" + upjong_code;
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
         System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
 
@@ -770,75 +791,84 @@ public class MyWeb {
         WebDriver driver = new ChromeDriver(options);
         driver.get(urlPost);
 
-        for(int i=1;i<=27;i++) {
-            WebElement option = driver.findElement(By.id("option"+Integer.toString(i)));
-            if(option.isSelected()) option.click();
+        for (int i = 1; i <= 27; i++) {
+            WebElement option = driver.findElement(By.id("option" + Integer.toString(i)));
+            if (option.isSelected()) option.click();
         }
         int index;
-        index = cboxname("시가총액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("영업이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("영업이익증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("당기순이익"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("매출액"); driver.findElement(By.id("option"+Integer.toString(index))).click();
-        index = cboxname("매출액증가율"); driver.findElement(By.id("option"+Integer.toString(index))).click();
+        index = cboxname("시가총액");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("영업이익");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("영업이익증가율");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("당기순이익");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("매출액");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
+        index = cboxname("매출액증가율");
+        driver.findElement(By.id("option" + Integer.toString(index))).click();
         driver.findElement(By.xpath("//a[@href='javascript:fieldSubmit()']")).click();
 
         List<WebElement> mythead = driver.findElements(By.tagName("thead"));
         List<WebElement> thlist = mythead.get(0).findElements(By.tagName("th"));
         List<String> header = new ArrayList<>();
         int size = thlist.size();
-        for(int i =0;i<size;i++) {
+        for (int i = 0; i < size; i++) {
             header.add(thlist.get(i).getText());
         }
-        header.add(0,"종목코드"); // 종목코드는 웹페이지에 없기 때문에 별도로 추가해준다
+        header.add(0, "종목코드"); // 종목코드는 웹페이지에 없기 때문에 별도로 추가해준다
 
         List<WebElement> mytbody = driver.findElements(By.tagName("tbody"));
         List<WebElement> trlist = mytbody.get(2).findElements(By.tagName("tr"));
         List<List<String>> upjonglist = new ArrayList<List<String>>();
 
-        if(max == -1 ) size = trlist.size();
+        if (max == -1) size = trlist.size();
         else size = max;
 
         String sizestr = Integer.toString(size);
-        for(int i=0;i<size;i++) {
+        for (int i = 0; i < size; i++) {
             List<String> one = new ArrayList<>();
             List<WebElement> tdlist = trlist.get(i).findElements(By.tagName("td"));
-            one.add(tdlist.get(0).getText().replace(" *",""));
+            one.add(tdlist.get(0).getText().replace(" *", ""));
             int size2 = tdlist.size();
-            for(int j = 1;j<size2;j++) {
+            for (int j = 1; j < size2; j++) {
                 one.add(tdlist.get(j).getText());
             }
             System.out.println(i + " " + one.get(0));
-            _cb.callback("download" + "\n" +Integer.toString(i)+"/"+sizestr +"\n" + one.get(0));
+            _cb.callback("download" + "\n" + Integer.toString(i) + "/" + sizestr + "\n" + one.get(0));
             String stock_code = mydict.getStockcode(one.get(0));
             one.add(0, stock_code);
             upjonglist.add(one);
         }
         MyExcel myexcel = new MyExcel();
-        upjonglist.add(0,header);
+        upjonglist.add(0, header);
         FormatStockInfo oneinfo = new FormatStockInfo();
-        myexcel.writenaverupjong2("group_"+upjong_name,upjonglist );
-        myexcel.writenaverupjong2("info_"+upjong_name,upjonglist );
+        myexcel.writenaverupjong2("group_" + upjong_name, upjonglist);
+        myexcel.writenaverupjong2("info_" + upjong_name, upjonglist);
     }
-    
+
     public int cboxname(String name) {
 
-        String checkname[] = {"거래량","매수호가","거래대금","시가총액","영업이익","PER",
-                                "시가","매도호가","전일거래량","자산총액","영업이익증가율","ROE",
-                                "고가","매수총잔량","외국인비율","부채총계","당기순이익","ROA",
-                                "저가", "매도총잔량","상장주식수","매출액","주당순이익","PBR",
-                                "매출액증가율","보통주배당금","유보율"};
-        int result=0;
-        for(int i =0;i<27;i++) {
-            if(name.equals(checkname[i])) { result = i; break;}
+        String checkname[] = {"거래량", "매수호가", "거래대금", "시가총액", "영업이익", "PER",
+                "시가", "매도호가", "전일거래량", "자산총액", "영업이익증가율", "ROE",
+                "고가", "매수총잔량", "외국인비율", "부채총계", "당기순이익", "ROA",
+                "저가", "매도총잔량", "상장주식수", "매출액", "주당순이익", "PBR",
+                "매출액증가율", "보통주배당금", "유보율"};
+        int result = 0;
+        for (int i = 0; i < 27; i++) {
+            if (name.equals(checkname[i])) {
+                result = i;
+                break;
+            }
         }
-        return result+1;
+        return result + 1;
     }
 
 
     public List<List<String>> getNaverGoodEarningStock(String count, boolean header_flag) {
 
-        final String urlPost = "https://finance.naver.com/sise/sise_market_sum.naver?&page="+count;
+        final String urlPost = "https://finance.naver.com/sise/sise_market_sum.naver?&page=" + count;
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
         System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
 
@@ -896,7 +926,7 @@ public class MyWeb {
             if (one.size() > 2) upjonglist.add(one);
         }
 
-        if(header_flag != false) upjonglist.add(0,header);
+        if (header_flag != false) upjonglist.add(0, header);
         return upjonglist;
     }
 
@@ -922,25 +952,26 @@ public class MyWeb {
         List<String> header = new ArrayList<>();
         List<WebElement> thlists = tbody.findElements(By.tagName("th"));
         int size3 = thlists.size();
-        for(int i =0;i<size3;i++) {
+        for (int i = 0; i < size3; i++) {
             header.add(thlists.get(i).getText());
         }
 
         List<List<String>> etflist = new ArrayList<List<String>>();
         List<WebElement> trlists = tbody.findElements(By.tagName("tr"));
         int size1 = trlists.size();
-        for(int i =0;i<size1;i++) {
+        for (int i = 0; i < size1; i++) {
             List<String> onelist = new ArrayList<>();
             List<WebElement> tdlists = trlists.get(i).findElements(By.tagName("td"));
             int size2 = tdlists.size();
-            if(size2 <= 2) continue;
-            for(int j =0;j<size2;j++) {
+            if (size2 <= 2) continue;
+            for (int j = 0; j < size2; j++) {
                 onelist.add(tdlists.get(j).getText());
             }
             etflist.add(onelist);
             System.out.println(onelist.toString());
         }
-        etflist.add(0,header);
+        etflist.add(0, header);
         return etflist;
     }
 }
+

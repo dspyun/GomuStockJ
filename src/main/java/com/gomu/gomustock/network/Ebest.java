@@ -23,6 +23,8 @@ import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.jsoup.Connection.Method.POST;
+
 
 public class Ebest {
 
@@ -36,11 +38,13 @@ public class Ebest {
     public void testmain()  {
         getToken();
         //getHOGA();
+        //getGIGANJUGA();
         //getNEWS();
         //newslit();
         //getNEWSList();
-        //getNEWSList_websocket_example();
-        getGIGANJUGA();
+        getNEWSList_websocket_example();
+
+
     }
 
     public void strSplit(StringBuffer sb) {
@@ -324,7 +328,7 @@ public class Ebest {
 
             // post에 header설정하고
             HttpPost post = new HttpPost(tokenRequestUrl);
-            post.setHeader("Contents-Type",ContentsType);
+            //post.setHeader("Contents-Type",ContentsType);
             post.setHeader("token",ACCESS_TOKEN);
             post.setHeader("tr_type","3"); // body에 쓰인 숫자와 동일해야 한다
 
@@ -351,11 +355,9 @@ public class Ebest {
                 System.out.println(output);
             }
 
-
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void newslit() {
@@ -368,17 +370,23 @@ public class Ebest {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
+            conn.setRequestProperty("Contents-Type",ContentsType);
+            conn.setRequestProperty("tr_type","3");
+            conn.setRequestProperty("token",ACCESS_TOKEN);
+            conn.setRequestProperty("Contents-Type",ContentsType);
+
             JSONObject jsonObject = new JSONObject();
             JSONObject inner1 = new JSONObject();
             inner1.put("tr_cd", "NWS");
             inner1.put("tr_key", "NWS001");
-            jsonObject.put("body",inner1);
-
+            //jsonObject.put("body",inner1);
+            /*
             JSONObject inner2 = new JSONObject();
             inner2.put("Contents-Type", ContentsType);
             inner2.put("tr_type", "3");
             inner2.put("token", ACCESS_TOKEN);
             jsonObject.put("header",inner2);
+            */
 
             byte[] body = jsonObject.toString().getBytes();
             conn.setFixedLengthStreamingMode(body.length);
@@ -386,6 +394,7 @@ public class Ebest {
 
             OutputStream out = conn.getOutputStream();
             out.write(body);
+
             System.out.println("Response code: " + conn.getResponseCode());
             BufferedReader rd;
             if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
@@ -420,11 +429,19 @@ public class Ebest {
 
         // 주식 호가 죄회 예제
         String ContentsType="application/json; utf-8";
-        String tokenRequestUrl = "wss://openapi.ebestsec.co.kr:9443/" + "websocket/etc";
+        String tokenRequestUrl = "wss://openapi.ebestsec.co.kr:9443" + "/websocket/etc";
 
         System.out.println("get newslist ------------------------\n");
         try {
 
+            URI uri = new URI(tokenRequestUrl);
+            WebSocketUtil webSocketUtil = new WebSocketUtil(uri, new Draft_6455());
+            webSocketUtil.connectBlocking();
+            /*
+            webSocketUtil.addHeader("token",ACCESS_TOKEN);
+            webSocketUtil.addHeader("tr_type","3");
+            webSocketUtil.addHeader("Contents-Type",ContentsType);
+            */
             JSONObject jsonObject = new JSONObject();
             JSONObject inner1 = new JSONObject();
             inner1.put("tr_cd", "NWS");
@@ -432,16 +449,12 @@ public class Ebest {
             jsonObject.put("body",inner1);
 
             JSONObject inner2 = new JSONObject();
+            inner2.put("token", ACCESS_TOKEN);
             inner2.put("Contents-Type", ContentsType);
             inner2.put("tr_type", "3");
-            inner2.put("token", ACCESS_TOKEN);
             jsonObject.put("header",inner2);
 
             System.out.println("sending  .... " + jsonObject.toString());
-
-            URI uri = new URI(tokenRequestUrl);
-            WebSocketUtil webSocketUtil = new WebSocketUtil(uri, new Draft_6455());
-            webSocketUtil.connectBlocking();
             //웹소켓 메세지 보내기
             webSocketUtil.send(jsonObject.toString());
 
@@ -451,18 +464,9 @@ public class Ebest {
             String output = result.toString();
             System.out.println("Output  .... " + output);
 
-
-            //JSONObject jobj = new JSONObject(respStr);
-            //JSONObject bodyobj = jobj.getJSONObject("t3102InBlock");
-                /*
-                String stock_name = bodyobj.getString("hname");
-                int hoga = bodyobj.getInt("offerho1");
-                System.out.println(stock_name + " 1단계호가 " + hoga);
-                */
-        } catch (InterruptedException  | URISyntaxException e) {
+        } catch (URISyntaxException | InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     public class WebSocketUtil extends WebSocketClient {
@@ -499,6 +503,5 @@ public class Ebest {
         }
 
     }
-
 
 }
