@@ -723,7 +723,7 @@ public class MyWeb {
 
         final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no=" + upjong_code;
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
-        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "c:\\webdriver\\chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
         options.setBinary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
@@ -774,6 +774,7 @@ public class MyWeb {
         }
         MyExcel myexcel = new MyExcel();
         myexcel.writenaverupjong("info_" + upjong_name, upjonglist);
+        driver.close();
     }
 
     public void getNaverUpjong(String upjong_code, String upjong_name, int max) {
@@ -781,7 +782,7 @@ public class MyWeb {
         StockDic mydict = new StockDic();
         final String urlPost = "https://finance.naver.com/sise/sise_group_detail.naver?type=upjong&no=" + upjong_code;
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
-        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "c:\\webdriver\\chromedriver.exe");
 
         _cb.callback("다운로드" + "\n" + "준비중");
         ChromeOptions options = new ChromeOptions();
@@ -846,6 +847,7 @@ public class MyWeb {
         FormatStockInfo oneinfo = new FormatStockInfo();
         myexcel.writenaverupjong2("group_" + upjong_name, upjonglist);
         myexcel.writenaverupjong2("info_" + upjong_name, upjonglist);
+        driver.close();
     }
 
     public int cboxname(String name) {
@@ -870,7 +872,7 @@ public class MyWeb {
 
         final String urlPost = "https://finance.naver.com/sise/sise_market_sum.naver?&page=" + count;
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
-        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "c:\\webdriver\\chromedriver.exe");
 
         List<List<String>> upjonglist = new ArrayList<List<String>>();
         List<String> header = new ArrayList<>();
@@ -927,6 +929,7 @@ public class MyWeb {
         }
 
         if (header_flag != false) upjonglist.add(0, header);
+        driver.close();
         return upjonglist;
     }
 
@@ -935,7 +938,7 @@ public class MyWeb {
 
         final String urlPost = "https://finance.naver.com/sise/etf.naver";
         //System.setProperty("webdriver.gecko.driver","d:\\driver\\geckodriver.exe");
-        System.setProperty("webdriver.chrome.driver", "d:\\driver\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "d:\\webdriver\\chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
         options.setBinary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
@@ -971,6 +974,7 @@ public class MyWeb {
             System.out.println(onelist.toString());
         }
         etflist.add(0, header);
+        driver.close();
         return etflist;
     }
 }

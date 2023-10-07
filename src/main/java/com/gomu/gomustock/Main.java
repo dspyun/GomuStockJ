@@ -35,10 +35,9 @@ public class Main extends JFrame{
 
        //Ebest ebest = new Ebest();
        //ebest.testmain();
-       //mytest();
+       mytest();
        // TabFrame();
-        NPS myweb = new NPS();
-        myweb.getNPSlist();
+
     }
 
 

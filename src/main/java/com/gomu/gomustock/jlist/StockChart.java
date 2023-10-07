@@ -138,7 +138,7 @@ public class StockChart {
 
     public XYChart GetPeriodChart(String stock_code) {
 
-        float maxprice;
+        float maxprice,minprice;
         float nowprice;
         if(stock_code.equals("278240")) {
             int test = 1;
@@ -156,6 +156,7 @@ public class StockChart {
         RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
         List<Float> rsi_line = rsitest.test_line();
         maxprice = Collections.max(kbband_close);
+        minprice = Collections.min(kbband_close);
         nowprice = kbband_close.get(kbband_close.size()-1);
 
         // Create Chart & add first data
@@ -176,6 +177,7 @@ public class StockChart {
         List<Float> buyscore = bbtest.scaled_percentb();
         XYSeries series_b = chart.addSeries("buysignal",buyscore);
         series_b.setLineWidth(linewidth);
+        float tagposition = buyscore.get(buyscore.size()-1);
 
         IchimokuTest ichi = new IchimokuTest("005930", kbband_close, test_period);
         List<Float> prospan1line = ichi.getProspan1();
@@ -198,13 +200,15 @@ public class StockChart {
         chart.getStyler().setSeriesColors(colors);
         chart.getStyler().setLegendVisible(false);
 
-        Float diff_percent = 100*nowprice/maxprice;
+        Float diff_percent = 100*(nowprice-minprice)/(maxprice-minprice);
         String anntext = String.format("%.1f",diff_percent);
         anntext += "\n" + String.format("%.0f",nowprice);
         //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
         //chart.addAnnotation(maxText);
+        float position = (float)((maxprice-minprice)*0.8)+minprice;
         chart.addAnnotation(
-                new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*0.8, false)); // Collections.max(x)
+                new AnnotationTextPanel(anntext, prospan2line.size(), position, false)); // Collections
+                //new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*0.8, false)); // Collections.max(x)
         chart.getStyler().setAnnotationTextPanelPadding(0);
         chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
         //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
@@ -217,7 +221,7 @@ public class StockChart {
 
     public XYChart GetPeriodChart(String stock_code, int period) {
 
-        float maxprice;
+        float maxprice,minprice;
         float nowprice;
 
         float position;
@@ -225,11 +229,9 @@ public class StockChart {
         float scalelevel=0;
         if(period <=60) {
             scalelevel = 0.05f;
-            position = 0.95f;
         }
         else {
             scalelevel = 0.15f;
-            position = 0.8f;
         }
 
         Color[] colors = {Color.RED, Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.ORANGE,Color.BLUE};
@@ -244,6 +246,7 @@ public class StockChart {
         RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
         List<Float> rsi_line = rsitest.test_line();
         maxprice = Collections.max(kbband_close);
+        minprice = Collections.min(kbband_close);
         nowprice = kbband_close.get(kbband_close.size()-1);
 
         // Create Chart & add first data
@@ -262,6 +265,7 @@ public class StockChart {
         List<Float> buyscore = bbtest.scaled_percentb();
         XYSeries series_b = chart.addSeries("buysignal",buyscore);
         series_b.setLineWidth(linewidth);
+
 
         IchimokuTest ichi = new IchimokuTest("005930", kbband_close, test_period);
         List<Float> prospan1line = ichi.getProspan1();
@@ -285,13 +289,15 @@ public class StockChart {
         chart.getStyler().setLegendVisible(false);
 
 
-        Float diff_percent = 100*nowprice/maxprice;
+        Float diff_percent = 100*(nowprice-minprice)/(maxprice-minprice);
         String anntext = String.format("%.1f",diff_percent);
         anntext += "\n" + String.format("%.0f",nowprice);
         //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
         //chart.addAnnotation(maxText);
+        position = (float)((maxprice-minprice)*0.8)+minprice;
         chart.addAnnotation(
-                new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*position, false));
+                new AnnotationTextPanel(anntext, prospan2line.size(), position, false));
+        //new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*position, false));
         chart.getStyler().setAnnotationTextPanelPadding(0);
         chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
         //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);

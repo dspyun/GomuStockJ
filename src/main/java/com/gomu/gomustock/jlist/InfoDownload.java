@@ -190,7 +190,7 @@ public class InfoDownload {
         //String filename = "group_new";
 
         _cb.callback("종목뽑기");
-        int size = 10; // 1페이지 50개, 10페이지면 500개
+        int size = 20; // 1페이지 50개, 10페이지면 500개
         List<List<String>> stock_llist = new ArrayList<List<String>>();
         stock_llist = myweb.getNaverGoodEarningStock("1", true);
         for(int i=2;i<size;i++) {
